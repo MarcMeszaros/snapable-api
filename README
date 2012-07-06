@@ -1,0 +1,31 @@
+CONTENTS OF THIS FILE
+---------------------
+
+ * Introduction
+ * Requirements
+ * Installation
+
+
+INTRODUCTION
+------------
+
+This is the main API code used for Snapable.
+
+REQUIREMENTS
+------------
+
+The following are the minimum requirements:
+
+- python 2.5+ (http://www.python.org/)
+- Django 1.4+ (https://www.djangoproject.com/)
+- Piston 0.2.3+ (https://bitbucket.org/jespern/django-piston)
+
+INSTALLATION
+------------
+
+Simply run the application using wsgi. Using gunicorn (http://gunicorn.org/) is recommended.
+
+EXAMPLE (using gunicorn):
+From the root directory, run the following on the command line:
+
+    gunicorn api.wsgi:application
