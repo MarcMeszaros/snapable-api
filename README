@@ -16,7 +16,8 @@ REQUIREMENTS
 
 The following are the minimum requirements:
 
-- python 2.5+ (http://www.python.org/)
+- python 2.6+ (http://www.python.org/)
+- MySQLdb 1.2.2+ (http://sourceforge.net/projects/mysql-python)
 - Django 1.4+ (https://www.djangoproject.com/)
 - Piston 0.2.3+ (https://bitbucket.org/jespern/django-piston)
 
