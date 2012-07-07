@@ -21,16 +21,31 @@ The following are the minimum system requirements:
 * MySQLdb 1.2.2+ (http://sourceforge.net/projects/mysql-python)
 - Django 1.4+ (https://www.djangoproject.com/)
 - South 0.7.5+ (https://bitbucket.org/andrewgodwin/south)
-- Piston 0.2.3+ (https://bitbucket.org/jespern/django-piston)
+- Piston 0.3dev+ - changeset 7c90898072ce or newer (https://bitbucket.org/jespern/django-piston)
 
 NOTE: * items are installed from the Debian distrubution using APT.
 
 INSTALLATION
 ------------
 
-Simply run the application using wsgi. Using gunicorn (http://gunicorn.org/) is recommended.
+The installation assumes that the following steps are executed on a server that meets the requirements.
+The application is set to use the following MySQL credentials by default:
+	
+	host: localhost
+	user: root
+	pass: snapable12345
+	db: snapabledb
 
-EXAMPLE (using gunicorn):
-From the root directory, run the following on the command line:
+1. Get the source code.
+2. Setup the migration management via south/django and the "syncdb" command.
+3. Apply the database migrations.
+4. Simply run the application using wsgi. Using gunicorn (http://gunicorn.org/) is recommended.
 
-    gunicorn api.wsgi:application
+INSTALLATION EXAMPLE:
+Run the following on the command line:
+
+	> git clone git@bitbucket.org:snapable/api.git snapable
+	> cd snapable
+	> ./manage.py syncdb
+	> ./manage.py migrate api.data
+    > gunicorn api.wsgi:application
