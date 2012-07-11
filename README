@@ -17,11 +17,12 @@ REQUIREMENTS
 Development is done on Debian 6.0.5 (a.k.a. Squeeze) systems (http://www.debian.org/).
 The following are the minimum system requirements:
 
-* python 2.6+ (http://www.python.org/)
+* python 2.6+ (http://www.python.org/) Note: "python-dev" package required to install "Netifaces"
 * MySQLdb 1.2.2+ (http://sourceforge.net/projects/mysql-python)
 - Django 1.4+ (https://www.djangoproject.com/)
 - South 0.7.5+ (https://bitbucket.org/andrewgodwin/south)
 - Piston 0.3dev+ - changeset 7c90898072ce or newer (https://bitbucket.org/jespern/django-piston)
+- Netifaces 0.8+ (http://alastairs-place.net/projects/netifaces/)
 
 NOTE: * items are installed from the Debian distrubution using APT.
 
@@ -30,11 +31,11 @@ INSTALLATION
 
 The installation assumes that the following steps are executed on a server that meets the requirements.
 The application is set to use the following MySQL credentials by default:
-	
-	host: localhost
-	user: root
-	pass: snapable12345
-	db: snapabledb
+
+    host: localhost
+    user: root
+    pass: snapable12345
+    db: snapabledb
 
 1. Get the source code.
 2. Setup the migration management via south/django and the "syncdb" command.
@@ -44,8 +45,8 @@ The application is set to use the following MySQL credentials by default:
 INSTALLATION EXAMPLE:
 Run the following on the command line:
 
-	> git clone git@bitbucket.org:snapable/api.git snapable
-	> cd snapable
-	> ./manage.py syncdb
-	> ./manage.py migrate api.data
-    > gunicorn api.wsgi:application
+    > git clone git@bitbucket.org:snapable/api.git snapable
+    > cd snapable
+    > ./manage.py syncdb
+    > ./manage.py migrate api.data
+    > ./manage.py run_gunicorn -c gunicorn_config.py

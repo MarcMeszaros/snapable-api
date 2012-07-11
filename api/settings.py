@@ -123,6 +123,7 @@ INSTALLED_APPS = (
     'api.data',
     # custom installed APPS
     'south',
+    'gunicorn',
 )
 
 # A sample logging configuration. The only tangible logging
