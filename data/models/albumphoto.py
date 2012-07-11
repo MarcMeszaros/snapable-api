@@ -1,9 +1,10 @@
 from django.db import models
-from api.data.models.album import Album
-from api.data.models.photo import Photo
+from data.models.album import Album
+from data.models.photo import Photo
 
 class AlbumPhoto(models.Model):
-    
+
+    # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
 

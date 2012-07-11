@@ -1,12 +1,13 @@
 from django.db import models
-from api.data.models.user import User
-from api.data.models.package import Package
+from data.models.user import User
+from data.models.package import Package
 
 class Event(models.Model):
-    
+
+    # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
-
+    
     user = models.ForeignKey(User)
     package = models.ForeignKey(Package)
     start = models.DateTimeField()

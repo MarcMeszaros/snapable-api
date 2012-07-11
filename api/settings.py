@@ -120,7 +120,7 @@ INSTALLED_APPS = (
     #'django.contrib.staticfiles',
 
     # various sub-apps for snapable
-    'api.data',
+    'data',
     # custom installed APPS
     'south',
     'gunicorn',

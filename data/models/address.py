@@ -1,8 +1,9 @@
 from django.db import models
-from api.data.models.event import Event
+from data.models.event import Event
 
 class Address(models.Model):
     
+    # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
 

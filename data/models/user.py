@@ -2,6 +2,7 @@ from django.db import models
 
 class User(models.Model):
 
+    # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
 

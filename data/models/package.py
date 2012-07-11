@@ -1,10 +1,11 @@
 from django.db import models
 
 class Package(models.Model):
-    
+
+    # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
-
+    
     short_name = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=6, decimal_places=2) # 9999.99
