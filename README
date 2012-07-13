@@ -23,6 +23,7 @@ The following are the minimum system requirements:
 - South 0.7.5+ (https://bitbucket.org/andrewgodwin/south)
 - Piston 0.3dev+ - changeset 7c90898072ce or newer (https://bitbucket.org/jespern/django-piston)
 - Netifaces 0.8+ (http://alastairs-place.net/projects/netifaces/)
+- setproctitle 1.1.6+ (https://github.com/dvarrazzo/py-setproctitle)
 
 NOTE: * items are installed from the Debian distrubution using APT.
 
