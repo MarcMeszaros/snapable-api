@@ -154,3 +154,12 @@ LOGGING = {
         },
     }
 }
+
+# import local settings
+import os
+try:
+    os.path.isfile('../settings_local.py')
+    from settings_local import *
+    print 'Imported local settings file.'
+except Exception, e:
+    print 'No local settings file, using defaults.'
