@@ -121,7 +121,8 @@ INSTALLED_APPS = (
 
     # various sub-apps for snapable
     'data',
-    # custom installed APPS
+    # third-party libraries/apps
+    'tastypie',
     'south',
     'gunicorn',
 )
