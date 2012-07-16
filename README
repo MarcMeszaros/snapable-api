@@ -21,11 +21,11 @@ The following are the minimum system requirements:
 * MySQLdb 1.2.2+ (http://sourceforge.net/projects/mysql-python)
 - Django 1.4+ (https://www.djangoproject.com/)
 - South 0.7.5+ (https://bitbucket.org/andrewgodwin/south)
-- Piston 0.3dev+ - changeset 7c90898072ce or newer (https://bitbucket.org/jespern/django-piston)
+- Tastypie 0.9.11+ (TBD)
 - Netifaces 0.8+ (http://alastairs-place.net/projects/netifaces/)
 - setproctitle 1.1.6+ (https://github.com/dvarrazzo/py-setproctitle)
 
-NOTE: * items are installed from the Debian distrubution using APT.
+NOTE: * items are installed from the Debian distribution using APT.
 
 INSTALLATION
 ------------
@@ -49,5 +49,5 @@ Run the following on the command line:
     > git clone git@bitbucket.org:snapable/api.git snapable
     > cd snapable
     > ./manage.py syncdb
-    > ./manage.py migrate api.data
+    > ./manage.py migrate data
     > ./manage.py run_gunicorn -c gunicorn_config.py
