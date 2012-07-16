@@ -156,6 +156,9 @@ LOGGING = {
     }
 }
 
+# tastypie settings
+API_LIMIT_PER_PAGE = 50
+
 # import local settings
 import os
 try:
