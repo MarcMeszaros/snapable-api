@@ -1,6 +1,7 @@
 from django.db import models
-from data.models.event import Event
-from data.models.type import Type
+
+from data.models import Event
+from data.models import Type
 
 class Guest(models.Model):
 
@@ -10,6 +11,5 @@ class Guest(models.Model):
     
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     type = models.ForeignKey(Type, on_delete=models.CASCADE)
-    start = models.DateTimeField()
     name = models.CharField(max_length=255)
     email = models.CharField(max_length=255)

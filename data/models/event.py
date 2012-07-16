@@ -1,6 +1,7 @@
 from django.db import models
-from data.models.user import User
-from data.models.package import Package
+
+from data.models import Package
+from data.models import User
 
 class Event(models.Model):
 

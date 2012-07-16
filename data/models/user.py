@@ -13,6 +13,5 @@ class User(models.Model):
     last_name = models.CharField(max_length=255)
     billing_zip = models.CharField(max_length=11)
     terms = models.BooleanField(default=False)
-    #user_type = models.PositiveSmallIntegerField(max_length=2, choices=USER_TYPE_CHOICES, default=TYPE_CREATOR)
     creation_date = models.DateTimeField(auto_now_add=True)
     last_access = models.DateTimeField(auto_now_add=True)

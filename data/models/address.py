@@ -1,5 +1,6 @@
 from django.db import models
-from data.models.event import Event
+
+from data.models import Event
 
 class Address(models.Model):
     

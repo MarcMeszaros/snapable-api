@@ -1,6 +1,7 @@
 from django.db import models
-from data.models.event import Event
-from data.models.type import Type
+
+from data.models import Event
+from data.models import Type
 
 class Album(models.Model):
 

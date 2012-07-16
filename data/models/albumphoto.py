@@ -1,6 +1,7 @@
 from django.db import models
-from data.models.album import Album
-from data.models.photo import Photo
+
+from data.models import Album
+from data.models import Photo
 
 class AlbumPhoto(models.Model):
 
