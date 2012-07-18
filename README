@@ -15,15 +15,18 @@ REQUIREMENTS
 ------------
 
 Development is done on Debian 6.0.5 (a.k.a. Squeeze) systems (http://www.debian.org/).
+You can view the library versions developed against in the "requirements.txt" file.
+To install all the libraries at once using pip (http://www.pip-installer.org/).
+
 The following are the minimum system requirements:
 
 * python 2.6+ (http://www.python.org/) Note: "python-dev" package required to install "Netifaces"
-* MySQLdb 1.2.2+ (http://sourceforge.net/projects/mysql-python)
-- Django 1.4+ (https://www.djangoproject.com/)
-- South 0.7.5+ (https://bitbucket.org/andrewgodwin/south)
-- Tastypie 0.9.11+ (TBD)
-- Netifaces 0.8+ (http://alastairs-place.net/projects/netifaces/)
-- setproctitle 1.1.6+ (https://github.com/dvarrazzo/py-setproctitle)
+- MySQLdb (http://sourceforge.net/projects/mysql-python)
+- Django (https://www.djangoproject.com/)
+- South (https://bitbucket.org/andrewgodwin/south)
+- Tastypie (https://github.com/toastdriven/django-tastypie)
+- Netifaces (http://alastairs-place.net/projects/netifaces/)
+- setproctitle (https://github.com/dvarrazzo/py-setproctitle)
 
 NOTE: * items are installed from the Debian distribution using APT.
 
