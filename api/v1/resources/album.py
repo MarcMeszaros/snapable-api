@@ -7,3 +7,4 @@ class AlbumResource(ModelResource):
         fields = ['short_name', 'name']
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
+        always_return_data = True

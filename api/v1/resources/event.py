@@ -7,3 +7,4 @@ class EventResource(ModelResource):
         fields = ['title']
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
+        always_return_data = True
