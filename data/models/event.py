@@ -18,5 +18,5 @@ class Event(models.Model):
     pin = models.CharField(max_length=255)
     creation_date = models.DateTimeField(auto_now_add=True)
     last_access = models.DateTimeField(auto_now_add=True)
-    access_count = models.IntegerField()
+    access_count = models.IntegerField(default=0)
     enabled = models.BooleanField()
