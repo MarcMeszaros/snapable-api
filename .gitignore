@@ -19,6 +19,7 @@ nbproject/*
 
 # Build Directory/File #
 ########################
+build/*
 *\.pyc
 
 # ignore other files
