@@ -156,6 +156,11 @@ LOGGING = {
     }
 }
 
+# django passwords
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+)
+
 # tastypie settings
 API_LIMIT_PER_PAGE = 50
 

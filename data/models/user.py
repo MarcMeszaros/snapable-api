@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from django.contrib.auth.hashers import (check_password, make_password, is_password_usable)
 
 class User(models.Model):
 
@@ -15,3 +17,6 @@ class User(models.Model):
     terms = models.BooleanField(default=False)
     creation_date = models.DateTimeField(auto_now_add=True)
     last_access = models.DateTimeField(auto_now_add=True)
+
+    def set_password(self, raw_password, salt=settings.SECRET_KEY):
+        self.password = make_password(raw_password, salt)
