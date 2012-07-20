@@ -4,6 +4,7 @@ from resources import AddressResource
 from resources import AlbumResource
 from resources import EventResource
 from resources import PhotoResource
+from resources import PackageResource
 from resources import UserResource
 
 class SnapableApi(Api):
@@ -14,4 +15,5 @@ class SnapableApi(Api):
         self.register(AlbumResource())
         self.register(EventResource())
         self.register(PhotoResource())
+        self.register(PackageResource())
         self.register(UserResource())

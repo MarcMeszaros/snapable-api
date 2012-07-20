@@ -1,12 +1,19 @@
 import api.v1.resources
+from tastypie import fields
 from tastypie.authorization import Authorization
+
+from package import PackageResource
+from user import UserResource
 
 class EventResource(api.v1.resources.EventResource):
 
+    user = fields.ForeignKey(UserResource, 'user')
+    package = fields.ForeignKey(PackageResource, 'package')
+
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
-    Meta.fields += ['package_id']
+    Meta.fields += []
     Meta.list_allowed_methods += ['post']
     Meta.authorization = Authorization()
 
     def __init__(self):
-        api.v1.resources.EventResource.__init__(self)
+        api.v1.resources.EventResource.__init__(self) 
