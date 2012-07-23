@@ -6,7 +6,8 @@ class UserResource(api.v1.resources.UserResource):
 
     Meta = api.v1.resources.UserResource.Meta # set Meta to the public API Meta
     Meta.fields += ['billing_zip', 'terms']
-    Meta.list_allowed_methods += ['post']
+    Meta.list_allowed_methods = ['get', 'post']
+    Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.authorization = Authorization()
 
     def __init__(self):

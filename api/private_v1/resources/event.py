@@ -12,7 +12,8 @@ class EventResource(api.v1.resources.EventResource):
 
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
     Meta.fields += []
-    Meta.list_allowed_methods += ['post']
+    Meta.list_allowed_methods = ['get', 'post']
+    Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.authorization = Authorization()
 
     def __init__(self):
