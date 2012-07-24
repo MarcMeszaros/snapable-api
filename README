@@ -27,6 +27,7 @@ The following are the minimum system requirements:
 - Tastypie (https://github.com/toastdriven/django-tastypie)
 - Netifaces (http://alastairs-place.net/projects/netifaces/)
 - setproctitle (https://github.com/dvarrazzo/py-setproctitle)
+- Rackspace Cloudfiles (https://github.com/rackspace/python-cloudfiles)
 
 NOTE: * items are installed from the Debian distribution using APT.
 
