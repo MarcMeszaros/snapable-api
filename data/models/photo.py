@@ -14,7 +14,6 @@ class Photo(models.Model):
     event = models.ForeignKey(Event)
     guest = models.ForeignKey(Guest)
     type = models.ForeignKey(Type)
-    filename = models.CharField(max_length=255, unique=True)
     caption = models.CharField(max_length=255)
     streamable = models.BooleanField()
     timestamp = models.DateTimeField(auto_now_add=True)
