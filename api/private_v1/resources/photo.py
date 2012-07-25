@@ -10,6 +10,8 @@ from event import EventResource
 from guest import GuestResource
 from type import TypeResource
 
+from api.serializers import SnapableSerializer
+
 class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource):
 
     event = fields.ForeignKey(EventResource, 'event')
@@ -21,11 +23,12 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.authorization = Authorization()
+    Meta.serializer = SnapableSerializer(formats=['json', 'jpeg'])
 
     def __init__(self):
         api.v1.resources.PhotoResource.__init__(self)
 
-    def hydrate(self, bundle):#
+    def hydrate(self, bundle):
         bundle.obj.event_id = bundle.data['event']
         bundle.obj.guest_id = bundle.data['guest']
         bundle.obj.type_id = bundle.data['type']
@@ -42,7 +45,7 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
         cont = None
         try:
             cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(bundle.obj.event_id / 1000))
-        except cloudfiles.errors.NoSuchContainer as container_name:
+        except cloudfiles.errors.NoSuchContainer as e:
             cont = conn.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(bundle.obj.event_id / 1000))
 
         obj = cont.create_object(str(bundle.obj.event_id) + '/' + str(bundle.obj.id) + '_orig.jpg')
