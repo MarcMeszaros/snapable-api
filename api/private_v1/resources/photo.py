@@ -1,4 +1,8 @@
+import api.multi
 import api.v1.resources
+import cloudfiles
+from django.conf import settings
+
 from tastypie import fields
 from tastypie.authorization import Authorization
 
@@ -6,16 +10,44 @@ from event import EventResource
 from guest import GuestResource
 from type import TypeResource
 
-class PhotoResource(api.v1.resources.PhotoResource):
+class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource):
 
     event = fields.ForeignKey(EventResource, 'event')
     guest = fields.ForeignKey(GuestResource, 'guest')
     type = fields.ForeignKey(TypeResource, 'type')
 
     Meta = api.v1.resources.PhotoResource.Meta # set Meta to the public API Meta
+    Meta.fields += ['metrics']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.authorization = Authorization()
 
     def __init__(self):
         api.v1.resources.PhotoResource.__init__(self)
+
+    def hydrate(self, bundle):#
+        bundle.obj.event_id = bundle.data['event']
+        bundle.obj.guest_id = bundle.data['guest']
+        bundle.obj.type_id = bundle.data['type']
+
+        return bundle
+
+    def obj_create(self, bundle, request=None, **kwargs):
+        bundle = super(PhotoResource, self).obj_create(bundle, request)
+
+        #US-based Cloud Files accounts - uncomment if your account is in the US
+        conn = cloudfiles.Connection(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY, 10)
+
+        #connect to container
+        cont = None
+        try:
+            cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(bundle.obj.event_id / 1000))
+        except cloudfiles.errors.NoSuchContainer as container_name:
+            cont = conn.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(bundle.obj.event_id / 1000))
+
+        obj = cont.create_object(str(bundle.obj.event_id) + '/' + str(bundle.obj.id) + '_orig.jpg')
+        #if the content_type is not specified the binding will attempt to guess the correct type
+        obj.content_type = 'image/jpeg'
+        obj.write(bundle.data['image'])
+
+        return bundle
