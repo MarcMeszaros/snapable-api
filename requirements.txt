@@ -6,3 +6,4 @@ gunicorn==0.14.5
 netifaces==0.8
 setproctitle==1.1.6
 python-cloudfiles==1.7.10
+pytz>=2012d
