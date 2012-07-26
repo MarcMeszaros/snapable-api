@@ -1,3 +1,4 @@
+import api.auth
 import api.v1.resources
 from tastypie.authorization import Authorization
 
@@ -7,6 +8,7 @@ class PackageResource(api.v1.resources.PackageResource):
     Meta.fields += []
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
+    Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = Authorization()
 
     def __init__(self):

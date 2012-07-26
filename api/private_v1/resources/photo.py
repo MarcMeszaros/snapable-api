@@ -1,3 +1,4 @@
+import api.auth
 import api.multi
 import api.v1.resources
 import cloudfiles
@@ -22,6 +23,7 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
     Meta.fields += ['metrics']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
+    Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = Authorization()
     Meta.serializer = SnapableSerializer(formats=['json', 'jpeg'])
 

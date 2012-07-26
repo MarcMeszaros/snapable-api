@@ -1,3 +1,4 @@
+import api.auth
 import api.v1.resources
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest
@@ -8,6 +9,7 @@ class UserResource(api.v1.resources.UserResource):
     Meta.fields += ['billing_zip', 'terms']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
+    Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = Authorization()
 
     def __init__(self):

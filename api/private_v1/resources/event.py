@@ -1,3 +1,4 @@
+import api.auth
 import api.v1.resources
 from tastypie import fields
 from tastypie.authorization import Authorization
@@ -14,6 +15,7 @@ class EventResource(api.v1.resources.EventResource):
     Meta.fields += []
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
+    Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = Authorization()
 
     def __init__(self):

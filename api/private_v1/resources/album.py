@@ -1,3 +1,4 @@
+import api.auth
 import api.v1.resources
 from tastypie import fields
 from tastypie.authorization import Authorization
@@ -15,6 +16,7 @@ class AlbumResource(api.v1.resources.AlbumResource):
     Meta.fields += [] # fields = ['short_name', 'name', 'description', 'creation_date']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
+    Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = Authorization()
 
     def __init__(self):
