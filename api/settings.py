@@ -158,6 +158,7 @@ LOGGING = {
 
 # django passwords
 PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
 
