@@ -173,3 +173,6 @@ try:
     print 'Imported local settings file.'
 except Exception, e:
     print 'No local settings file, using defaults.'
+
+# make the tastypie debug value whatever the debug value django is after local settings are applied
+TASTYPIE_FULL_DEBUG = DEBUG
