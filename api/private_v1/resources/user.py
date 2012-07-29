@@ -17,7 +17,7 @@ class UserResource(api.v1.resources.UserResource):
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.authentication = api.auth.ServerAuthentication()
-    Meta.authorization = Authorization()
+    Meta.authorization = api.auth.ServerAuthorization()
 
     def __init__(self):
         api.v1.resources.UserResource.__init__(self)
@@ -43,7 +43,12 @@ class UserResource(api.v1.resources.UserResource):
 
         if 'password' in bundle.data.keys():
             bundle.obj.set_password(bundle.data['password'])
-        else:
+        elif (
+                'password_algorithm' in bundle.data.keys() or 
+                'password_iterations' in bundle.data.keys() or 
+                'password_salt' in bundle.data.keys() or 
+                'password_hash' in bundle.data.keys()
+            ):
             try:
                 password = []
                 password.append(bundle.data['password_algorithm'])
