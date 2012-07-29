@@ -5,9 +5,13 @@ import pytz
 
 from datetime import datetime, timedelta
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest
+
+from data.models import User
 
 class ServerAuthentication(Authentication):
     def is_authenticated(self, request, **kwargs):
@@ -54,4 +58,54 @@ class ServerAuthentication(Authentication):
 
 class ServerAuthorization(Authorization):
     def is_authorized(self, request, object=None):
+        # if in debug mode, always authenticate
+        #if settings.DEBUG == True:
+        #    return True
+
+        if not 'HTTP_X_SNAP_USER' in request.META and (request.method in ['GET', 'POST']):
             return True
+
+        try:
+            # get the header data
+            x_snap_user = request.META['HTTP_X_SNAP_USER']
+            user_details = x_snap_user.strip().split(':')
+
+            # get the user model matching the email
+            user = User.objects.get(email=user_details[0])
+
+            # get the matched user's password data
+            db_pass = user.password.split('$', 1)
+            pass_data = {}
+
+            # various data based on db_pass type
+            if db_pass[0] == 'bcrypt':
+                pass_data['password_algorithm'] = db_pass[0]
+                pass_data['password_data'] = db_pass[1]
+
+            elif db_pass[0] == 'pbkdf2_sha256':
+                pass_parts = db_pass[1].split('$')
+                pass_data['password_hash'] = pass_parts[2]
+
+            # if the db password hash and the one in the header match, display the user details
+            if pass_data['password_hash'] == user_details[1]:
+                return True
+            else:
+                return False
+
+        except:
+            return False
+
+    # Optional but useful for advanced limiting, such as per user.
+    def apply_limits(self, request, object_list):
+        if request and 'HTTP_X_SNAP_USER' in request.META:
+            # get the header data
+            x_snap_user = request.META['HTTP_X_SNAP_USER']
+            user_details = x_snap_user.strip().split(':')
+
+            # apply filtering based on different query sets
+            if len(object_list) > 0 and isinstance(object_list[0], User):
+                return object_list.filter(email=user_details[0])
+            else:
+                return object_list
+
+        return object_list
