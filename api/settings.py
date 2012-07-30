@@ -170,9 +170,8 @@ import os
 try:
     os.path.isfile('../settings_local.py')
     from settings_local import *
-    print 'Imported local settings file.'
 except Exception, e:
-    print 'No local settings file, using defaults.'
+    pass
 
 # make the tastypie debug value whatever the debug value django is after local settings are applied
 TASTYPIE_FULL_DEBUG = DEBUG
