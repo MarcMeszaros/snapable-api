@@ -14,7 +14,7 @@ daemon = True
 
 # setup logging
 accesslog = os.path.join('logs', 'access.log')
-errorlog = os.path.join('logs', 'access.log')
+errorlog = os.path.join('logs', 'error.log')
 
 # create the 'logs' folder if it doesn't already exist
 if not os.path.exists(os.path.join(os.getcwd(), 'logs')):
