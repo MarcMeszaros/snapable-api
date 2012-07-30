@@ -1,5 +1,5 @@
 from tastypie import fields
-from tastypie.resources import ModelResource
+from tastypie.resources import ALL, ModelResource
 from data.models import Event
 
 from user import UserResource
@@ -14,3 +14,6 @@ class EventResource(ModelResource):
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
         always_return_data = True
+        filtering = {
+            'url': ALL,
+        }
