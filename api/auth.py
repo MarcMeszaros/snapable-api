@@ -59,8 +59,8 @@ class ServerAuthentication(Authentication):
 class ServerAuthorization(Authorization):
     def is_authorized(self, request, object=None):
         # if in debug mode, always authenticate
-        #if settings.DEBUG == True:
-        #    return True
+        if settings.DEBUG == True:
+            return True
 
         if not 'HTTP_X_SNAP_USER' in request.META and (request.method in ['GET', 'POST']):
             return True
@@ -97,6 +97,10 @@ class ServerAuthorization(Authorization):
 
     # Optional but useful for advanced limiting, such as per user.
     def apply_limits(self, request, object_list):
+        # if in debug mode, always authenticate
+        if settings.DEBUG == True:
+            return object_list
+
         if request and 'HTTP_X_SNAP_USER' in request.META:
             # get the header data
             x_snap_user = request.META['HTTP_X_SNAP_USER']
