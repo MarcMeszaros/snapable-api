@@ -1,4 +1,5 @@
 import api.auth
+import api.loggers
 import api.multi
 import api.v1.resources
 import cloudfiles
@@ -49,6 +50,7 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
             cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(bundle.obj.event_id / 1000))
         except cloudfiles.errors.NoSuchContainer as e:
             cont = conn.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(bundle.obj.event_id / 1000))
+            api.loggers.Log.i('created a new container: ' + settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(bundle.obj.event_id / 1000))
 
         obj = cont.create_object(str(bundle.obj.event_id) + '/' + str(bundle.obj.id) + '_orig.jpg')
         #if the content_type is not specified the binding will attempt to guess the correct type
