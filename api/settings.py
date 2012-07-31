@@ -1,5 +1,22 @@
-# Django settings for api project.
+import os
 
+# create the 'logs' folder(s) if it doesn't already exist
+if not os.path.exists(os.path.join(os.getcwd(), 'logs')):
+    os.makedirs(os.path.join(os.getcwd(), 'logs'))
+if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'debug')):
+    os.makedirs(os.path.join(os.getcwd(), 'logs', 'debug'))
+if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'info')):
+    os.makedirs(os.path.join(os.getcwd(), 'logs', 'info'))
+if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'warning')):
+    os.makedirs(os.path.join(os.getcwd(), 'logs', 'warning'))
+if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'error')):
+    os.makedirs(os.path.join(os.getcwd(), 'logs', 'error'))
+if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'critical')):
+    os.makedirs(os.path.join(os.getcwd(), 'logs', 'critical'))
+if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'firehose')):
+    os.makedirs(os.path.join(os.getcwd(), 'logs', 'firehose'))
+
+# Django settings for api project.
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -127,9 +144,6 @@ INSTALLED_APPS = (
     'gunicorn',
 )
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 LOGGING = {
@@ -141,13 +155,71 @@ LOGGING = {
         }
     },
     'handlers': {
+        'file.firehose': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join('logs', 'firehose', 'firehose.log'),
+            'when': 'midnight', # rotate at midnight
+            'backupCount': 7,
+            'utc': True,
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'file.critical': {
+            'level': 'CRITICAL',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join('logs', 'critical', 'critical.log'),
+            'when': 'midnight', # rotate at midnight
+            'backupCount': 30,
+            'utc': True,
+        },
+        'file.error': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join('logs', 'error', 'error.log'),
+            'when': 'midnight', # rotate at midnight
+            'backupCount': 30,
+            'utc': True,
+        },
+        'file.warning': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join('logs', 'warning', 'warning.log'),
+            'when': 'midnight', # rotate at midnight
+            'backupCount': 30,
+            'utc': True,
+        },
+        'file.info': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join('logs', 'info', 'info.log'),
+            'when': 'midnight', # rotate at midnight
+            'backupCount': 30,
+            'utc': True,
+        },
+        'file.debug': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join('logs', 'debug', 'debug.log'),
+            'when': 'midnight', # rotate at midnight
+            'backupCount': 30,
+            'utc': True,
+        },
     },
     'loggers': {
+        '': {
+            'handlers': ['file.firehose', 'mail_admins'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'snapable': {
+            'handlers': ['file.debug', 'file.info', 'file.warning', 'file.error', 'file.critical', 'mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
@@ -166,11 +238,10 @@ PASSWORD_HASHERS = (
 API_LIMIT_PER_PAGE = 50
 
 # import local settings
-import os
 try:
     os.path.isfile('../settings_local.py')
     from settings_local import *
-except Exception, e:
+except Exception as e:
     pass
 
 # make the tastypie debug value whatever the debug value django is after local settings are applied

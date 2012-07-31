@@ -13,9 +13,5 @@ workers = multiprocessing.cpu_count() * 2 + 1
 daemon = True
 
 # setup logging
-accesslog = os.path.join('logs', 'access.log')
-errorlog = os.path.join('logs', 'error.log')
-
-# create the 'logs' folder if it doesn't already exist
-if not os.path.exists(os.path.join(os.getcwd(), 'logs')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs'))
+accesslog = os.path.join(os.getcwd(), 'logs', 'access.log')
+errorlog = os.path.join(os.getcwd(), 'logs', 'error.log')
