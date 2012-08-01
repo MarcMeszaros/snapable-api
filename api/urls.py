@@ -13,7 +13,7 @@ urlpatterns = patterns('',
 
     ## define all the API versions here ##
     # public APIs
-    url(r'', include(api_v1.urls)),
+    #url(r'', include(api_v1.urls)),
 
     # private APIs
     url(r'', include(private_v1.urls)),
