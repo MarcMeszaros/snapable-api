@@ -234,6 +234,9 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
 
+DEBUG_AUTHENTICATION = DEBUG
+DEBUG_AUTHORIZATION = DEBUG
+
 # tastypie settings
 API_LIMIT_PER_PAGE = 50
 

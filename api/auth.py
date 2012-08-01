@@ -16,7 +16,7 @@ from data.models import User
 class ServerAuthentication(Authentication):
     def is_authenticated(self, request, **kwargs):
         # if in debug mode, always authenticate
-        if settings.DEBUG == True:
+        if settings.DEBUG_AUTHENTICATION == True:
             return True
 
         try:
@@ -59,7 +59,7 @@ class ServerAuthentication(Authentication):
 class ServerAuthorization(Authorization):
     def is_authorized(self, request, object=None):
         # if in debug mode, always authenticate
-        if settings.DEBUG == True:
+        if settings.DEBUG_AUTHORIZATION == True:
             return True
 
         if not 'HTTP_X_SNAP_USER' in request.META and (request.method in ['GET', 'POST']):
