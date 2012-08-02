@@ -1,5 +1,5 @@
 from tastypie import fields
-from tastypie.resources import ModelResource
+from tastypie.resources import ALL, ModelResource
 from data.models import Guest
 
 from event import EventResource
@@ -18,4 +18,5 @@ class GuestResource(ModelResource):
         always_return_data = True
         filtering = {
             'event': ['exact'],
+            'email': ALL,
         }
