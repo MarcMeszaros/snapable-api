@@ -17,6 +17,9 @@ class EventResource(api.v1.resources.EventResource):
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = Authorization()
+    Meta.filtering = dict(Meta.filtering, **{
+        'user': ['exact'],
+    })
 
     def __init__(self):
-        api.v1.resources.EventResource.__init__(self) 
+        api.v1.resources.EventResource.__init__(self)
