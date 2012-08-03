@@ -157,11 +157,8 @@ LOGGING = {
     'handlers': {
         'file.firehose': {
             'level': 'WARNING',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.join('logs', 'firehose', 'firehose.log'),
-            'when': 'midnight', # rotate at midnight
-            'backupCount': 7,
-            'utc': True,
         },
         'mail_admins': {
             'level': 'ERROR',
@@ -170,43 +167,28 @@ LOGGING = {
         },
         'file.critical': {
             'level': 'CRITICAL',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.join('logs', 'critical', 'critical.log'),
-            'when': 'midnight', # rotate at midnight
-            'backupCount': 30,
-            'utc': True,
         },
         'file.error': {
             'level': 'ERROR',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.join('logs', 'error', 'error.log'),
-            'when': 'midnight', # rotate at midnight
-            'backupCount': 30,
-            'utc': True,
         },
         'file.warning': {
             'level': 'WARNING',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.join('logs', 'warning', 'warning.log'),
-            'when': 'midnight', # rotate at midnight
-            'backupCount': 30,
-            'utc': True,
         },
         'file.info': {
             'level': 'INFO',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.join('logs', 'info', 'info.log'),
-            'when': 'midnight', # rotate at midnight
-            'backupCount': 30,
-            'utc': True,
         },
         'file.debug': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.join('logs', 'debug', 'debug.log'),
-            'when': 'midnight', # rotate at midnight
-            'backupCount': 30,
-            'utc': True,
         },
     },
     'loggers': {
