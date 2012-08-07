@@ -1,6 +1,7 @@
 from django.db import models
 
 from data.models import Package
+from data.models import Type
 from data.models import User
 
 class Event(models.Model):
@@ -11,6 +12,7 @@ class Event(models.Model):
     
     user = models.ForeignKey(User)
     package = models.ForeignKey(Package)
+    type = models.ForeignKey(Type)
     start = models.DateTimeField()
     end = models.DateTimeField()
     title = models.CharField(max_length=255)

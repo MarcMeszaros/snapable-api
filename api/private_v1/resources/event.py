@@ -4,12 +4,14 @@ from tastypie import fields
 from tastypie.authorization import Authorization
 
 from package import PackageResource
+from type import TypeResource
 from user import UserResource
 
 class EventResource(api.v1.resources.EventResource):
 
     user = fields.ForeignKey(UserResource, 'user')
     package = fields.ForeignKey(PackageResource, 'package')
+    type = fields.ForeignKey(TypeResource, 'type')
 
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
     Meta.fields += []
