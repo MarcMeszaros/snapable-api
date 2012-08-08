@@ -1,3 +1,4 @@
+from address import AddressResource
 from album import AlbumResource
 from event import EventResource
 from guest import GuestResource
