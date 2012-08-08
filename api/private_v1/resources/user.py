@@ -119,9 +119,9 @@ class UserResource(api.v1.resources.UserResource):
             if pass_data['password_hash'] == user_details[1]:
                 return self.dispatch('detail', request, **kwargs)
             else:
-                raise BadRequest('Invalid email/password hash combination in header X-Snap-User')
+                raise BadRequest('Invalid email/password hash combination in header x-SNAP-User')
 
         except KeyError as key:
             raise BadRequest('Missing field: ' + str(key))
         except ObjectDoesNotExist:
-            raise BadRequest('Invalid email/password hash combination in header X-Snap-User')
+            raise BadRequest('Invalid email/password hash combination in header x-SNAP-User')
