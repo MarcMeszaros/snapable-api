@@ -6,7 +6,7 @@ from user import UserResource
 
 class EventResource(ModelResource):
 
-    creator = fields.ForeignKey(UserResource, 'user')
+    user = fields.ForeignKey(UserResource, 'user')
 
     class Meta:
         queryset = Event.objects.all()
