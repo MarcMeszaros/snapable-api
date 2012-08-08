@@ -18,7 +18,6 @@ if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'firehose')):
 
 # Django settings for api project.
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -212,7 +211,7 @@ LOGGING = {
 
 # django passwords
 PASSWORD_HASHERS = (
-    'django.contrib.auth.hashers.BCryptPasswordHasher',
+    #'django.contrib.auth.hashers.BCryptPasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
 
@@ -229,5 +228,6 @@ try:
 except Exception as e:
     pass
 
-# make the tastypie debug value whatever the debug value django is after local settings are applied
+# make the debug values whatever the debug value django is after local settings are applied
+TEMPLATE_DEBUG = DEBUG
 TASTYPIE_FULL_DEBUG = DEBUG
