@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from tastypie import fields
 from tastypie.authorization import Authorization
+from tastypie.resources import ALL
 
 from package import PackageResource
 from type import TypeResource
@@ -31,6 +32,8 @@ class EventResource(api.v1.resources.EventResource):
     Meta.filtering = dict(Meta.filtering, **{
         'enabled': ['exact'],
         'user': ['exact'], 
+        'start': ALL,
+        'end': ALL,
     })
 
     def __init__(self):
