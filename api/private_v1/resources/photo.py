@@ -7,6 +7,7 @@ from django.conf import settings
 
 from tastypie import fields
 from tastypie.authorization import Authorization
+from tastypie.resources import ALL
 
 from event import EventResource
 from guest import GuestResource
@@ -27,6 +28,9 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
     Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = Authorization()
     Meta.serializer = SnapableSerializer(formats=['json', 'jpeg'])
+    Meta.filtering = dict(Meta.filtering, **{
+        'event': ['exact'],
+    })
 
     def __init__(self):
         api.v1.resources.PhotoResource.__init__(self)
