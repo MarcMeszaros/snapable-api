@@ -16,6 +16,7 @@ from user import UserResource
 
 from data.models import Address
 from data.models import Event
+from data.models import Photo
 
 class EventResource(api.v1.resources.EventResource):
 
@@ -45,6 +46,7 @@ class EventResource(api.v1.resources.EventResource):
         try:
             # get all addresses for the event
             db_addresses = Address.objects.filter(event_id=bundle.obj.id)
+            photo_count = Photo.objects.filter(event_id=bundle.obj.id).count()
             
             # add the addresses for the event
             json_addresses = []
@@ -57,6 +59,8 @@ class EventResource(api.v1.resources.EventResource):
 
             # append the addresses to the json response
             bundle.data['addresses'] = json_addresses
+            # add the photo count
+            bundle.data['photo_count'] = photo_count
         except ObjectDoesNotExist:
             pass
 
