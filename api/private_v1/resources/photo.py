@@ -13,6 +13,8 @@ from event import EventResource
 from guest import GuestResource
 from type import TypeResource
 
+from data.models import Guest
+
 from api.serializers import SnapableSerializer
 
 class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource):
@@ -34,6 +36,18 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
 
     def __init__(self):
         api.v1.resources.PhotoResource.__init__(self)
+
+    def dehydrate(self, bundle):
+
+        # try and add the guest name
+        try:
+            # add the guest name as the photo name
+            guest = Guest.objects.get(pk=bundle.obj.guest_id)
+            bundle.data['author_name'] = guest.name
+        except ObjectDoesNotExist:
+            pass
+
+        return bundle
 
     def hydrate(self, bundle):
         bundle.obj.event_id = bundle.data['event']
