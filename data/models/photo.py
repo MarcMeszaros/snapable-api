@@ -12,7 +12,7 @@ class Photo(models.Model):
 
     # the model fields
     event = models.ForeignKey(Event)
-    guest = models.ForeignKey(Guest)
+    guest = models.ForeignKey(Guest, null=True, default=None, on_delete=models.SET_NULL)
     type = models.ForeignKey(Type)
     caption = models.CharField(max_length=255)
     streamable = models.BooleanField()

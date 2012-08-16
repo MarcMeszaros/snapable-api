@@ -3,7 +3,9 @@ import api.loggers
 import api.multi
 import api.v1.resources
 import cloudfiles
+
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from tastypie import fields
 from tastypie.authorization import Authorization
@@ -20,7 +22,7 @@ from api.serializers import SnapableSerializer
 class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource):
 
     event = fields.ForeignKey(EventResource, 'event')
-    guest = fields.ForeignKey(GuestResource, 'guest')
+    guest = fields.ForeignKey(GuestResource, 'guest', null=True) # allow the foreign key to be null
     type = fields.ForeignKey(TypeResource, 'type')
 
     Meta = api.v1.resources.PhotoResource.Meta # set Meta to the public API Meta
@@ -50,9 +52,13 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
         return bundle
 
     def hydrate(self, bundle):
+        # required
         bundle.obj.event_id = bundle.data['event']
-        bundle.obj.guest_id = bundle.data['guest']
         bundle.obj.type_id = bundle.data['type']
+
+        # optional
+        if bundle.data.has_key('guest'):
+            bundle.obj.guest_id = bundle.data['guest']
 
         return bundle
 
