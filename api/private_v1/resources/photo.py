@@ -45,7 +45,7 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
             guest = Guest.objects.get(pk=bundle.obj.guest_id)
             bundle.data['author_name'] = guest.name
         except ObjectDoesNotExist:
-            pass
+            bundle.data['author_name'] = ''
 
         return bundle
 
