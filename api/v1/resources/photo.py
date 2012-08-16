@@ -13,7 +13,7 @@ class PhotoResource(ModelResource):
     #type = fields.ForeignKey(TypeResource, 'type')
 
     class Meta:
-        queryset = Photo.objects.all()
+        queryset = Photo.objects.all().order_by('-timestamp')
         fields = ['caption', 'streamable', 'timestamp']
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
