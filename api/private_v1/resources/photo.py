@@ -53,10 +53,10 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
 
     def hydrate(self, bundle):
         # required
-        bundle.obj.event_id = bundle.data['event']
-        bundle.obj.type_id = bundle.data['type']
-
-        # optional
+        if bundle.data.has_key('event'):
+            bundle.obj.event_id = bundle.data['event']
+        if bundle.data.has_key('type'):
+            bundle.obj.type_id = bundle.data['type']
         if bundle.data.has_key('guest'):
             bundle.obj.guest_id = bundle.data['guest']
 
