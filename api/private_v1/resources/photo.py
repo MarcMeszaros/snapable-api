@@ -66,7 +66,7 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
         bundle = super(PhotoResource, self).obj_create(bundle, request)
 
         #US-based Cloud Files accounts - uncomment if your account is in the US
-        conn = cloudfiles.Connection(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY, 10)
+        conn = cloudfiles.Connection(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY, settings.RACKSPACE_CLOUDFILE_TIMEOUT)
 
         #connect to container
         cont = None
