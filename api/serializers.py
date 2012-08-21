@@ -11,12 +11,13 @@ from tastypie.serializers import Serializer
 from PIL import Image
 from PIL.ExifTags import TAGS
 
-class SnapableSerializer(Serializer):
-    formats = ['json', 'jpeg']
-    content_types = {
-        'json': 'application/json',
+class PhotoSerializer(Serializer):
+    formats = Serializer.formats + [
+        'jpeg'
+    ]
+    content_types = dict(Serializer.content_types, **{
         'jpeg': 'image/jpeg',
-    }
+    })
 
     def to_jpeg(self, bundle, options=None):
         photo = bundle.obj
@@ -24,8 +25,8 @@ class SnapableSerializer(Serializer):
         size = 'orig'
 
         # set the size variable
-        if (options != None and options.has_key('size')):
-            size = options['size']
+        if (bundle.data != None and bundle.data.has_key('size')):
+            size = bundle.data['size']
 
         #connect to container
         try:

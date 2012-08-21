@@ -19,7 +19,7 @@ from type import TypeResource
 
 from data.models import Guest
 
-from api.serializers import SnapableSerializer
+from api.serializers import PhotoSerializer
 
 class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource):
 
@@ -33,7 +33,7 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = Authorization()
-    Meta.serializer = SnapableSerializer(formats=['json', 'jpeg'])
+    Meta.serializer = PhotoSerializer(formats=['json', 'jpeg'])
     Meta.filtering = dict(Meta.filtering, **{
         'event': ['exact'],
     })
@@ -88,15 +88,9 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
     # override the response
     def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
         """
-        Extracts the common "which-format/serialize/return-response" cycle.
-
-        Mostly a useful shortcut/hook.
+        Override the default create_response method.
         """
-        options = None
-        
         if (request.META['REQUEST_METHOD'] == 'GET' and request.GET.has_key('size')):
-            options = {'size': request.GET['size']}
+            data['size'] = request.GET['size']
 
-        desired_format = self.determine_format(request)
-        serialized = self.serialize(request, data, desired_format, options=options)
-        return response_class(content=serialized, content_type=build_content_type(desired_format), **response_kwargs)
+        return super(PhotoResource, self).create_response(request, data, response_class=response_class, **response_kwargs)
