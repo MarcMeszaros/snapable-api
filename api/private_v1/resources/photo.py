@@ -6,10 +6,12 @@ import cloudfiles
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.http import HttpResponse
 
 from tastypie import fields
 from tastypie.authorization import Authorization
 from tastypie.resources import ALL
+from tastypie.utils.mime import determine_format, build_content_type
 
 from event import EventResource
 from guest import GuestResource
@@ -82,3 +84,19 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
         obj.write(bundle.data['image'])
 
         return bundle
+
+    # override the response
+    def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
+        """
+        Extracts the common "which-format/serialize/return-response" cycle.
+
+        Mostly a useful shortcut/hook.
+        """
+        options = None
+        
+        if (request.META['REQUEST_METHOD'] == 'GET' and request.GET.has_key('size')):
+            options = {'size': request.GET['size']}
+
+        desired_format = self.determine_format(request)
+        serialized = self.serialize(request, data, desired_format, options=options)
+        return response_class(content=serialized, content_type=build_content_type(desired_format), **response_kwargs)

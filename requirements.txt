@@ -7,4 +7,5 @@ netifaces>=0.8
 setproctitle>=1.1.6
 python-cloudfiles>=1.7.10
 pytz>=2012d
+pillow>=1.7.7
 py-bcrypt>=0.2
