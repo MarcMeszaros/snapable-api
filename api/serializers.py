@@ -9,6 +9,7 @@ from django.conf import settings
 from tastypie.serializers import Serializer
 
 from PIL import Image
+from PIL.ExifTags import TAGS
 
 class SnapableSerializer(Serializer):
     formats = ['json', 'jpeg']
@@ -40,18 +41,30 @@ class SnapableSerializer(Serializer):
                 obj_orig = cont.get_object(str(event.id) + '/' + str(photo.id) + '_orig.jpg')
                 data = obj_orig.read()
                 img = Image.open(StringIO.StringIO(data))
+
+                # get exif info
+                exif = dict(img._getexif().items())
                 
+                # rotate as required
+                # 0x0112 = orientation
+                if exif[0x0112] == 3:
+                    img = img.rotate(180, expand=True)
+                elif exif[0x0112] == 6:
+                    img = img.rotate(270, expand=True)
+                elif exif[0x0112] == 8:
+                    img = img.rotate(90, expand=True)
+
                 # get the size param
                 sizeList = size.split('x')
                 sizeTupple = (int(sizeList[0]), int(sizeList[1]))
-                out = img.resize(sizeTupple)
+                img = img.resize(sizeTupple, Image.ANTIALIAS)
 
                 # create the new photo size and save it
                 obj = cont.create_object(str(event.id) + '/' + str(photo.id) + '_' + size + '.jpg')
                 obj.content_type = 'image/jpeg'
-                obj.write(out.tostring('jpeg', 'RGB'))
+                obj.write(img.tostring('jpeg', 'RGB'))
 
-                return out.tostring('jpeg', 'RGB')
+                return img.tostring('jpeg', 'RGB')
         except cloudfiles.errors.NoSuchObject as e:
             raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
         except cloudfiles.errors.NoSuchContainer as e:
