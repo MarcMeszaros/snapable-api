@@ -21,6 +21,8 @@ To install all the libraries at once using pip (http://www.pip-installer.org/).
 The following are the minimum system requirements:
 
 * python 2.6+ (http://www.python.org/) Note: "python-dev" package required to install "Netifaces"
+* libjpeg-dev
+* libraw-dev
 - MySQLdb (http://sourceforge.net/projects/mysql-python)
 - Django (https://www.djangoproject.com/)
 - South (https://bitbucket.org/andrewgodwin/south)
@@ -28,6 +30,7 @@ The following are the minimum system requirements:
 - Netifaces (http://alastairs-place.net/projects/netifaces/)
 - setproctitle (https://github.com/dvarrazzo/py-setproctitle)
 - Rackspace Cloudfiles (https://github.com/rackspace/python-cloudfiles)
+- Pillow (https://github.com/python-imaging/Pillow)
 
 NOTE: * items are installed from the Debian distribution using APT.
 
@@ -52,6 +55,13 @@ Run the following on the command line:
 
     > git clone git@bitbucket.org:snapable/api.git snapable
     > cd snapable
+    > apt-get install python-dev libjpeg-dev libraw-dev
+    > pip install -r requirements.txt
     > ./manage.py syncdb
     > ./manage.py migrate data
     > ./manage.py run_gunicorn -c gunicorn_config.py
+
+CONFIGURATION
+-------------
+
+TBD
