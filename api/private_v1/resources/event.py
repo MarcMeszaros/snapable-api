@@ -5,6 +5,7 @@ import copy
 from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.http import HttpResponse
 
 from tastypie import fields
 from tastypie.authorization import Authorization
@@ -18,6 +19,8 @@ from data.models import Address
 from data.models import Event
 from data.models import Photo
 
+from api.serializers import EventSerializer
+
 class EventResource(api.v1.resources.EventResource):
 
     user = fields.ForeignKey(UserResource, 'user')
@@ -30,6 +33,7 @@ class EventResource(api.v1.resources.EventResource):
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = Authorization()
+    Meta.serializer = EventSerializer(formats=['json', 'jpeg'])
     Meta.filtering = dict(Meta.filtering, **{
         'enabled': ['exact'],
         'user': ['exact'], 
@@ -92,3 +96,13 @@ class EventResource(api.v1.resources.EventResource):
             return events.filter(pk__in=values_list)
         else:
             return super(EventResource, self).get_object_list(request)
+
+    # override the response
+    def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
+        """
+        Override the default create_response method.
+        """
+        if (request.META['REQUEST_METHOD'] == 'GET' and request.GET.has_key('size')):
+            data['size'] = request.GET['size']
+
+        return super(EventResource, self).create_response(request, data, response_class=response_class, **response_kwargs)

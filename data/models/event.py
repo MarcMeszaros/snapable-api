@@ -14,6 +14,9 @@ class Event(models.Model):
     package = models.ForeignKey(Package)
     type = models.ForeignKey(Type)
     start = models.DateTimeField()
+
+    cover = models.IntegerField(default=0) # dirty hack... fix this...
+
     end = models.DateTimeField()
     title = models.CharField(max_length=255)
     url = models.CharField(max_length=255)
