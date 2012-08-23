@@ -9,9 +9,9 @@ from django.conf import settings
 from tastypie.serializers import Serializer
 
 from data.models import Photo
+from data.images import SnapImage
 
 from PIL import Image
-from PIL.ExifTags import TAGS
 
 class PhotoSerializer(Serializer):
     formats = Serializer.formats + [
@@ -44,30 +44,19 @@ class PhotoSerializer(Serializer):
                 obj_orig = cont.get_object(str(event.id) + '/' + str(photo.id) + '_orig.jpg')
                 data = obj_orig.read()
                 img = Image.open(StringIO.StringIO(data))
-
-                # get exif info
-                exif = dict(img._getexif().items())
+                snapimg = SnapImage(img)
                 
-                # rotate as required
-                # 0x0112 = orientation
-                if exif[0x0112] == 3:
-                    img = img.rotate(180, expand=True)
-                elif exif[0x0112] == 6:
-                    img = img.rotate(270, expand=True)
-                elif exif[0x0112] == 8:
-                    img = img.rotate(90, expand=True)
-
-                # get the size param
+                # get the size param and resize
                 sizeList = size.split('x')
                 sizeTupple = (int(sizeList[0]), int(sizeList[1]))
-                img = img.resize(sizeTupple, Image.ANTIALIAS)
+                snapimg.resize(sizeTupple)
 
-                # create the new photo size and save it
+                # save the new photo size
                 obj = cont.create_object(str(event.id) + '/' + str(photo.id) + '_' + size + '.jpg')
                 obj.content_type = 'image/jpeg'
-                obj.write(img.tostring('jpeg', 'RGB'))
+                obj.write(snapimg.img.tostring('jpeg', 'RGB'))
 
-                return img.tostring('jpeg', 'RGB')
+                return snapimg.img.tostring('jpeg', 'RGB')
         except cloudfiles.errors.NoSuchObject as e:
             raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
         except cloudfiles.errors.NoSuchContainer as e:
@@ -109,7 +98,6 @@ class EventSerializer(Serializer):
             # there is no cover and at least one photo
             elif (event.cover == 0 and photos_count >= 1):
                 first_photo = list(Photo.objects.filter(event_id=event.id).order_by('timestamp'))[0]
-                print first_photo.id,':',first_photo.timestamp
                 obj = cont.get_object(str(first_photo.event.id) + '/' + str(first_photo.id) + '_orig.jpg')
                 return obj.read()
             # no photo, no cover, return exception
