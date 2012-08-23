@@ -13,15 +13,15 @@ class Event(models.Model):
     user = models.ForeignKey(User)
     package = models.ForeignKey(Package)
     type = models.ForeignKey(Type)
-    start = models.DateTimeField()
 
-    cover = models.IntegerField(default=0) # dirty hack... fix this...
+    cover = models.IntegerField(default=0, help_text='Integer data. The photo ID of the image to use for the event cover.') # dirty hack... fix this...
 
-    end = models.DateTimeField()
-    title = models.CharField(max_length=255)
-    url = models.CharField(max_length=255)
-    pin = models.CharField(max_length=255)
-    creation_date = models.DateTimeField(auto_now_add=True)
-    last_access = models.DateTimeField(auto_now_add=True)
+    start = models.DateTimeField(help_text='Event start time. (UTC)')
+    end = models.DateTimeField(help_text='Event end time. (UTC)')
+    title = models.CharField(max_length=255, help_text='Event title.')
+    url = models.CharField(max_length=255, help_text='A "short name" for the event.')
+    pin = models.CharField(max_length=255, help_text='Pseudoramdom PIN used for private events.')
+    creation_date = models.DateTimeField(auto_now_add=True, help_text='When the event created. (UTC)')
+    last_access = models.DateTimeField(auto_now_add=True, help_text='When the event was last accessed. (UTC)')
     access_count = models.IntegerField(default=0)
-    enabled = models.BooleanField()
+    enabled = models.BooleanField(help_text='Is the event considered "active" in the system.')

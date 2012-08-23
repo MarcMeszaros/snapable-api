@@ -28,7 +28,7 @@ class EventResource(api.v1.resources.EventResource):
     type = fields.ForeignKey(TypeResource, 'type')
 
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
-    Meta.fields += []
+    Meta.fields += ['cover']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.authentication = api.auth.ServerAuthentication()
