@@ -86,11 +86,12 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
         return bundle
 
     # override the response
-    def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
+    def create_response(self, request, bundle, response_class=HttpResponse, **response_kwargs):
         """
         Override the default create_response method.
         """
-        if (request.META['REQUEST_METHOD'] == 'GET' and request.GET.has_key('size')):
-            data['size'] = request.GET['size']
 
-        return super(PhotoResource, self).create_response(request, data, response_class=response_class, **response_kwargs)
+        if (request.META['REQUEST_METHOD'] == 'GET' and request.GET.has_key('size')):
+            bundle.data['size'] = request.GET['size']
+
+        return super(PhotoResource, self).create_response(request, bundle, response_class=response_class, **response_kwargs)
