@@ -90,16 +90,55 @@ class EventSerializer(Serializer):
             conn = cloudfiles.Connection(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY, settings.RACKSPACE_CLOUDFILE_TIMEOUT)
             cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(event.id / 1000))
 
+
             # event cover it is set
             if (event.cover != 0):
                 cover_photo = Photo.objects.get(pk=event.cover)
-                obj = cont.get_object(str(cover_photo.event.id) + '/' + str(cover_photo.id) + '_orig.jpg')
-                return obj.read()
+                try:
+                    obj = cont.get_object(str(cover_photo.event.id) + '/' + str(cover_photo.id) + '_' + size + '.jpg')
+                    return obj.read()
+                except:
+                    # get the original size photo and create a Image object based on it
+                    obj_orig = cont.get_object(str(cover_photo.event.id) + '/' + str(cover_photo.id) + '_orig.jpg')
+                    data = obj_orig.read()
+                    img = Image.open(StringIO.StringIO(data))
+                    snapimg = SnapImage(img)
+                    
+                    # get the size param and resize
+                    sizeList = size.split('x')
+                    sizeTupple = (int(sizeList[0]), int(sizeList[1]))
+                    snapimg.resize(sizeTupple)
+
+                    # save the new photo size
+                    obj = cont.create_object(str(cover_photo.event.id) + '/' + str(cover_photo.id) + '_' + size + '.jpg')
+                    obj.content_type = 'image/jpeg'
+                    obj.write(snapimg.img.tostring('jpeg', 'RGB'))
+
+                    return snapimg.img.tostring('jpeg', 'RGB')
             # there is no cover and at least one photo
             elif (event.cover == 0 and photos_count >= 1):
                 first_photo = list(Photo.objects.filter(event_id=event.id).order_by('timestamp'))[0]
-                obj = cont.get_object(str(first_photo.event.id) + '/' + str(first_photo.id) + '_orig.jpg')
-                return obj.read()
+                try:
+                    obj = cont.get_object(str(first_photo.event.id) + '/' + str(first_photo.id) + '_' + size + '.jpg')
+                    return obj.read()
+                except:
+                    # get the original size photo and create a Image object based on it
+                    obj_orig = cont.get_object(str(first_photo.event.id) + '/' + str(first_photo.id) + '_orig.jpg')
+                    data = obj_orig.read()
+                    img = Image.open(StringIO.StringIO(data))
+                    snapimg = SnapImage(img)
+                    
+                    # get the size param and resize
+                    sizeList = size.split('x')
+                    sizeTupple = (int(sizeList[0]), int(sizeList[1]))
+                    snapimg.resize(sizeTupple)
+
+                    # save the new photo size
+                    obj = cont.create_object(str(first_photo.event.id) + '/' + str(first_photo.id) + '_' + size + '.jpg')
+                    obj.content_type = 'image/jpeg'
+                    obj.write(snapimg.img.tostring('jpeg', 'RGB'))
+
+                    return snapimg.img.tostring('jpeg', 'RGB')
             # no photo, no cover, return exception
             else:
                 raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
