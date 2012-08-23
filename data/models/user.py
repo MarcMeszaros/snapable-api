@@ -10,14 +10,14 @@ class User(models.Model):
         app_label = 'data'
 
     # the model fields
-    email = models.CharField(max_length=255, unique=True)
-    password = models.CharField(max_length=255)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    billing_zip = models.CharField(max_length=11)
-    terms = models.BooleanField(default=False)
-    creation_date = models.DateTimeField(auto_now_add=True)
-    last_access = models.DateTimeField(auto_now_add=True)
+    email = models.CharField(max_length=255, unique=True, help_text="The user's email.")
+    password = models.CharField(max_length=255, help_text="The user's password parts.")
+    first_name = models.CharField(max_length=255, help_text="The user's first name.")
+    last_name = models.CharField(max_length=255, help_text="The user's last name.")
+    billing_zip = models.CharField(max_length=11, help_text="The user's billing ZIP/Postal code.")
+    terms = models.BooleanField(default=False, help_text='If the user accespted the Terms Of Service.')
+    creation_date = models.DateTimeField(auto_now_add=True, help_text='When the user was created. (UTC)')
+    last_access = models.DateTimeField(auto_now_add=True, help_text='When the user last accessed the system. (UTC)')
 
     def set_password(self, raw_password, hasher='pbkdf2_sha256'):
         #if hasher == 'bcrypt':

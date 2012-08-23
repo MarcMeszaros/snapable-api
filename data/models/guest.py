@@ -12,5 +12,5 @@ class Guest(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     type = models.ForeignKey(Type, on_delete=models.CASCADE)
 
-    name = models.CharField(max_length=255, , help_text='The guest name.')
-    email = models.CharField(max_length=255, , help_text='The guest email address.')
+    name = models.CharField(max_length=255, help_text='The guest name.')
+    email = models.CharField(max_length=255, help_text='The guest email address.')

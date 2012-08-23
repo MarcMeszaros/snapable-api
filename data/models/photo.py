@@ -14,7 +14,8 @@ class Photo(models.Model):
     event = models.ForeignKey(Event)
     guest = models.ForeignKey(Guest, null=True, default=None, on_delete=models.SET_NULL)
     type = models.ForeignKey(Type)
-    caption = models.CharField(max_length=255)
-    streamable = models.BooleanField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-    metrics = models.TextField() # JSON metrics
+
+    caption = models.CharField(max_length=255, help_text='The photo caption.')
+    streamable = models.BooleanField(help_text='If the photo is streamable.')
+    timestamp = models.DateTimeField(auto_now_add=True, help_text='The photo timestamp.')
+    metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics

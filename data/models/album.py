@@ -14,7 +14,7 @@ class Album(models.Model):
     type = models.ForeignKey(Type)
     photo = models.ForeignKey(Photo, null=True, default=None, on_delete=models.SET_NULL)
 
-    short_name = models.CharField(max_length=255, , help_text='The albums short name.')
+    short_name = models.CharField(max_length=255, help_text='The albums short name.')
     name = models.CharField(max_length=255, help_text='The album name.')
     description = models.TextField(help_text='A description of the album.')
-    creation_date = models.DateTimeField(auto_now_add=True, , help_text='When the album was created. (UTC)')
+    creation_date = models.DateTimeField(auto_now_add=True, help_text='When the album was created. (UTC)')

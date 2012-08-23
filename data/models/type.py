@@ -24,4 +24,4 @@ class Type(models.Model):
         (TYPE_PUBLIC, 'Public'),
     )
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, help_text='The name of the TYPE value mapping.')
