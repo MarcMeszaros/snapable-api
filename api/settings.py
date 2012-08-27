@@ -138,6 +138,7 @@ INSTALLED_APPS = (
     # various sub-apps for snapable
     'data',
     # third-party libraries/apps
+    'raven.contrib.django',
     'tastypie',
     'south',
     'gunicorn',

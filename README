@@ -4,6 +4,7 @@ CONTENTS OF THIS FILE
  * Introduction
  * Requirements
  * Installation
+ * Configuration
 
 
 INTRODUCTION
@@ -23,6 +24,7 @@ The following are the minimum system requirements:
 * python 2.6+ (http://www.python.org/) Note: "python-dev" package required to install "Netifaces"
 * libjpeg-dev
 * libraw-dev
+* mysql-dev
 - MySQLdb (http://sourceforge.net/projects/mysql-python)
 - Django (https://www.djangoproject.com/)
 - South (https://bitbucket.org/andrewgodwin/south)
