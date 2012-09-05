@@ -57,11 +57,12 @@ Run the following on the command line:
 
     > git clone git@bitbucket.org:snapable/api.git snapable
     > cd snapable
-    > apt-get install python-dev libjpeg-dev libraw-dev
+    > apt-get install python-dev mysql-dev libjpeg-dev libraw-dev
     > pip install -r requirements.txt
     > ./manage.py syncdb
     > ./manage.py migrate data
-    > ./manage.py run_gunicorn -c gunicorn_config.py
+    > ./manage.py loaddata data/initial_data.json
+    > ./manage.py run_gunicorn -c gunicorn_config.py &
 
 CONFIGURATION
 -------------

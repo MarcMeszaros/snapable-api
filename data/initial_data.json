@@ -1,0 +1,10 @@
+[
+{"pk": 1, "model": "data.package", "fields": {"prints": 0, "guest_reminders": true, "name": "Free", "short_name": "free", "additional_price_per_print": "1.00", "price": "0.00", "table_cards": true, "enabled": true, "slideshow": true, "shipping": false, "albums": 1}},
+
+{"pk": 1, "model": "data.type", "fields": {"name": "Organizer"}},
+{"pk": 2, "model": "data.type", "fields": {"name": "Bride/Groom"}},
+{"pk": 3, "model": "data.type", "fields": {"name": "Wedding Party"}},
+{"pk": 4, "model": "data.type", "fields": {"name": "Family"}},
+{"pk": 5, "model": "data.type", "fields": {"name": "Guest"}},
+{"pk": 6, "model": "data.type", "fields": {"name": "Public"}}
+]
