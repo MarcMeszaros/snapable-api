@@ -22,6 +22,7 @@ To install all the libraries at once using pip (http://www.pip-installer.org/).
 The following are the minimum system requirements:
 
 * python 2.6+ (http://www.python.org/) Note: "python-dev" package required to install "Netifaces"
+* python-pip
 * libjpeg-dev
 * libraw-dev
 * mysql-dev
@@ -53,11 +54,12 @@ The application is set to use the following MySQL credentials by default:
 4. Simply run the application using wsgi. Using gunicorn (http://gunicorn.org/) is recommended.
 
 INSTALLATION EXAMPLE:
-Run the following on the command line:
+Run the following commands:
 
     > git clone git@bitbucket.org:snapable/api.git snapable
     > cd snapable
-    > apt-get install python-dev mysql-dev libjpeg-dev libraw-dev
+    > apt-get install build-essential python python-dev python-pip libjpeg-dev libraw-dev
+    > pip install --upgrade
     > pip install -r requirements.txt
     > ./manage.py syncdb
     > ./manage.py migrate data
@@ -67,4 +69,58 @@ Run the following on the command line:
 CONFIGURATION
 -------------
 
-TBD
+Below is a sample configuration for the local settings file. It should be placed one folder level
+higher than the "snapable" API source code folder.
+
+----
+
+import os
+
+# set some environment variables
+os.environ['RACKSPACE_SERVICENET'] = '1' # makes 'python-cloudfiles' use ServiceNet which doesn't cost data transfer usage
+
+# database settings
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'my_db',                 # Or path to database file if using sqlite3.
+        'USER': 'my_user',               # Not used with sqlite3.
+        'PASSWORD': 'my_pass',           # Not used with sqlite3.
+        'HOST': 'my_host',               # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+    }
+}
+
+# django settings
+DEBUG = True
+
+DEBUG_AUTHENTICATION = True
+DEBUG_AUTHORIZATION = True
+
+ADMINS = (
+    ('Marc Meszaros', 'marc@snapable.com'),
+    ('Andrew Draper', 'andrew@snapable.com'),
+)
+
+# sendgrid
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST_USER = 'my_user' # only save in local settings
+EMAIL_HOST_PASSWORD = 'my_pass' # only save in local settings
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# RACKSPACE
+RACKSPACE_USERNAME = 'my_user'
+RACKSPACE_APIKEY = 'my_api_key'
+RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_photos_'
+
+# sentry/raven
+SENTRY_DSN = 'http://user:pass@host/2'
+RAVEN_CONFIG = {
+    'register_signals': True,
+}
+
+# API keys
+APIKEY = {
+    'abc123': '123', # general testing key/secret pair
+}
