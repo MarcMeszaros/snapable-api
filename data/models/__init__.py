@@ -4,6 +4,7 @@ from data.models.package import Package
 from data.models.type import Type
 
 # second level: depends on independent models
+from data.models.passwordnonce import PasswordNonce # depends: User
 from data.models.event import Event # depends: User, Package
 from data.models.address import Address # depends: Event
 from data.models.guest import Guest # depends: Event, Type
