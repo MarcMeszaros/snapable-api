@@ -22,7 +22,7 @@ class UserResource(api.v1.resources.UserResource):
     Meta.fields += ['billing_zip', 'terms']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
-    Meta.passwordreset_allowed_methods = ['post']
+    Meta.passwordreset_allowed_methods = ['get', 'post']
     Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = api.auth.ServerAuthorization()
 
@@ -190,3 +190,27 @@ class UserResource(api.v1.resources.UserResource):
             raise BadRequest('Invalid URL. Must be of type http(s)://*.snapable.com')
 
         return http.HttpCreated(location=location)
+
+    def get_passwordreset(self, request, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+
+        objects = PasswordNonce.objects.filter(user=user.id, valid=True)
+        sorted_objects = self.apply_sorting(objects, options=request.GET)
+
+        paginator = self._meta.paginator_class(request.GET, sorted_objects)
+        to_be_serialized = paginator.page()
+
+        # Dehydrate the bundles in preparation for serialization.
+        bundles = [self.build_bundle(obj=obj) for obj in sorted_objects]
+
+        nonces = []
+        for bundle in bundles:
+            nonces += [{
+                'nonce': bundle.obj.nonce,
+                'timestamp': bundle.obj.timestamp,
+            }]
+
+        to_be_serialized['objects'] = nonces
+
+        #to_be_serialized['objects'] = [self.full_dehydrate(bundle) for bundle in bundles]
+        return self.create_response(request, to_be_serialized)
