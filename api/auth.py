@@ -11,6 +11,7 @@ from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest
 
+from data.models import PasswordNonce
 from data.models import User
 
 class ServerAuthentication(Authentication):
@@ -72,6 +73,7 @@ class ServerAuthorization(Authorization):
 
             # get the user model matching the email
             user = User.objects.get(email=user_details[0])
+            passwordnonces = [dbnonce.nonce for dbnonce in PasswordNonce.objects.filter(user=user.id, valid=True)]
 
             # get the matched user's password data
             db_pass = user.password.split('$', 1)
@@ -88,6 +90,11 @@ class ServerAuthorization(Authorization):
 
             # if the db password hash and the one in the header match, display the user details
             if pass_data['password_hash'] == user_details[1]:
+                return True
+            elif (user_details[1] in passwordnonces):
+                oldnonce = PasswordNonce.objects.get(nonce=user_details[1])
+                oldnonce.valid = False # invalidate the nonce so it can't be used again
+                oldnonce.save()
                 return True
             else:
                 return False
