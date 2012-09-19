@@ -1,13 +1,19 @@
 import api.auth
 import api.v1.resources
+import re
 
 from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
 
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest
+from tastypie.utils import dict_strip_unicode_keys
 from tastypie import http
 
+from data.models import PasswordNonce
 from data.models import User
 
 class UserResource(api.v1.resources.UserResource):
@@ -16,6 +22,7 @@ class UserResource(api.v1.resources.UserResource):
     Meta.fields += ['billing_zip', 'terms']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
+    Meta.passwordreset_allowed_methods = ['post']
     Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = api.auth.ServerAuthorization()
 
@@ -70,7 +77,7 @@ class UserResource(api.v1.resources.UserResource):
 
         return bundle
 
-    # should use prepend_url, but doesn't work...
+    # should use prepend_url, but only works with tastypie v0.9.12+
     # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584
     def override_urls(self):
         """
@@ -78,6 +85,7 @@ class UserResource(api.v1.resources.UserResource):
         """
         return [
             url(r'^(?P<resource_name>%s)/auth/$' % self._meta.resource_name, self.wrap_view('dispatch_auth'), name="api_dispatch_auth"),
+            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/passwordreset/$' % self._meta.resource_name, self.wrap_view('dispatch_passwordreset'), name="api_dispatch_passwordreset"),
         ]
 
     def dispatch_auth(self, request, **kwargs):
@@ -125,3 +133,60 @@ class UserResource(api.v1.resources.UserResource):
             raise BadRequest('Missing field: ' + str(key))
         except ObjectDoesNotExist:
             raise BadRequest('Invalid email/password hash combination in header x-SNAP-User')
+
+    def dispatch_passwordreset(self, request, **kwargs):
+        """
+        A view for handling the various HTTP methods (GET/POST/PUT/DELETE) on
+        a single resource.
+
+        Relies on ``Resource.dispatch`` for the heavy-lifting.
+        """
+        return self.dispatch('passwordreset', request, **kwargs)
+
+    def post_passwordreset(self, request, **kwargs):
+        """
+        Creates a new resource/object with the provided data.
+
+        Calls ``obj_create`` with the provided data and returns a response
+        with the new resource's location.
+
+        If a new resource is created, return ``HttpCreated`` (201 Created).
+        If ``Meta.always_return_data = True``, there will be a populated body
+        of serialized data.
+        """
+        deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        deserialized = self.alter_deserialized_detail_data(request, deserialized)
+        bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized), request=request)
+        location = self.get_resource_uri(bundle)
+
+        # get the user
+        user = User.objects.get(pk=kwargs['pk'])
+
+        # create the passwordnonce and save
+        passnonce = PasswordNonce()
+        passnonce.user = user
+        passnonce.valid = True
+        passnonce.save()
+
+        # whitelist check for url
+        if ('url' in bundle.data.keys() and re.match('https?://(.+\.)?snapable\.com', bundle.data['url']) != None):
+            # load in the templates
+            plaintext = get_template('passwordreset_email.txt')
+            html = get_template('passwordreset_email.html')
+
+            # setup the template context variables
+            resetUrl = bundle.data['url']+passnonce.nonce
+            d = Context({'reset_url': resetUrl })
+
+            # build the email
+            subject, from_email, to = 'Snapable: Password Reset', 'team@snapable.com', [user.email]
+            text_content = plaintext.render(d)
+            html_content = html.render(d)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+        elif ('url' in bundle.data.keys()):
+            raise BadRequest('Invalid URL. Must be of type http(s)://*.snapable.com')
+
+        return http.HttpCreated(location=location)
