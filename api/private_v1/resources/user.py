@@ -86,6 +86,7 @@ class UserResource(api.v1.resources.UserResource):
         return [
             url(r'^(?P<resource_name>%s)/auth/$' % self._meta.resource_name, self.wrap_view('dispatch_auth'), name="api_dispatch_auth"),
             url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/passwordreset/$' % self._meta.resource_name, self.wrap_view('dispatch_passwordreset'), name="api_dispatch_passwordreset"),
+            url(r'^(?P<resource_name>%s)/passwordreset/(?P<nonce>\w+)/$' % self._meta.resource_name, self.wrap_view('dispatch_passwordreset'), name="api_dispatch_passwordreset"),
         ]
 
     def dispatch_auth(self, request, **kwargs):
@@ -141,7 +142,14 @@ class UserResource(api.v1.resources.UserResource):
 
         Relies on ``Resource.dispatch`` for the heavy-lifting.
         """
-        return self.dispatch('passwordreset', request, **kwargs)
+        if ('nonce' in kwargs.keys()):
+            nonce = PasswordNonce.objects.get(nonce=kwargs['nonce'])
+            user = User.objects.get(pk=nonce.user_id)
+            kwargs['pk'] = user.id
+            del(kwargs['nonce'])
+            return self.dispatch('detail', request, **kwargs)
+        else:
+            return self.dispatch('passwordreset', request, **kwargs)
 
     def post_passwordreset(self, request, **kwargs):
         """
