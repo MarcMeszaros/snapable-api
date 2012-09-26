@@ -18,6 +18,7 @@ class User(models.Model):
     terms = models.BooleanField(default=False, help_text='If the user accespted the Terms Of Service.')
     creation_date = models.DateTimeField(auto_now_add=True, help_text='When the user was created. (UTC)')
     last_access = models.DateTimeField(auto_now_add=True, help_text='When the user last accessed the system. (UTC)')
+    payment_gateway_user_id = models.CharField(max_length=255, null=True, default=None, help_text='The user ID on the payment gateway linked to this account.')
 
     def set_password(self, raw_password, hasher='pbkdf2_sha256'):
         #if hasher == 'bcrypt':

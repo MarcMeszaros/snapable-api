@@ -28,6 +28,7 @@ The following are the minimum system requirements:
 * mysql-dev
 - MySQLdb (http://sourceforge.net/projects/mysql-python)
 - Django (https://www.djangoproject.com/)
+- JSONField (https://github.com/bradjasper/django-jsonfield)
 - South (https://bitbucket.org/andrewgodwin/south)
 - Tastypie (https://github.com/toastdriven/django-tastypie)
 - Netifaces (http://alastairs-place.net/projects/netifaces/)
