@@ -25,6 +25,7 @@ The following are the minimum system requirements:
 * python-pip
 * libjpeg-dev
 * libraw-dev
+* libevent-dev
 * mysql-dev
 - MySQLdb (http://sourceforge.net/projects/mysql-python)
 - Django (https://www.djangoproject.com/)
@@ -59,7 +60,7 @@ Run the following commands:
 
     > git clone git@bitbucket.org:snapable/api.git snapable
     > cd snapable
-    > apt-get install build-essential python python-dev python-pip libjpeg-dev libraw-dev
+    > apt-get install build-essential python python-dev python-pip libjpeg-dev libraw-dev libevent-dev
     > pip install --upgrade
     > pip install -r requirements.txt
     > ./manage.py syncdb

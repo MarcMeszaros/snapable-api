@@ -11,6 +11,7 @@ cfg_port = '8000' # the port we should bind to
 bind = cfg_eth1_address + ':' + cfg_port
 workers = multiprocessing.cpu_count() * 2 + 1
 #daemon = True # disable daemon for now because of a weird worker spawning problem, just add "&" to your command to detach the terminal
+worker_class = 'gevent' # default: sync
 timeout = 120
 graceful_timeout = 120
 
