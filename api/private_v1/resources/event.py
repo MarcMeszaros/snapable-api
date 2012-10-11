@@ -31,6 +31,7 @@ class EventResource(api.v1.resources.EventResource):
     Meta.fields += ['cover']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
+    Meta.ordering += ['start', 'end']
     Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = Authorization()
     Meta.serializer = EventSerializer(formats=['json', 'jpeg'])

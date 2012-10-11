@@ -13,6 +13,7 @@ class EventResource(ModelResource):
         fields = ['start', 'end', 'title', 'url', 'pin', 'creation_date', 'enabled']
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
+        ordering = []
         always_return_data = True
         filtering = {
             'url': ALL,
