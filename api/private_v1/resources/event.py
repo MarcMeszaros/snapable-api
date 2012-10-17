@@ -87,7 +87,7 @@ class EventResource(api.v1.resources.EventResource):
             # 0.000001 * 18018 = 0.018018 ~ 2km
             # 0.000001 * 9009 = 0.009009 ~ 1km
             # variance calculation
-            delta_distance = Decimal('0.450449')
+            delta_distance = Decimal('0.225225')
             lat_lower = Decimal(request.GET['lat']) - delta_distance
             lat_upper = Decimal(request.GET['lat']) + delta_distance
             lng_lower = Decimal(request.GET['lng']) - delta_distance
@@ -120,7 +120,7 @@ class EventResource(api.v1.resources.EventResource):
             if (len(list(set(request.GET.keys()) & set(possible_time_params))) == 0):
 
                 # query filtering variables
-                delta_minutes = 48 * 60
+                delta_minutes = 24 * 60
                 now_datetime = datetime.now(pytz.utc) # current time on server
                 pre_now_datetime = now_datetime + timedelta(0, 0, 0, 0, -delta_minutes) # delta minutes in the past
                 post_now_datetime = now_datetime + timedelta(0, 0, 0, 0, delta_minutes) # delta minutes in the future
