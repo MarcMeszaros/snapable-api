@@ -187,7 +187,7 @@ class UserResource(api.v1.resources.UserResource):
             d = Context({'reset_url': resetUrl })
 
             # build the email
-            subject, from_email, to = 'Snapable: Password Reset', 'team@snapable.com', [user.email]
+            subject, from_email, to = 'Snapable: Password Reset', 'Snapable Team <team@snapable.com>', [user.email]
             text_content = plaintext.render(d)
             html_content = html.render(d)
             msg = EmailMultiAlternatives(subject, text_content, from_email, to)
