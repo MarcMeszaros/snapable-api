@@ -24,15 +24,33 @@ class ServerAuthentication(Authentication):
             # get the Authorization header
             auth = request.META['HTTP_AUTHORIZATION'].strip().split(' ')
             auth_snap = auth[0].lower()
-            key = auth[1].split(':')[0]
-            secret = settings.APIKEY[key]
-            signature = auth[1].split(':')[1]
 
-            # build the signature ourselve
+            # get the request verb and path
             request_method = request.META['REQUEST_METHOD']
             request_path = request.path
-            x_snap_nonce = request.META['HTTP_X_SNAP_NONCE']
-            x_snap_date = request.META['HTTP_X_SNAP_DATE']
+
+            if "snap_signature" in auth[1]:
+                # get signature info all in Authorization header
+                auth_parts = auth[1].strip().split(',')
+                auth_params = dict()
+                for part in auth_parts:
+                    items = part.replace('"','').split('=')
+                    auth_params[items[0]] = items[1]
+
+                # add the parts to proper varibles for signature
+                key = auth_params['snap_key']
+                secret = settings.APIKEY[key]
+                signature = auth_params['snap_signature']
+                x_snap_nonce = auth_params['snap_nonce']
+                x_snap_date = auth_params['snap_date']
+
+            else:
+                # api signature info in multiple headers
+                key = auth[1].split(':')[0]
+                secret = settings.APIKEY[key]
+                signature = auth[1].split(':')[1]
+                x_snap_nonce = request.META['HTTP_X_SNAP_NONCE']
+                x_snap_date = request.META['HTTP_X_SNAP_DATE']
 
             # create the raw string to hash
             raw = key + request_method + request_path + x_snap_nonce + x_snap_date
