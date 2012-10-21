@@ -28,7 +28,6 @@ class EventResource(api.v1.resources.EventResource):
 
     user = fields.ForeignKey(UserResource, 'user')
     package = fields.ForeignKey(PackageResource, 'package')
-    type = fields.ForeignKey(TypeResource, 'type')
 
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
     Meta.fields += ['cover']
@@ -69,8 +68,26 @@ class EventResource(api.v1.resources.EventResource):
             bundle.data['addresses'] = json_addresses
             # add the photo count
             bundle.data['photo_count'] = photo_count
+
+            # convert the "public" flag into the old type values
+            if bundle.obj.public == True:
+                bundle.data['type'] = '/private_v1/type/6/'
+            else:
+                bundle.data['type'] = '/private_v1/type/5/'
+
         except ObjectDoesNotExist:
             pass
+
+        return bundle
+
+    def hydrate(self, bundle):
+        
+        # convert the old type values into "public" flag 
+        if bundle.data.has_key('type'):
+            if bundle.data['type'] == '/private_v1/type/6/':
+                bundle.obj.public = True
+            else:
+                bundle.obj.public = False
 
         return bundle
 
