@@ -43,7 +43,7 @@ The application is set to use the following MySQL credentials by default:
 3. Apply the database migrations.
 4. Simply run the application using wsgi. Using gunicorn (http://gunicorn.org/) is recommended.
 
-INSTALLATION EXAMPLE:
+## INSTALLATION EXAMPLE: ##
 Run the following commands:
 
     > git clone git@bitbucket.org:snapable/api.git snapable
