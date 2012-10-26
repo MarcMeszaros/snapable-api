@@ -13,6 +13,7 @@ from tastypie.exceptions import BadRequest
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie import http
 
+from data.models import Account
 from data.models import PasswordNonce
 from data.models import User
 
@@ -74,6 +75,16 @@ class UserResource(api.v1.resources.UserResource):
                 bundle.obj.password = "$".join(password)
             except KeyError as key:
                 raise BadRequest('Missing field: ' + str(key))
+
+        return bundle
+
+    def obj_create(self, bundle, request=None, **kwargs):
+        bundle = super(UserResource, self).obj_create(bundle, request)
+
+        # create a new account entry and set the new user as the admin
+        user = User.objects.get(pk=bundle.obj.id)
+        account = Account(admin=user)
+        account.save()
 
         return bundle
 

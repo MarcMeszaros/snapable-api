@@ -1,5 +1,6 @@
 from tastypie.api import Api
 
+from resources import AccountResource
 from resources import AddonResource
 from resources import AddressResource
 from resources import AlbumResource
@@ -16,6 +17,7 @@ class SnapableApi(Api):
 
     def __init__(self):
         Api.__init__(self, api_name='private_v1')
+        self.register(AccountResource())
         self.register(AddonResource())
         self.register(AddressResource())
         #self.register(AlbumResource())

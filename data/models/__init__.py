@@ -5,6 +5,7 @@ from data.models.type import Type
 from data.models.addon import Addon
 
 # second level: depends on independent models
+from data.models.account import Account # depends: User
 from data.models.passwordnonce import PasswordNonce # depends: User
 from data.models.event import Event # depends: User, Package
 

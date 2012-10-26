@@ -1,3 +1,4 @@
+from account import AccountResource
 from addon import AddonResource
 from address import AddressResource
 from album import AlbumResource
