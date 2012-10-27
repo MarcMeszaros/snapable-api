@@ -5,11 +5,13 @@ from tastypie import fields
 from data.models import Account
 from data.models import User
 
+from package import PackageResource
 from user import UserResource
 
 class AccountResource(api.v1.resources.AccountResource):
 
     admin = fields.ForeignKey(UserResource, 'admin')
+    package = fields.ForeignKey(PackageResource, 'package')
 
     Meta = api.v1.resources.AccountResource.Meta # set Meta to the public API Meta
     Meta.fields += ['admin']

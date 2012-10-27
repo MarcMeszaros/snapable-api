@@ -1,5 +1,6 @@
 from django.db import models
 
+from data.models import Package
 from data.models import User
 
 class Account(models.Model):
@@ -9,3 +10,4 @@ class Account(models.Model):
         app_label = 'data'
 
     admin = models.ForeignKey(User)
+    package = models.ForeignKey(Package)

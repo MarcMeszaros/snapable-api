@@ -15,7 +15,6 @@ from tastypie.authorization import Authorization
 from tastypie.resources import ALL
 
 from account import AccountResource
-from package import PackageResource
 
 from data.models import Address
 from data.models import Event
@@ -26,7 +25,6 @@ from api.serializers import EventSerializer
 class EventResource(api.v1.resources.EventResource):
 
     account = fields.ForeignKey(AccountResource, 'account')
-    package = fields.ForeignKey(PackageResource, 'package')
 
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
     Meta.fields += ['cover']
@@ -70,6 +68,9 @@ class EventResource(api.v1.resources.EventResource):
 
             # add the old user field
             bundle.data['user'] = '/private_v1/user/'+str(bundle.obj.account.admin.id)+'/'
+
+            # add the old package field
+            bundle.data['package'] = '/private_v1/package/'+str(bundle.obj.account.package.id)+'/'
 
             # convert the "public" flag into the old type values
             if bundle.obj.public == True:
