@@ -2,11 +2,11 @@ from tastypie import fields
 from tastypie.resources import ModelResource
 from data.models import Order
 
-from event import EventResource
+from account import AccountResource
 
 class OrderResource(ModelResource):
 
-    event = fields.ForeignKey(EventResource, 'event')
+    account = fields.ForeignKey(AccountResource, 'account')
 
     class Meta:
         queryset = Order.objects.all()
