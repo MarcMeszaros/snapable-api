@@ -1,17 +1,18 @@
 [
 {"pk": 1, "model": "data.package", 
     "fields": {
-        "prints": 0, 
-        "guest_reminders": true, 
         "name": "Free", 
         "short_name": "free", 
-        "additional_price_per_print": "1.00", 
         "price": "0.00", 
-        "table_cards": true, 
         "enabled": true, 
-        "slideshow": true, 
-        "shipping": false, 
-        "albums": 1
+        "items": {
+            "features": ["table_cards", "slideshow", "guest_reminders"],
+            "addons": [],
+            "modifiers": {
+                "price_per_print": "1.00",
+                "albums": 1
+            }
+        }
     }
 },
 

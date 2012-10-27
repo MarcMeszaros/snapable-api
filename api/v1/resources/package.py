@@ -8,14 +8,14 @@ class PackageResource(ModelResource):
             'short_name', 
             'name', 
             'price', 
-            'prints', 
-            'additional_price_per_print', 
-            'albums', 
-            'slideshow',
-            'shipping',
-            'table_cards',
-            'guest_reminders'
+            'items'
         ]
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
         always_return_data = True
+
+    def dehydrate(self, bundle):
+        # small hack required to make the field return as json
+        bundle.data['items'] = bundle.obj.items
+
+        return bundle
