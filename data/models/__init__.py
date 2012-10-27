@@ -17,6 +17,7 @@ from data.models.order import Order # depends: Event
 
 # fourth level: depends on third level models or below
 from data.models.album import Album # depends: Event, Type, Photo
+from data.models.accountaddon import AccountAddon # depends: Event, Addon, Order
 from data.models.eventaddon import EventAddon # depends: Event, Addon, Order
 
 # fifth level: depends on fourth level models or below
