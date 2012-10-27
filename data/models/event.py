@@ -1,16 +1,15 @@
 from django.db import models
 
+from data.models import Account
 from data.models import Package
-from data.models import Type
-from data.models import User
 
 class Event(models.Model):
 
     # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
-    
-    user = models.ForeignKey(User)
+
+    account = models.ForeignKey(Account)
     package = models.ForeignKey(Package)
 
     cover = models.IntegerField(default=0, help_text='Integer data. The photo ID of the image to use for the event cover.') # dirty hack... fix this...
