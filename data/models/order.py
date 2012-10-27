@@ -11,7 +11,7 @@ class Order(models.Model):
 
     account = models.ForeignKey(Account)
 
-    total = models.DecimalField(max_digits=6, decimal_places=2, help_text='The per unit addon price.') # 9999.99
+    total_price = models.DecimalField(max_digits=6, decimal_places=2, help_text='The per unit addon price.') # 9999.99
     timestamp = models.DateTimeField(auto_now_add=True, help_text='When the order was processed. (UTC)')
     items = JSONField(help_text='The items payed for.')
     payment_gateway_invoice_id = models.CharField(max_length=255, help_text='The invoice id for the payment gateway.')

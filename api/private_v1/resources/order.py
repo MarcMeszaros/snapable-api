@@ -19,7 +19,7 @@ class OrderResource(ModelResource):
 
     class Meta:
         queryset = Order.objects.all()
-        fields = ['total', 'timestamp', 'payment_gateway_invoice_id', 'print_gateway_invoice_id', 'items']
+        fields = ['total_price', 'timestamp', 'payment_gateway_invoice_id', 'print_gateway_invoice_id', 'items']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put']
         always_return_data = True
