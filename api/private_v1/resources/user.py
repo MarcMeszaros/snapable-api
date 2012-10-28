@@ -10,14 +10,20 @@ from django.template import Context
 
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest
+from tastypie import fields
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie import http
 
 from data.models import Account
+from data.models import Package
 from data.models import PasswordNonce
 from data.models import User
 
 class UserResource(api.v1.resources.UserResource):
+
+    # the accounts the user belongs to
+    # seems to break on post
+    #accounts = fields.ToManyField('api.private_v1.resources.AccountResource', 'user', related_name='account', default=None, blank=True, null=True) #attribute=lambda bundle: Account.objects.filter(admin=bundle.obj))
 
     Meta = api.v1.resources.UserResource.Meta # set Meta to the public API Meta
     Meta.fields += ['billing_zip', 'terms']
@@ -44,6 +50,13 @@ class UserResource(api.v1.resources.UserResource):
             bundle.data['password_algorithm'] = db_pass[0]
             bundle.data['password_iterations'] = pass_parts[0]
             bundle.data['password_salt'] = pass_parts[1]
+
+        # get the accounts the user belongs to
+        json_accounts = []
+        for account in Account.objects.filter(admin=bundle.obj):
+            json_accounts.append('/private_v1/account/'+str(account.id)+'/')
+
+        bundle.data['accounts'] = json_accounts
 
         return bundle
 
@@ -84,6 +97,18 @@ class UserResource(api.v1.resources.UserResource):
         # create a new account entry and set the new user as the admin
         user = User.objects.get(pk=bundle.obj.id)
         account = Account(admin=user)
+        default_package_id = 1
+        
+        # if the package resource is included try and use it when creating the new account
+        if bundle.data.has_key('package'):
+            package_parts = bundle.data['package'].split('/')
+            if Package.objects.filter(pk=int(package_parts[3])).exists():
+                account.package_id = int(package_parts[3])
+            else:
+                account.package_id = default_package_id
+        else:
+            account.package_id = default_package_id
+        
         account.save()
 
         return bundle
