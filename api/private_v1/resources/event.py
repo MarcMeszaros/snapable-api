@@ -36,7 +36,7 @@ class EventResource(api.v1.resources.EventResource):
     Meta.serializer = EventSerializer(formats=['json', 'jpeg'])
     Meta.filtering = dict(Meta.filtering, **{
         'enabled': ['exact'],
-        'user': ['exact'], 
+        'account': ['exact'],
         'start': ALL,
         'end': ALL,
     })
