@@ -10,7 +10,7 @@ class EventResource(ModelResource):
 
     class Meta:
         queryset = Event.objects.all()
-        fields = ['start', 'end', 'title', 'url', 'pin', 'creation_date', 'enabled', 'public']
+        fields = ['start', 'end', 'offset', 'title', 'url', 'pin', 'creation_date', 'enabled', 'public']
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
         ordering = []
