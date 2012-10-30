@@ -4,13 +4,11 @@ from data.models import AccountAddon
 
 from addon import AddonResource
 from event import EventResource
-from order import OrderResource
 
 class AccountAddonResource(ModelResource):
 
     event = fields.ForeignKey(EventResource, 'event')
     addon = fields.ForeignKey(AddonResource, 'addon')
-    order = fields.ForeignKey(OrderResource, 'order', null=True)
 
     class Meta:
         queryset = AccountAddon.objects.all()
@@ -21,5 +19,4 @@ class AccountAddonResource(ModelResource):
         filtering = {
             'event': ALL,
             'addon': ALL,
-            'order': ALL,
         }

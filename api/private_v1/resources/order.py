@@ -88,22 +88,17 @@ class OrderResource(ModelResource):
     def obj_create(self, bundle, request=None, **kwargs):
         bundle = super(OrderResource, self).obj_create(bundle, request)
 
-        # get the order
-        order = bundle.obj
-
         # loop through account_addons & event_addons and mark as paid
         # mark all the account addons as paid for
         for account_addon in order.items['account_addons']:
             addon = AccountAddon.objects.get(pk=account_addon)
             addon.paid = True
-            addon.order = order
             addon.save()
 
         # mark all the event addons as paid for
         for event_addon in order.items['event_addons']:
             addon = EventAddon.objects.get(pk=event_addon)
             addon.paid = True
-            addon.order = order
             addon.save()
 
         return bundle
