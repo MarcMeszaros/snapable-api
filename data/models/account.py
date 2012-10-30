@@ -1,5 +1,6 @@
 from django.db import models
 
+from data.models import Addon
 from data.models import Package
 from data.models import User
 
@@ -11,3 +12,4 @@ class Account(models.Model):
 
     admin = models.ForeignKey(User)
     package = models.ForeignKey(Package)
+    addons = models.ManyToManyField(Addon, through='AccountAddon')

@@ -2,13 +2,13 @@ from tastypie import fields
 from tastypie.resources import ALL, ModelResource
 from data.models import AccountAddon
 
+from account import AccountResource
 from addon import AddonResource
-from event import EventResource
 
 class AccountAddonResource(ModelResource):
 
-    event = fields.ForeignKey(EventResource, 'event')
-    addon = fields.ForeignKey(AddonResource, 'addon')
+    account = fields.ForeignKey(AccountResource, 'account')
+    addon = fields.ForeignKey(AddonResource, 'addon', full=True)
 
     class Meta:
         queryset = AccountAddon.objects.all()
