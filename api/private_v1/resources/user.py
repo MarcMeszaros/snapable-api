@@ -15,6 +15,7 @@ from tastypie.utils import dict_strip_unicode_keys
 from tastypie import http
 
 from data.models import Account
+from data.models import AccountUser
 from data.models import Package
 from data.models import PasswordNonce
 from data.models import User
@@ -53,7 +54,7 @@ class UserResource(api.v1.resources.UserResource):
 
         # get the accounts the user belongs to
         json_accounts = []
-        for account in Account.objects.filter(admin=bundle.obj):
+        for account in bundle.obj.account_set.all():
             json_accounts.append('/private_v1/account/'+str(account.id)+'/')
 
         bundle.data['accounts'] = json_accounts
@@ -95,8 +96,7 @@ class UserResource(api.v1.resources.UserResource):
         bundle = super(UserResource, self).obj_create(bundle, request)
 
         # create a new account entry and set the new user as the admin
-        user = User.objects.get(pk=bundle.obj.id)
-        account = Account(admin=user)
+        account = Account()
         default_package_id = 1
         
         # if the package resource is included try and use it when creating the new account
@@ -108,8 +108,13 @@ class UserResource(api.v1.resources.UserResource):
                 account.package_id = default_package_id
         else:
             account.package_id = default_package_id
-        
+
+        # create the account entry
         account.save()
+
+        # add the user as an admin to the new account
+        accountuser = AccountUser(account=account, user=bundle.obj, admin=True)
+        accountuser.save()
 
         return bundle
 

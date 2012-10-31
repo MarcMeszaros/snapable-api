@@ -10,6 +10,6 @@ class Account(models.Model):
     class Meta:
         app_label = 'data'
 
-    admin = models.ForeignKey(User)
     package = models.ForeignKey(Package)
     addons = models.ManyToManyField(Addon, through='AccountAddon')
+    users = models.ManyToManyField(User, through='AccountUser')

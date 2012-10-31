@@ -19,6 +19,7 @@ from account import AccountResource
 from data.models import Address
 from data.models import Event
 from data.models import Photo
+from data.models import User
 
 from api.serializers import EventSerializer
 
@@ -50,25 +51,22 @@ class EventResource(api.v1.resources.EventResource):
         # try and add address info
         try:
             # get all addresses for the event
-            db_addresses = Address.objects.filter(event_id=bundle.obj.id)
-            photo_count = Photo.objects.filter(event_id=bundle.obj.id).count()
-            
-            # add the addresses for the event
             json_addresses = []
-            for obj in db_addresses:
+            for addr in Address.objects.filter(event_id=bundle.obj.id):
                 json_addresses.append({
-                    'address': obj.address,
-                    'lat': obj.lat,
-                    'lng': obj.lng,
+                    'address': addr.address,
+                    'lat': addr.lat,
+                    'lng': addr.lng,
                 })
 
             # append the addresses to the json response
             bundle.data['addresses'] = json_addresses
             # add the photo count
-            bundle.data['photo_count'] = photo_count
+            bundle.data['photo_count'] = Photo.objects.filter(event_id=bundle.obj.id).count()
 
             # add the old user field
-            bundle.data['user'] = '/private_v1/user/'+str(bundle.obj.account.admin.id)+'/'
+            users = User.objects.filter(account=bundle.obj.account, accountuser__admin=True)
+            bundle.data['user'] = '/private_v1/user/'+str(users[0].id)+'/'
 
             # add the old package field
             bundle.data['package'] = '/private_v1/package/'+str(bundle.obj.account.package.id)+'/'

@@ -9,7 +9,7 @@ from data.models.account import Account # depends: User
 from data.models.passwordnonce import PasswordNonce # depends: User
 
 # third level: depends on second level models or below
-#from data.models.accountuser import AccountUser # depends: Account, User
+from data.models.accountuser import AccountUser # depends: Account, User
 from data.models.event import Event # depends: Account, Package
 
 # fourth level: depends on third level models or below
