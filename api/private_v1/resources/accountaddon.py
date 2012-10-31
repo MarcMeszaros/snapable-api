@@ -17,6 +17,6 @@ class AccountAddonResource(ModelResource):
         detail_allowed_methods = ['get', 'post', 'put', 'delete']
         always_return_data = True
         filtering = {
-            'event': ALL,
+            'account': ALL,
             'addon': ALL,
         }
