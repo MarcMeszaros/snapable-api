@@ -8,7 +8,7 @@ from event import EventResource
 class EventAddonResource(ModelResource):
 
     event = fields.ForeignKey(EventResource, 'event')
-    addon = fields.ForeignKey(AddonResource, 'addon')
+    addon = fields.ForeignKey(AddonResource, 'addon', full=True)
 
     class Meta:
         queryset = EventAddon.objects.all()

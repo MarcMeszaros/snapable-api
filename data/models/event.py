@@ -1,6 +1,7 @@
 from django.db import models
 
 from data.models import Account
+from data.models import Addon
 
 class Event(models.Model):
 
@@ -9,6 +10,7 @@ class Event(models.Model):
         app_label = 'data'
 
     account = models.ForeignKey(Account)
+    addons = models.ManyToManyField(Addon, through='EventAddon')
 
     cover = models.IntegerField(default=0, help_text='Integer data. The photo ID of the image to use for the event cover.') # dirty hack... fix this...
 

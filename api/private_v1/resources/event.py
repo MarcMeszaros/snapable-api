@@ -25,6 +25,7 @@ from api.serializers import EventSerializer
 class EventResource(api.v1.resources.EventResource):
 
     account = fields.ForeignKey(AccountResource, 'account')
+    addons = fields.ManyToManyField('api.private_v1.resources.EventAddonResource', 'eventaddon_set', full=True)
 
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
     Meta.fields += ['cover']
