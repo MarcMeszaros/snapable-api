@@ -11,7 +11,7 @@ from user import UserResource
 class AccountResource(api.v1.resources.AccountResource):
 
     package = fields.ForeignKey(PackageResource, 'package')
-    addons = fields.ManyToManyField('api.private_v1.resources.AccountAddonResource', 'accountaddon_set', full=True)
+    addons = fields.ManyToManyField('api.private_v1.resources.AccountAddonResource', 'accountaddon_set', null=True, full=True)
     users = fields.ManyToManyField('api.private_v1.resources.AccountUserResource', 'accountuser_set', full=True)
 
     Meta = api.v1.resources.AccountResource.Meta # set Meta to the public API Meta
