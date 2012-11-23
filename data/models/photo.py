@@ -28,6 +28,21 @@ class Photo(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, help_text='The photo timestamp.')
     metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics
 
+    # override built-in delete function
+    def delete(self):
+        conn = cloudfiles.Connection(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY, settings.RACKSPACE_CLOUDFILE_TIMEOUT)
+        cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+
+        # get all files related to this photo (original + resizes)
+        images = cont.list_objects(prefix=str(self.event.id)+'/'+str(self.id)+'_')
+
+        # loop through the list and delete them
+        for image in images:
+            cont.delete_object(image)
+
+        # delete the model as usual
+        super(Photo, self).delete()
+
     # helper functions for the image storage
     def get_image(self, size='orig'):
         """
