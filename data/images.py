@@ -14,6 +14,8 @@ class SnapImage(object):
         else:
             self._img = Image
 
+        self._rotate_upright()
+
     def __getattr__(self, name):
         if name == 'img':
             return self._img
@@ -26,6 +28,17 @@ class SnapImage(object):
             return getattr(self._img, name)
 
     def resize(self, size):
+        if self._rotate_upright():
+            img = self._img.copy()
+            try:
+                # get the size param
+                self._img = self._img.resize(size, Image.ANTIALIAS)
+                return True
+            except Exception as e:
+                self._img = img
+                return False
+
+    def _rotate_upright(self):
         img = self._img.copy()
         try:
             exif = self.exif
@@ -38,8 +51,6 @@ class SnapImage(object):
             elif exif.has_key(0x0112) and exif[0x0112] == 8:
                 self._img = self._img.rotate(90, expand=True)
 
-            # get the size param
-            self._img = self._img.resize(size, Image.ANTIALIAS)
             return True
         except Exception as e:
             self._img = img
