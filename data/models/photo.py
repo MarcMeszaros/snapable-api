@@ -10,6 +10,8 @@ from data.models import Event
 from data.models import Guest
 from data.models import Type
 
+import api.loggers
+
 class Photo(models.Model):
 
     # required to make 'south' migrations work
@@ -27,7 +29,7 @@ class Photo(models.Model):
     metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics
 
     # helper functions for the image storage
-    def getImage(self, size='orig'):
+    def get_image(self, size='orig'):
         """
         Get the SnapImage from Cloud Files.
         """
@@ -35,7 +37,7 @@ class Photo(models.Model):
             #connect to container
             try:
                 conn = cloudfiles.Connection(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY, settings.RACKSPACE_CLOUDFILE_TIMEOUT)
-                cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / 1000))
+                cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
                 # try an get the size wanted
                 try:
@@ -69,16 +71,28 @@ class Photo(models.Model):
         else:
             raise Exception('No Photo ID and/or Event ForeignKey specified.')
 
-    def saveImage(self, image, orig=False):
+    def save_image(self, image, orig=False):
         """
         Save the SnapImage to CloudFiles.
         """
-        if isinstance(image, SnapImage):
+        size = 'orig'
+        if orig == False:
             width, height = image.img.size
+            size = str(width)+'x'+str(height)
 
-            # save the new photo size
-            #obj = cont.create_object(str(self.event.id) + '/' + str(self.id) + '_' + size + '.jpg')
-            #obj.content_type = 'image/jpeg'
-            #obj.write(snapimg.img.tostring('jpeg', 'RGB'))
-        else:
-            raise TypeError
+        conn = cloudfiles.Connection(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY, settings.RACKSPACE_CLOUDFILE_TIMEOUT)
+        cont = None
+        try:
+            cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+        except cloudfiles.errors.NoSuchContainer as e:
+            cont = conn.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+            api.loggers.Log.i('created a new container: ' + settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+
+        # save the new photo size
+        try:
+            obj = cont.create_object(str(self.event.id) + '/' + str(self.id) + '_' + size + '.jpg')
+            obj.content_type = 'image/jpeg'
+            obj.write(image.img.tostring('jpeg', 'RGB'))
+
+        except cloudfiles.errors.NoSuchContainer as e:
+            return None
