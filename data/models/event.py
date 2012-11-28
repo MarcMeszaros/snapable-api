@@ -16,7 +16,7 @@ class Event(models.Model):
 
     start = models.DateTimeField(help_text='Event start time. (UTC)')
     end = models.DateTimeField(help_text='Event end time. (UTC)')
-    offset = models.IntegerField(default=0, help_text='The timezone offset (in minutes) from UTC.')
+    tz_offset = models.IntegerField(default=0, help_text='The timezone offset (in minutes) from UTC.')
     title = models.CharField(max_length=255, help_text='Event title.')
     url = models.CharField(max_length=255, help_text='A "short name" for the event.')
     public = models.BooleanField(default=True, help_text='Is the event considered "public".')

@@ -21,6 +21,10 @@ from data.models import Guest
 
 from api.serializers import PhotoSerializer
 
+from data.images import SnapImage
+import StringIO
+from PIL import Image
+
 class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource):
 
     event = fields.ForeignKey(EventResource, 'event')
@@ -67,21 +71,10 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
     def obj_create(self, bundle, request=None, **kwargs):
         bundle = super(PhotoResource, self).obj_create(bundle, request)
 
-        #US-based Cloud Files accounts - uncomment if your account is in the US
-        conn = cloudfiles.Connection(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY, settings.RACKSPACE_CLOUDFILE_TIMEOUT)
-
-        #connect to container
-        cont = None
-        try:
-            cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(bundle.obj.event_id / 1000))
-        except cloudfiles.errors.NoSuchContainer as e:
-            cont = conn.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(bundle.obj.event_id / 1000))
-            api.loggers.Log.i('created a new container: ' + settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(bundle.obj.event_id / 1000))
-
-        obj = cont.create_object(str(bundle.obj.event_id) + '/' + str(bundle.obj.id) + '_orig.jpg')
-        #if the content_type is not specified the binding will attempt to guess the correct type
-        obj.content_type = 'image/jpeg'
-        obj.write(bundle.data['image'])
+        # save the image to the database
+        img = Image.open(StringIO.StringIO(bundle.data['image'].read()))
+        snapimg = SnapImage(img)
+        bundle.obj.save_image(snapimg, True)
 
         return bundle
 

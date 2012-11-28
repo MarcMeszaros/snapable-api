@@ -137,8 +137,6 @@ INSTALLED_APPS = (
 
     # core apps for snapable
     'api',
-
-    # various sub-apps for snapable
     'data',
     # third-party libraries/apps
     'raven.contrib.django',
@@ -225,6 +223,7 @@ DEBUG_AUTHORIZATION = DEBUG
 # RACKSPACE
 RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_photos_'
 RACKSPACE_CLOUDFILE_TIMEOUT = 120
+RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = 10000
 
 # tastypie settings
 API_LIMIT_PER_PAGE = 50
