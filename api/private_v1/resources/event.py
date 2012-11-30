@@ -27,6 +27,7 @@ class EventResource(api.v1.resources.EventResource):
 
     account = fields.ForeignKey(AccountResource, 'account')
     addons = fields.ManyToManyField('api.private_v1.resources.EventAddonResource', 'eventaddon_set', null=True, full=True)
+    addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'address_set', null=True, full=True) 
 
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
     Meta.fields += ['cover']
@@ -47,23 +48,11 @@ class EventResource(api.v1.resources.EventResource):
         api.v1.resources.EventResource.__init__(self)
 
     def dehydrate(self, bundle):
-
-        # try and add address info
         try:
-            # get all addresses for the event
-            json_addresses = []
-            for addr in Address.objects.filter(event_id=bundle.obj.id):
-                json_addresses.append({
-                    'address': addr.address,
-                    'lat': addr.lat,
-                    'lng': addr.lng,
-                })
-
-            # append the addresses to the json response
-            bundle.data['addresses'] = json_addresses
             # add the photo count
             bundle.data['photo_count'] = Photo.objects.filter(event_id=bundle.obj.id).count()
 
+            ### DEPRECATED/COMPATIBILITY ###
             # add the old user field
             users = User.objects.filter(account=bundle.obj.account, accountuser__admin=True)
             bundle.data['user'] = '/private_v1/user/'+str(users[0].id)+'/'

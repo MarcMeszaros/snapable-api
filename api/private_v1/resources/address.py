@@ -10,7 +10,7 @@ class AddressResource(api.v1.resources.AddressResource):
     event = fields.ForeignKey(EventResource, 'event')
 
     Meta = api.v1.resources.AddressResource.Meta # set Meta to the public API Meta
-    Meta.fields += ['address', 'lat', 'lng', 'creation_date']
+    Meta.fields += ['address', 'lat', 'lng']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.authentication = api.auth.ServerAuthentication()
