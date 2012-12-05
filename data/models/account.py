@@ -13,3 +13,4 @@ class Account(models.Model):
     package = models.ForeignKey(Package)
     addons = models.ManyToManyField(Addon, through='AccountAddon')
     users = models.ManyToManyField(User, through='AccountUser')
+    valid_until = models.DateTimeField(null=True, default=None, help_text='If set, the account is valid until this date (UTC). [Usually set when buying a package.]')
