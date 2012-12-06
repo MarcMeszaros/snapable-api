@@ -25,7 +25,7 @@ from api.serializers import EventSerializer
 
 class EventResource(api.v1.resources.EventResource):
 
-    account = fields.ForeignKey(AccountResource, 'account')
+    account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
     addons = fields.ManyToManyField('api.private_v1.resources.EventAddonResource', 'eventaddon_set', null=True, full=True)
     addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'address_set', null=True, full=True) 
 

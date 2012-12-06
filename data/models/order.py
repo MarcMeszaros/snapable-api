@@ -2,6 +2,7 @@ from django.db import models
 from jsonfield import JSONField
 
 from data.models import Account
+from data.models import User
 
 class Order(models.Model):
     
@@ -10,6 +11,7 @@ class Order(models.Model):
         app_label = 'data'
 
     account = models.ForeignKey(Account)
+    user = models.ForeignKey(User, null=True)
 
     total_price = models.DecimalField(max_digits=6, decimal_places=2, help_text='The per unit addon price.') # 9999.99
     timestamp = models.DateTimeField(auto_now_add=True, help_text='When the order was processed. (UTC)')

@@ -90,13 +90,13 @@ class OrderResource(ModelResource):
 
         # loop through account_addons & event_addons and mark as paid
         # mark all the account addons as paid for
-        for account_addon in order.items['account_addons']:
+        for account_addon in bundle.obj.items['account_addons']:
             addon = AccountAddon.objects.get(pk=account_addon)
             addon.paid = True
             addon.save()
 
         # mark all the event addons as paid for
-        for event_addon in order.items['event_addons']:
+        for event_addon in bundle.obj.items['event_addons']:
             addon = EventAddon.objects.get(pk=event_addon)
             addon.paid = True
             addon.save()
