@@ -3,13 +3,13 @@
     "fields": {
         "name": "Free", 
         "short_name": "free", 
-        "price": "0.00", 
+        "price": 0, 
         "enabled": true, 
         "items": {
             "features": ["table_cards", "slideshow", "guest_reminders"],
             "addons": [],
             "modifiers": {
-                "price_per_print": "1.00",
+                "price_per_print": 100,
                 "albums": 1
             }
         }

@@ -9,6 +9,6 @@ class Package(models.Model):
     
     short_name = models.CharField(max_length=255, help_text='The package short name.')
     name = models.CharField(max_length=255, help_text='The package long name.')
-    price = models.DecimalField(max_digits=6, decimal_places=2, help_text='The package price.') # 9999.99
+    price = models.IntegerField(help_text='The package price. (CENTS)')
     enabled = models.BooleanField(help_text='If the package is enabled.')
     items = JSONField(help_text='The items included in the package.')
