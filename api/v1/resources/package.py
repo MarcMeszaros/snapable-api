@@ -3,12 +3,16 @@ from data.models import Package
 
 class PackageResource(ModelResource):
     class Meta:
-        queryset = Package.objects.all()
+        queryset = Package.objects.filter(enabled=True)
         fields = [
             'short_name', 
             'name', 
             'price', 
-            'items'
+            'items',
+            'interval',
+            'interval_count',
+            'trial_period_days',
+            'enabled'
         ]
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']

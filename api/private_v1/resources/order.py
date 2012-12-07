@@ -8,6 +8,7 @@ from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest
 
 from account import AccountResource
+from user import UserResource
 
 from data.models import AccountAddon
 from data.models import EventAddon
@@ -16,6 +17,7 @@ from data.models import Package
 class OrderResource(ModelResource):
 
     account = fields.ForeignKey(AccountResource, 'account')
+    user = fields.ForeignKey(UserResource, 'user', null=True)
 
     class Meta:
         queryset = Order.objects.all()
@@ -51,6 +53,9 @@ class OrderResource(ModelResource):
                 raise BadRequest('Missing/improperly formated "account_addons" list.')
             if not items.has_key('event_addons') or type(items['event_addons']) is not list:
                 raise BadRequest('Missing/improperly formated "event_addons" list.')
+
+            # tweak the data/sanitize it
+            bundle.data['items']['package'] = int(items['package'])
 
             # verify the data exists
             if type(items['package']) is int and not Package.objects.filter(pk=items['package']).exists():

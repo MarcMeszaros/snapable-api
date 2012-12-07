@@ -6,11 +6,11 @@
         "price": 0, 
         "enabled": true, 
         "items": {
-            "features": ["table_cards", "slideshow", "guest_reminders"],
+            "features": ["guest_reminders", "slideshow", "table_cards"],
             "addons": [],
             "modifiers": {
-                "price_per_print": 100,
-                "albums": 1
+                "albums": 1,
+                "price_per_print": 100
             }
         }
     }
