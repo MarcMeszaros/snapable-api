@@ -10,7 +10,8 @@ from django.template import Context
 
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest
-from tastypie import fields
+from tastypie import fields, utils
+from tastypie.resources import ALL
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie import http
 
@@ -26,6 +27,8 @@ class UserResource(api.v1.resources.UserResource):
     # seems to break on post
     #accounts = fields.ToManyField('api.private_v1.resources.AccountResource', 'user', related_name='account', default=None, blank=True, null=True) #attribute=lambda bundle: Account.objects.filter(admin=bundle.obj))
 
+    creation_date = fields.DateTimeField(attribute='creation_date', readonly=True, help_text='When the user was created. (UTC)')
+
     Meta = api.v1.resources.UserResource.Meta # set Meta to the public API Meta
     Meta.fields += ['billing_zip', 'terms']
     Meta.list_allowed_methods = ['get', 'post']
@@ -33,6 +36,9 @@ class UserResource(api.v1.resources.UserResource):
     Meta.passwordreset_allowed_methods = ['get', 'post']
     Meta.authentication = api.auth.ServerAuthentication()
     Meta.authorization = api.auth.ServerAuthorization()
+    Meta.filtering = dict(Meta.filtering, **{
+        'creation_date': ALL,
+    })
 
     def __init__(self):
         api.v1.resources.UserResource.__init__(self)
