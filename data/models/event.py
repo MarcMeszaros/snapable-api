@@ -29,3 +29,8 @@ class Event(models.Model):
     # return the number of photos related to this event
     def _get_photo_count(self):
         return self.photo_set.count()
+
+    def _set_photo_count(self):
+        pass
+
+    photo_count = property(_get_photo_count, _set_photo_count)

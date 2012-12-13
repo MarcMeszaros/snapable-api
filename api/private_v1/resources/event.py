@@ -31,10 +31,10 @@ class EventResource(api.v1.resources.EventResource):
     addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'address_set', null=True, full=True) 
 
     # virtual fields
-    photo_count = fields.IntegerField(attribute='_get_photo_count', readonly=True, help_text='The number of photos for the event.')
+    photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
 
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
-    Meta.fields += ['cover']
+    Meta.fields += ['cover', 'photo_count']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.ordering += ['start', 'end']
@@ -46,10 +46,27 @@ class EventResource(api.v1.resources.EventResource):
         'account': ['exact'],
         'start': ALL,
         'end': ALL,
+        'photo_count': ['gte'],
     })
 
     def __init__(self):
         api.v1.resources.EventResource.__init__(self)
+
+    def apply_filters(self, request, applicable_filters):
+        # check if the filter is there
+        if 'photo_count__gte' in applicable_filters:
+            custom = applicable_filters.pop('photo_count__gte')
+        else:
+            custom = None
+
+        # inital filtering
+        semi_filtered = super(EventResource, self).apply_filters(request, applicable_filters)
+
+        # do our custom filtering
+        if custom:
+            semi_filtered = filter(lambda x: x.photo_count >= int(custom), list(semi_filtered))
+
+        return semi_filtered
 
     def dehydrate(self, bundle):
         try:
@@ -73,7 +90,7 @@ class EventResource(api.v1.resources.EventResource):
         return bundle
 
     def hydrate(self, bundle):
-        
+        ### DEPRECATED/COMPATIBILITY ###
         # convert the old type values into "public" flag 
         if bundle.data.has_key('type'):
             if bundle.data['type'] == '/private_v1/type/6/':
