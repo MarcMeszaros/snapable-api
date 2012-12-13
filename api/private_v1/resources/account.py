@@ -1,6 +1,7 @@
 import api.auth
 import api.v1.resources
 from tastypie import fields
+from tastypie.authorization import Authorization
 
 from data.models import Account
 from data.models import User
@@ -15,8 +16,8 @@ class AccountResource(api.v1.resources.AccountResource):
     users = fields.ManyToManyField('api.private_v1.resources.AccountUserResource', 'accountuser_set', full=True)
 
     Meta = api.v1.resources.AccountResource.Meta # set Meta to the public API Meta
-    Meta.fields += []
+    Meta.fields += ['valid_until']
     Meta.list_allowed_methods = ['get']
     Meta.detail_allowed_methods = ['get', 'put']
     Meta.authentication = api.auth.ServerAuthentication()
-    Meta.authorization = api.auth.ServerAuthorization()
+    Meta.authorization = Authorization()
