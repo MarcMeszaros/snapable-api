@@ -25,9 +25,13 @@ from api.serializers import EventSerializer
 
 class EventResource(api.v1.resources.EventResource):
 
+    # relations
     account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
     addons = fields.ManyToManyField('api.private_v1.resources.EventAddonResource', 'eventaddon_set', null=True, full=True)
     addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'address_set', null=True, full=True) 
+
+    # virtual fields
+    photo_count = fields.IntegerField(attribute='_get_photo_count', readonly=True, help_text='The number of photos for the event.')
 
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
     Meta.fields += ['cover']
@@ -49,9 +53,6 @@ class EventResource(api.v1.resources.EventResource):
 
     def dehydrate(self, bundle):
         try:
-            # add the photo count
-            bundle.data['photo_count'] = Photo.objects.filter(event_id=bundle.obj.id).count()
-
             ### DEPRECATED/COMPATIBILITY ###
             # add the old user field
             users = User.objects.filter(account=bundle.obj.account, accountuser__admin=True)

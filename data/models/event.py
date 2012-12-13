@@ -25,3 +25,7 @@ class Event(models.Model):
     last_access = models.DateTimeField(auto_now_add=True, help_text='When the event was last accessed. (UTC)')
     access_count = models.IntegerField(default=0)
     enabled = models.BooleanField(help_text='Is the event considered "active" in the system.')
+
+    # return the number of photos related to this event
+    def _get_photo_count(self):
+        return self.photo_set.count()
