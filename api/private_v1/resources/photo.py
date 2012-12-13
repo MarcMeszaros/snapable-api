@@ -31,6 +31,8 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
     guest = fields.ForeignKey(GuestResource, 'guest', null=True) # allow the foreign key to be null
     type = fields.ForeignKey(TypeResource, 'type')
 
+    timestamp = fields.DateTimeField(attribute='timestamp', readonly=True, help_text='The photo timestamp. (UTC)')
+
     Meta = api.v1.resources.PhotoResource.Meta # set Meta to the public API Meta
     Meta.fields += ['metrics']
     Meta.list_allowed_methods = ['get', 'post']
@@ -40,6 +42,7 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
     Meta.serializer = PhotoSerializer(formats=['json', 'jpeg'])
     Meta.filtering = dict(Meta.filtering, **{
         'event': ['exact'],
+        'timestamp': ALL,
     })
 
     def __init__(self):
