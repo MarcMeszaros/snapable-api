@@ -53,8 +53,15 @@ Run the following commands:
     > pip install -r requirements.txt
     > ./manage.py syncdb
     > ./manage.py migrate data
-    > ./manage.py loaddata data/initial_data.json
-    > ./manage.py run_gunicorn -c gunicorn_config.py &
+    > gunicorn api.wsgi:application -c gunicorn_config.py
+
+Execute the following commands to control the server:
+
+    # reload (note: ` [backticks] are required)
+    kill -HUP `cat gunicorn.pid`
+
+    # kill (note: ` [backticks] are required)
+    kill -9 `cat gunicorn.pid`
 
 # CONFIGURATION #
 
