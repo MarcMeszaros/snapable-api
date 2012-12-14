@@ -1,0 +1,6 @@
+[
+{"pk": 1, "model": "data.addon", "fields": {"title": "Single Prints", "description": "A single print.", "price": "1.00", "enabled": true}},
+{"pk": 2, "model": "data.addon", "fields": {"title": "12 Prints", "description": "A package of 12 prints.", "price": "12.00", "enabled": true}},
+{"pk": 3, "model": "data.addon", "fields": {"title": "24 Prints", "description": "A package of 24 prints.", "price": "19.00", "enabled": true}},
+{"pk": 4, "model": "data.addon", "fields": {"title": "36 Prints", "description": "A package of 36 prints.", "price": "27.00", "enabled": true}}
+]

@@ -103,19 +103,6 @@ class UserResource(api.v1.resources.UserResource):
 
         # create a new account entry and set the new user as the admin
         account = Account()
-        default_package_id = 1
-        
-        # if the package resource is included try and use it when creating the new account
-        if bundle.data.has_key('package'):
-            package_parts = bundle.data['package'].split('/')
-            if Package.objects.filter(pk=int(package_parts[3])).exists():
-                account.package_id = int(package_parts[3])
-            else:
-                account.package_id = default_package_id
-        else:
-            account.package_id = default_package_id
-
-        # create the account entry
         account.save()
 
         # add the user as an admin to the new account
