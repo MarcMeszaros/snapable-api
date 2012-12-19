@@ -15,7 +15,7 @@ The following are the minimum system requirements:
 * *libjpeg-dev
 * *libraw-dev
 * *libevent-dev
-* *mysql-dev
+* *libmysqlclient-dev
 * MySQLdb (http://sourceforge.net/projects/mysql-python)
 * Django (https://www.djangoproject.com/)
 * JSONField (https://github.com/bradjasper/django-jsonfield)
@@ -46,13 +46,22 @@ The application is set to use the following MySQL credentials by default:
 ## INSTALLATION EXAMPLE: ##
 Run the following commands:
 
+    > sudo apt-get install build-essential python python-dev python-pip libmysqlclient-dev libjpeg-dev libraw-dev libevent-dev
+    > sudo pip install --upgrade
+    > sudo pip install virtualenv
+    
+    > mkdir ~/environments/
+    > virtualenv ~/environments/api/
+    > cd ~/environments/api/
+    
     > git clone git@bitbucket.org:snapable/api.git snapable
+    > source bin/activate
     > cd snapable
-    > apt-get install build-essential python python-dev python-pip libjpeg-dev libraw-dev libevent-dev
-    > pip install --upgrade
     > pip install -r requirements.txt
+    
     > ./manage.py syncdb
     > ./manage.py migrate data
+    > mkdir logs
     > gunicorn api.wsgi:application -c gunicorn_config.py
 
 Execute the following commands to control the server:
