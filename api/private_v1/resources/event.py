@@ -6,9 +6,11 @@ import pytz
 from datetime import datetime, timedelta
 from decimal import Decimal
 
+from django.conf.urls.defaults import *
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.paginator import Paginator, InvalidPage
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from tastypie import fields
 from tastypie.authorization import Authorization
@@ -47,10 +49,40 @@ class EventResource(api.v1.resources.EventResource):
         'start': ALL,
         'end': ALL,
         'photo_count': ['gte'],
+        'title': ALL,
+        'url': ALL,
     })
 
     def __init__(self):
         api.v1.resources.EventResource.__init__(self)
+
+    # should use prepend_url, but only works with tastypie v0.9.12+
+    # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584
+    def override_urls(self):
+        return [
+            url(r'^(?P<resource_name>%s)/search/$' % self._meta.resource_name, self.wrap_view('get_search'), name="api_get_search"),
+        ]
+
+    def get_search(self, request, **kwargs):
+        self.method_check(request, allowed=['get'])
+        self.is_authenticated(request)
+
+        # Do the query.
+        now_datetime = datetime.now(pytz.utc) # current time on server
+        sqs = Event.objects.filter(
+            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end__gte=now_datetime)
+        )
+
+        sorted_objects = self.apply_sorting(sqs, options=request.GET)
+
+        paginator = self._meta.paginator_class(request.GET, sorted_objects)
+        to_be_serialized = paginator.page()
+
+        # Dehydrate the bundles in preparation for serialization.
+        bundles = [self.build_bundle(obj=obj) for obj in sorted_objects]
+        to_be_serialized['objects'] = [self.full_dehydrate(bundle) for bundle in bundles]
+
+        return self.create_response(request, to_be_serialized)
 
     def apply_filters(self, request, applicable_filters):
         # check if the filter is there
