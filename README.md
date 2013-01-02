@@ -49,16 +49,13 @@ Run the following commands:
     > sudo apt-get install build-essential python python-dev python-pip libmysqlclient-dev libjpeg-dev libraw-dev libevent-dev
     > sudo pip install --upgrade
     > sudo pip install virtualenv
-    
     > mkdir ~/environments/
     > virtualenv ~/environments/api/
     > cd ~/environments/api/
-    
     > git clone git@bitbucket.org:snapable/api.git snapable
     > source bin/activate
     > cd snapable
     > pip install -r requirements.txt
-    
     > ./manage.py syncdb
     > ./manage.py migrate data
     > mkdir logs
