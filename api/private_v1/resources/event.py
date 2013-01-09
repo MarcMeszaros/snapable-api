@@ -108,7 +108,10 @@ class EventResource(api.v1.resources.EventResource):
             bundle.data['user'] = '/private_v1/user/'+str(users[0].id)+'/'
 
             # add the old package field
-            bundle.data['package'] = '/private_v1/package/'+str(bundle.obj.account.package.id)+'/'
+            if bundle.obj.account.package:
+                bundle.data['package'] = '/private_v1/package/'+str(bundle.obj.account.package.id)+'/'
+            else:
+                bundle.data['package'] = '/private_v1/package/1/'
 
             # convert the "public" flag into the old type values
             if bundle.obj.public == True:

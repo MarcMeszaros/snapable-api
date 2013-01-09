@@ -11,7 +11,7 @@ from user import UserResource
 
 class AccountResource(api.v1.resources.AccountResource):
 
-    package = fields.ForeignKey(PackageResource, 'package')
+    package = fields.ForeignKey(PackageResource, 'package', null=True)
     addons = fields.ManyToManyField('api.private_v1.resources.AccountAddonResource', 'accountaddon_set', null=True, full=True)
     users = fields.ManyToManyField('api.private_v1.resources.AccountUserResource', 'accountuser_set', full=True)
 
