@@ -22,7 +22,6 @@ The following are the minimum system requirements:
 * South (https://bitbucket.org/andrewgodwin/south)
 * Tastypie (https://github.com/toastdriven/django-tastypie)
 * Netifaces (http://alastairs-place.net/projects/netifaces/)
-* setproctitle (https://github.com/dvarrazzo/py-setproctitle)
 * Rackspace Cloudfiles (https://github.com/rackspace/python-cloudfiles)
 * Pillow (https://github.com/python-imaging/Pillow)
 
