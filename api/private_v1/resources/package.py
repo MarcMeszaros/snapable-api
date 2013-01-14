@@ -13,6 +13,7 @@ class PackageResource(api.v1.resources.PackageResource):
     Meta.authorization = Authorization()
     Meta.filtering = {
         'short_name': ALL,
+        'enabled': ['exact'],
     }
 
     def __init__(self):

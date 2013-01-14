@@ -1,4 +1,6 @@
 import os
+import socket
+import sys
 
 # create the 'logs' folder(s) if it doesn't already exist
 if not os.path.exists(os.path.join(os.getcwd(), 'logs')):
@@ -15,6 +17,15 @@ if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'critical')):
     os.makedirs(os.path.join(os.getcwd(), 'logs', 'critical'))
 if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'firehose')):
     os.makedirs(os.path.join(os.getcwd(), 'logs', 'firehose'))
+
+# start newrelic if on athena (staging)
+if ('athena' in socket.gethostname()):
+    import newrelic.agent
+    newrelic.agent.initialize('newrelic.ini', 'staging')
+# start newrelic if on ares (production)
+elif ('ares' in socket.gethostname()):
+    import newrelic.agent
+    newrelic.agent.initialize('newrelic.ini', 'production')
 
 # Django settings for api project.
 DEBUG = True
@@ -230,6 +241,7 @@ API_LIMIT_PER_PAGE = 50
 
 # import local settings
 try:
+    sys.path.append('../')
     os.path.isfile('../settings_local.py')
     from settings_local import *
 except Exception as e:

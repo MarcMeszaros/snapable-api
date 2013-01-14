@@ -15,14 +15,13 @@ The following are the minimum system requirements:
 * *libjpeg-dev
 * *libraw-dev
 * *libevent-dev
-* *mysql-dev
+* *libmysqlclient-dev
 * MySQLdb (http://sourceforge.net/projects/mysql-python)
 * Django (https://www.djangoproject.com/)
 * JSONField (https://github.com/bradjasper/django-jsonfield)
 * South (https://bitbucket.org/andrewgodwin/south)
 * Tastypie (https://github.com/toastdriven/django-tastypie)
 * Netifaces (http://alastairs-place.net/projects/netifaces/)
-* setproctitle (https://github.com/dvarrazzo/py-setproctitle)
 * Rackspace Cloudfiles (https://github.com/rackspace/python-cloudfiles)
 * Pillow (https://github.com/python-imaging/Pillow)
 
@@ -46,15 +45,28 @@ The application is set to use the following MySQL credentials by default:
 ## INSTALLATION EXAMPLE: ##
 Run the following commands:
 
+    > sudo apt-get install build-essential python python-dev python-pip libmysqlclient-dev libjpeg-dev libraw-dev libevent-dev
+    > sudo pip install --upgrade
+    > sudo pip install virtualenv
+    > mkdir ~/environments/
+    > virtualenv ~/environments/api/
+    > cd ~/environments/api/
     > git clone git@bitbucket.org:snapable/api.git snapable
+    > source bin/activate
     > cd snapable
-    > apt-get install build-essential python python-dev python-pip libjpeg-dev libraw-dev libevent-dev
-    > pip install --upgrade
     > pip install -r requirements.txt
     > ./manage.py syncdb
     > ./manage.py migrate data
-    > ./manage.py loaddata data/initial_data.json
-    > ./manage.py run_gunicorn -c gunicorn_config.py &
+    > mkdir logs
+    > gunicorn api.wsgi:application -c gunicorn_config.py
+
+Execute the following commands to control the server:
+
+    # reload (note: ` [backticks] are required)
+    kill -HUP `cat gunicorn.pid`
+
+    # kill (note: ` [backticks] are required)
+    kill -9 `cat gunicorn.pid`
 
 # CONFIGURATION #
 

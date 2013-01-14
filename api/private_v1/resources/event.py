@@ -6,9 +6,11 @@ import pytz
 from datetime import datetime, timedelta
 from decimal import Decimal
 
+from django.conf.urls.defaults import *
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.paginator import Paginator, InvalidPage
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from tastypie import fields
 from tastypie.authorization import Authorization
@@ -25,12 +27,16 @@ from api.serializers import EventSerializer
 
 class EventResource(api.v1.resources.EventResource):
 
+    # relations
     account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
     addons = fields.ManyToManyField('api.private_v1.resources.EventAddonResource', 'eventaddon_set', null=True, full=True)
     addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'address_set', null=True, full=True) 
 
+    # virtual fields
+    photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
+
     Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
-    Meta.fields += ['cover']
+    Meta.fields += ['cover', 'photo_count']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
     Meta.ordering += ['start', 'end']
@@ -42,23 +48,70 @@ class EventResource(api.v1.resources.EventResource):
         'account': ['exact'],
         'start': ALL,
         'end': ALL,
+        'photo_count': ['gte'],
+        'title': ALL,
+        'url': ALL,
     })
 
     def __init__(self):
         api.v1.resources.EventResource.__init__(self)
 
+    # should use prepend_url, but only works with tastypie v0.9.12+
+    # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584
+    def override_urls(self):
+        return [
+            url(r'^(?P<resource_name>%s)/search/$' % self._meta.resource_name, self.wrap_view('get_search'), name="api_get_search"),
+        ]
+
+    def get_search(self, request, **kwargs):
+        self.method_check(request, allowed=['get'])
+        self.is_authenticated(request)
+
+        # Do the query.
+        now_datetime = datetime.now(pytz.utc) # current time on server
+        sqs = Event.objects.filter(
+            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end__gte=now_datetime)
+        )
+
+        sorted_objects = self.apply_sorting(sqs, options=request.GET)
+
+        paginator = self._meta.paginator_class(request.GET, sorted_objects)
+        to_be_serialized = paginator.page()
+
+        # Dehydrate the bundles in preparation for serialization.
+        bundles = [self.build_bundle(obj=obj) for obj in sorted_objects]
+        to_be_serialized['objects'] = [self.full_dehydrate(bundle) for bundle in bundles]
+
+        return self.create_response(request, to_be_serialized)
+
+    def apply_filters(self, request, applicable_filters):
+        # check if the filter is there
+        if 'photo_count__gte' in applicable_filters:
+            custom = applicable_filters.pop('photo_count__gte')
+        else:
+            custom = None
+
+        # inital filtering
+        semi_filtered = super(EventResource, self).apply_filters(request, applicable_filters)
+
+        # do our custom filtering
+        if custom:
+            semi_filtered = filter(lambda x: x.photo_count >= int(custom), list(semi_filtered))
+
+        return semi_filtered
+
     def dehydrate(self, bundle):
         try:
-            # add the photo count
-            bundle.data['photo_count'] = Photo.objects.filter(event_id=bundle.obj.id).count()
-
             ### DEPRECATED/COMPATIBILITY ###
             # add the old user field
             users = User.objects.filter(account=bundle.obj.account, accountuser__admin=True)
             bundle.data['user'] = '/private_v1/user/'+str(users[0].id)+'/'
 
             # add the old package field
-            bundle.data['package'] = '/private_v1/package/'+str(bundle.obj.account.package.id)+'/'
+            if bundle.obj.account.package:
+                bundle.data['package'] = '/private_v1/package/'+str(bundle.obj.account.package.id)+'/'
+            else:
+                bundle.data['package'] = '/private_v1/package/1/'
 
             # convert the "public" flag into the old type values
             if bundle.obj.public == True:
@@ -72,7 +125,7 @@ class EventResource(api.v1.resources.EventResource):
         return bundle
 
     def hydrate(self, bundle):
-        
+        ### DEPRECATED/COMPATIBILITY ###
         # convert the old type values into "public" flag 
         if bundle.data.has_key('type'):
             if bundle.data['type'] == '/private_v1/type/6/':
