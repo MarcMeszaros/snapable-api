@@ -21,7 +21,7 @@ def getAuthParams(request):
     auth_params = dict()
     for part in auth_parts:
         items = part.replace('"','').split('=')
-        auth_params[items[0]] = items[1]
+        auth_params[items[0].lower()] = items[1]
 
     return auth_params
 
@@ -40,28 +40,16 @@ class DatabaseAuthentication(Authentication):
             request_method = request.META['REQUEST_METHOD']
             request_path = request.path
 
-            if "snap_signature" in auth[1]:
-                # get signature info all in Authorization header
-                auth_parts = auth[1].strip().split(',')
-                auth_params = dict()
-                for part in auth_parts:
-                    items = part.replace('"','').split('=')
-                    auth_params[items[0]] = items[1]
+            # get signature info from the Authorization header
+            auth_params = getAuthParams(request)
 
-                # add the parts to proper varibles for signature
-                key = auth_params['snap_key']
-                secret = str(ApiKey.objects.get(key=key).secret)
-                signature = auth_params['snap_signature']
-                x_snap_nonce = auth_params['snap_nonce']
-                x_snap_date = auth_params['snap_date']
-
-            else:
-                # api signature info in multiple headers
-                key = auth[1].split(':')[0]
-                secret = str(ApiKey.objects.get(key=key).secret)
-                signature = auth[1].split(':')[1]
-                x_snap_nonce = request.META['HTTP_X_SNAP_NONCE']
-                x_snap_date = request.META['HTTP_X_SNAP_DATE']
+            # add the parts to proper varibles for signature
+            key = auth_params['snap_key']
+            api_key = ApiKey.objects.get(key=key)
+            secret = str(api_key.secret)
+            signature = auth_params['snap_signature']
+            x_snap_nonce = auth_params['snap_nonce']
+            x_snap_date = auth_params['snap_date']
 
             # create the raw string to hash
             raw = key + request_method + request_path + x_snap_nonce + x_snap_date
@@ -77,22 +65,23 @@ class DatabaseAuthentication(Authentication):
 
             # if all conditions pass, return true
             if auth_snap == 'snap' and (x_snap_datetime >= pre_now_datetime and x_snap_datetime <= post_now_datetime) and signature == hashed.hexdigest():
-              return True
-
-            # we failed, return false
-            return False
+                return True
+            else:
+                return False # we failed, return false
         except KeyError as e:
-            print request
-            print e
-            return False
+            raise BadRequest('Missing authentication param')
 
 class DatabaseAuthorization(Authorization):
     def is_authorized(self, request, object=None):
+        # if in debug mode, always authenticate
+        if settings.DEBUG_AUTHENTICATION == True:
+            return True
+
         auth_params = getAuthParams(request)
         api_key = ApiKey.objects.get(key=auth_params['snap_key'])
         version = request.META['PATH_INFO'].strip('/').split('/')[0]
 
-        if version == str(api_key.version):
+        if version == str(api_key.version) and api_key.enabled:
             return True
         else:
             return False
