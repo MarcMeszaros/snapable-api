@@ -22,6 +22,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "api.settings")
 # setting points here.
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
+app = application
 
 # Apply WSGI middleware here.
 # from helloworld.wsgi import HelloWorldApplication
