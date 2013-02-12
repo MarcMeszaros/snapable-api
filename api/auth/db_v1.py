@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest
+from tastypie.exceptions import Unauthorized
 
 from api.models import ApiKey
 
@@ -24,6 +25,20 @@ def getAuthParams(request):
         auth_params[items[0].lower()] = items[1]
 
     return auth_params
+
+def legacyIsAuthorized(request):
+    # if in debug mode, always authenticate
+    if settings.DEBUG_AUTHENTICATION == True:
+        return True
+
+    auth_params = getAuthParams(request)
+    api_key = ApiKey.objects.get(key=auth_params['snap_key'])
+    version = request.META['PATH_INFO'].strip('/').split('/')[0]
+
+    if version == str(api_key.version) and api_key.enabled:
+        return True
+    else:
+        return False
 
 class DatabaseAuthentication(Authentication):
     def is_authenticated(self, request, **kwargs):
@@ -72,16 +87,32 @@ class DatabaseAuthentication(Authentication):
             raise BadRequest('Missing authentication param')
 
 class DatabaseAuthorization(Authorization):
-    def is_authorized(self, request, object=None):
-        # if in debug mode, always authenticate
-        if settings.DEBUG_AUTHENTICATION == True:
-            return True
+    def create_detail(self, object_list, bundle):
+        return legacyIsAuthorized(bundle.request)
 
-        auth_params = getAuthParams(request)
-        api_key = ApiKey.objects.get(key=auth_params['snap_key'])
-        version = request.META['PATH_INFO'].strip('/').split('/')[0]
-
-        if version == str(api_key.version) and api_key.enabled:
-            return True
+    def read_list(self, object_list, bundle):
+        if (legacyIsAuthorized(bundle.request)):
+            return object_list
         else:
-            return False
+            raise Unauthorized("Sorry, no read.")
+
+    def read_detail(self, object_list, bundle):
+        return legacyIsAuthorized(bundle.request)
+
+    def update_list(self, object_list, bundle):
+        if (legacyIsAuthorized(bundle.request)):
+            return object_list
+        else:
+            raise Unauthorized("Sorry, no update.")
+
+    def update_detail(self, object_list, bundle):
+        return legacyIsAuthorized(bundle.request)
+
+    def delete_list(self, object_list, bundle):
+        if (legacyIsAuthorized(bundle.request)):
+            return object_list
+        else:
+            raise Unauthorized("Sorry, no deletes.")
+
+    def delete_detail(self, object_list, bundle):
+        return legacyIsAuthorized(bundle.request)

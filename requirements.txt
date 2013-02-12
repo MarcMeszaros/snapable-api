@@ -2,7 +2,8 @@ Django==1.4
 jsonfield>=0.9
 MySQL-python>=1.2.2
 South>=0.7.5
-django-tastypie==0.9.11
+#django-tastypie==0.9.11
+-e git+https://github.com/toastdriven/django-tastypie.git@e9c2dc3309c9b8275d7b9455b841e0d0d746c350#egg=django-tastypie
 gunicorn>=0.17.2
 gevent>=0.13.8,<1.0
 netifaces>=0.8
