@@ -3,8 +3,6 @@ import StringIO
 import tastypie.exceptions
 import tastypie.http
 
-import api.loggers
-
 from django.conf import settings
 from tastypie.serializers import Serializer
 

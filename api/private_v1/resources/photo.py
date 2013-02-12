@@ -1,5 +1,4 @@
 import api.auth
-import api.loggers
 import api.multi
 import api.v1.resources
 import cloudfiles

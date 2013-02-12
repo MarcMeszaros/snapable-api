@@ -10,7 +10,7 @@ from data.models import Event
 from data.models import Guest
 from data.models import Type
 
-import api.loggers
+import api.utils
 
 class Photo(models.Model):
 
@@ -101,7 +101,7 @@ class Photo(models.Model):
             cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
         except cloudfiles.errors.NoSuchContainer as e:
             cont = conn.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
-            api.loggers.Log.i('created a new container: ' + settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+            api.utils.Log.i('created a new container: ' + settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
         # save the new photo size
         try:
