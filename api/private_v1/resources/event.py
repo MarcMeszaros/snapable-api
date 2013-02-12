@@ -58,7 +58,7 @@ class EventResource(api.v1.resources.EventResource):
 
     # should use prepend_url, but only works with tastypie v0.9.12+
     # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584
-    def override_urls(self):
+    def prepend_urls(self):
         return [
             url(r'^(?P<resource_name>%s)/search/$' % self._meta.resource_name, self.wrap_view('get_search'), name="api_get_search"),
         ]

@@ -113,7 +113,7 @@ class UserResource(api.v1.resources.UserResource):
 
     # should use prepend_url, but only works with tastypie v0.9.12+
     # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584
-    def override_urls(self):
+    def prepend_urls(self):
         """
         Using override_url
         """
