@@ -1,5 +1,5 @@
 import api.auth
-import api.multi
+import api.utils
 import api.v1.resources
 import cloudfiles
 
@@ -18,13 +18,13 @@ from type import TypeResource
 
 from data.models import Guest
 
-from api.serializers import PhotoSerializer
+from api.utils import PhotoSerializer
 
 from data.images import SnapImage
 import StringIO
 from PIL import Image
 
-class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource):
+class PhotoResource(api.utils.MultipartResource, api.v1.resources.PhotoResource):
 
     event = fields.ForeignKey(EventResource, 'event')
     guest = fields.ForeignKey(GuestResource, 'guest', null=True) # allow the foreign key to be null
