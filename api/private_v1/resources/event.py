@@ -1,5 +1,5 @@
 import api.auth
-import api.v1.resources
+import api.base_v1.resources
 import copy
 import pytz
 
@@ -25,7 +25,7 @@ from data.models import User
 
 from api.utils import EventSerializer
 
-class EventResource(api.v1.resources.EventResource):
+class EventResource(api.base_v1.resources.EventResource):
 
     # relations
     account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
@@ -35,7 +35,7 @@ class EventResource(api.v1.resources.EventResource):
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
 
-    Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
+    Meta = api.base_v1.resources.EventResource.Meta # set Meta to the public API Meta
     Meta.fields += ['cover', 'photo_count']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
@@ -52,9 +52,6 @@ class EventResource(api.v1.resources.EventResource):
         'title': ALL,
         'url': ALL,
     })
-
-    def __init__(self):
-        api.v1.resources.EventResource.__init__(self)
 
     # should use prepend_url, but only works with tastypie v0.9.12+
     # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584

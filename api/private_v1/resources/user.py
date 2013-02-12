@@ -1,5 +1,5 @@
 import api.auth
-import api.v1.resources
+import api.base_v1.resources
 import re
 
 from django.conf.urls import url
@@ -21,7 +21,7 @@ from data.models import Package
 from data.models import PasswordNonce
 from data.models import User
 
-class UserResource(api.v1.resources.UserResource):
+class UserResource(api.base_v1.resources.UserResource):
 
     # the accounts the user belongs to
     # seems to break on post
@@ -29,7 +29,7 @@ class UserResource(api.v1.resources.UserResource):
 
     creation_date = fields.DateTimeField(attribute='creation_date', readonly=True, help_text='When the user was created. (UTC)')
 
-    Meta = api.v1.resources.UserResource.Meta # set Meta to the public API Meta
+    Meta = api.base_v1.resources.UserResource.Meta # set Meta to the public API Meta
     Meta.fields += ['billing_zip', 'terms']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
@@ -39,9 +39,6 @@ class UserResource(api.v1.resources.UserResource):
     Meta.filtering = dict(Meta.filtering, **{
         'creation_date': ALL,
     })
-
-    def __init__(self):
-        api.v1.resources.UserResource.__init__(self)
 
     def dehydrate(self, bundle):
         db_pass = bundle.obj.password.split('$', 1)

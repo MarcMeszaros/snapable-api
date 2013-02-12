@@ -1,6 +1,6 @@
 import api.auth
 import api.utils
-import api.v1.resources
+import api.base_v1.resources
 import cloudfiles
 
 from django.conf import settings
@@ -24,7 +24,7 @@ from data.images import SnapImage
 import StringIO
 from PIL import Image
 
-class PhotoResource(api.utils.MultipartResource, api.v1.resources.PhotoResource):
+class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoResource):
 
     event = fields.ForeignKey(EventResource, 'event')
     guest = fields.ForeignKey(GuestResource, 'guest', null=True) # allow the foreign key to be null
@@ -32,7 +32,7 @@ class PhotoResource(api.utils.MultipartResource, api.v1.resources.PhotoResource)
 
     timestamp = fields.DateTimeField(attribute='timestamp', readonly=True, help_text='The photo timestamp. (UTC)')
 
-    Meta = api.v1.resources.PhotoResource.Meta # set Meta to the public API Meta
+    Meta = api.base_v1.resources.PhotoResource.Meta # set Meta to the public API Meta
     Meta.fields += ['metrics']
     Meta.list_allowed_methods = ['get', 'post']
     Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
@@ -43,9 +43,6 @@ class PhotoResource(api.utils.MultipartResource, api.v1.resources.PhotoResource)
         'event': ['exact'],
         'timestamp': ALL,
     })
-
-    def __init__(self):
-        api.v1.resources.PhotoResource.__init__(self)
 
     def dehydrate(self, bundle):
 
