@@ -10,7 +10,7 @@ class User(models.Model):
         app_label = 'data'
 
     # the model fields
-    email = models.CharField(max_length=255, unique=True, help_text="The user's email.")
+    email = models.CharField(max_length=255, unique=True, db_index=True, help_text="The user's email.")
     password = models.CharField(max_length=255, help_text="The user's password parts.")
     first_name = models.CharField(max_length=255, help_text="The user's first name.")
     last_name = models.CharField(max_length=255, help_text="The user's last name.")
