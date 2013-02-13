@@ -90,8 +90,8 @@ class OrderResource(ModelResource):
 
         return bundle
 
-    def obj_create(self, bundle, request=None, **kwargs):
-        bundle = super(OrderResource, self).obj_create(bundle, request)
+    def obj_create(self, bundle, **kwargs):
+        bundle = super(OrderResource, self).obj_create(bundle, **kwargs)
 
         # loop through account_addons & event_addons and mark as paid
         # mark all the account addons as paid for

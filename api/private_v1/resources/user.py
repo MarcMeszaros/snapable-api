@@ -95,8 +95,8 @@ class UserResource(api.base_v1.resources.UserResource):
 
         return bundle
 
-    def obj_create(self, bundle, request=None, **kwargs):
-        bundle = super(UserResource, self).obj_create(bundle, request)
+    def obj_create(self, bundle, **kwargs):
+        bundle = super(UserResource, self).obj_create(bundle, **kwargs)
 
         # create a new account entry and set the new user as the admin
         account = Account()

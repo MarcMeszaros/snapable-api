@@ -67,8 +67,8 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
 
         return bundle
 
-    def obj_create(self, bundle, request=None, **kwargs):
-        bundle = super(PhotoResource, self).obj_create(bundle, request)
+    def obj_create(self, bundle, **kwargs):
+        bundle = super(PhotoResource, self).obj_create(bundle, **kwargs)
 
         # save the image to the database
         img = Image.open(StringIO.StringIO(bundle.data['image'].read()))
