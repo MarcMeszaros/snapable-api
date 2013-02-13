@@ -1,3 +1,5 @@
+import random
+
 from django.db import models
 
 from data.models import Account
@@ -26,11 +28,18 @@ class Event(models.Model):
     access_count = models.IntegerField(default=0)
     enabled = models.BooleanField(help_text='Is the event considered "active" in the system.')
 
+    # virtual properties
+    photo_count = property(_get_photo_count, _set_photo_count)
+
+    def save(self, *args, **kwargs):
+        if not self.pin:
+            self.pin = str(random.randint(1000, 9999)) # random int between 1000 and 9999 (inclusive)
+
+        return super(Event, self).save(*args, **kwargs)
+
     # return the number of photos related to this event
     def _get_photo_count(self):
         return self.photo_set.count()
 
-    def _set_photo_count(self):
+    def _set_photo_count(self, value):
         pass
-
-    photo_count = property(_get_photo_count, _set_photo_count)
