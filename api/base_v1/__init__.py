@@ -1,5 +1,7 @@
 from tastypie.api import Api
 
+from meta import Meta
+
 from resources import AccountResource
 from resources import AddressResource
 from resources import AlbumResource
