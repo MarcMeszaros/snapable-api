@@ -21,9 +21,23 @@ class User(models.Model):
     payment_gateway_user_id = models.CharField(max_length=255, null=True, default=None, help_text='The user ID on the payment gateway linked to this user.')
 
     def set_password(self, raw_password, hasher='pbkdf2_sha256'):
+        self.password = generate_password(raw_password, hasher)
+
+    @staticmethod
+    def generate_password(raw_password, hasher='pbkdf2_sha256'):
         #if hasher == 'bcrypt':
-        #    self.password = make_password(raw_password, hasher='bcrypt')
+        #    return make_password(raw_password, hasher='bcrypt')
         if hasher == 'pbkdf2_sha256':
-            self.password = make_password(raw_password, hasher='pbkdf2_sha256')
+            return make_password(raw_password, hasher='pbkdf2_sha256')
         else:
-            self.password = make_password(raw_password, hasher='pbkdf2_sha256')
+            return make_password(raw_password, hasher='pbkdf2_sha256')
+
+    def __unicode__(self):
+        return str({
+            'email': self.email,
+            'password': self.password,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'billing_zip': self.billing_zip,
+            'terms': self.terms,
+        })

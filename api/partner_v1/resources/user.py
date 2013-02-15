@@ -19,10 +19,26 @@ class UserResource(api.base_v1.resources.UserResource):
         authorization = api.auth.DatabaseAuthorization()
 
     def obj_create(self, bundle, **kwargs):
-        bundle = super(UserResource, self).obj_create(bundle, **kwargs)
+        # get the API key associated with the request
+        apikey = api.auth.DatabaseAuthentication().get_identifier(bundle.request)
 
-        # create a new account entry and set the new user as the admin
+        # try and get an existing user
+        try:
+            bundle.obj = User.objects.get(email=bundle.data['email'])
+        # no existing user, create them
+        except User.DoesNotExist as e:
+            if 'password' not in bundle.data:
+                kwargs['password'] = User.generate_password(bundle.data['email'])
+            if 'billing_zip' not in bundle.data:
+                kwargs['billing_zip'] = '00000'
+            if 'terms' not in bundle.data:
+                kwargs['terms'] = True
+
+            bundle = super(UserResource, self).obj_create(bundle, **kwargs)
+
+        # create a new account entry
         account = Account()
+        account.api_account = apikey.account # set the api key's account as the creator
         account.save()
 
         # add the user as an admin to the new account
