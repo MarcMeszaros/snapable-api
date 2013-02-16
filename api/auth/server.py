@@ -16,10 +16,6 @@ from data.models import PasswordNonce
 from data.models import User
 
 def legacyIsAuthorized(request):
-    # if in debug mode, always authenticate
-    if settings.DEBUG_AUTHORIZATION == True:
-        return True
-
     if not 'HTTP_X_SNAP_USER' in request.META and (request.method in ['GET', 'POST']):
         return True
 
@@ -61,10 +57,6 @@ def legacyIsAuthorized(request):
 
 class ServerAuthentication(Authentication):
     def is_authenticated(self, request, **kwargs):
-        # if in debug mode, always authenticate
-        if settings.DEBUG_AUTHENTICATION == True:
-            return True
-
         try:
             # get the Authorization header
             auth = request.META['HTTP_AUTHORIZATION'].strip().split(' ')
@@ -87,7 +79,10 @@ class ServerAuthentication(Authentication):
                 secret = settings.APIKEY[key]
                 signature = auth_params['snap_signature']
                 x_snap_nonce = auth_params['snap_nonce']
-                x_snap_date = auth_params['snap_date']
+                if 'snap_timestamp' in auth_params:
+                    x_snap_timestamp = auth_params['snap_timestamp']
+                else:
+                    x_snap_date = auth_params['snap_date']
 
             else:
                 # api signature info in multiple headers
@@ -98,13 +93,20 @@ class ServerAuthentication(Authentication):
                 x_snap_date = request.META['HTTP_X_SNAP_DATE']
 
             # create the raw string to hash
-            raw = key + request_method + request_path + x_snap_nonce + x_snap_date
+            try:
+                raw = key + request_method + request_path + x_snap_nonce + x_snap_timestamp
+            except:
+                raw = key + request_method + request_path + x_snap_nonce + x_snap_date
 
             # calculate the hash
             hashed = hmac.new(secret, raw, hashlib.sha1)
 
             # calculate time differences
-            x_snap_datetime = dateutil.parser.parse(x_snap_date) # parse the date header
+            try:
+                x_snap_datetime = datetime.fromtimestamp(int(x_snap_timestamp), tz=pytz.utc)
+            except:
+                x_snap_datetime = dateutil.parser.parse(x_snap_date) # parse the date header
+
             now_datetime = datetime.now(pytz.utc) # current time on server
             pre_now_datetime = now_datetime + timedelta(0, -120) # 2 minutes in the past
             post_now_datetime = now_datetime + timedelta(0, 120) # 2 minutes in the future

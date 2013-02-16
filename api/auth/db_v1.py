@@ -50,16 +50,16 @@ class DatabaseAuthentication(Authentication):
             secret = str(api_key.secret)
             signature = auth_params['snap_signature']
             x_snap_nonce = auth_params['snap_nonce']
-            x_snap_date = auth_params['snap_date']
+            x_snap_timestamp = auth_params['snap_timestamp']
 
             # create the raw string to hash
-            raw = key + request_method + request_path + x_snap_nonce + x_snap_date
+            raw = key + request_method + request_path + x_snap_nonce + x_snap_timestamp
 
             # calculate the hash
             hashed = hmac.new(secret, raw, hashlib.sha1)
 
             # calculate time differences
-            x_snap_datetime = dateutil.parser.parse(x_snap_date) # parse the date header
+            x_snap_datetime = datetime.fromtimestamp(int(x_snap_timestamp), tz=pytz.utc)# parse the date header
             now_datetime = datetime.now(pytz.utc) # current time on server
             pre_now_datetime = now_datetime + timedelta(0, -120) # 2 minutes in the past
             post_now_datetime = now_datetime + timedelta(0, 120) # 2 minutes in the future
