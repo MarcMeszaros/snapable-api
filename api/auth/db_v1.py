@@ -100,6 +100,8 @@ class DatabaseAuthorization(Authorization):
         # filter objects as required
         if isinstance(object_list[0], data.models.Account):
             return object_list.filter(api_account=api_key.account)
+        elif isinstance(object_list[0], data.models.Event):
+            return object_list.filter(account__api_account=api_key.account)
         elif isinstance(object_list[0], data.models.User):
             return object_list.filter(account__api_account=api_key.account)
         else:

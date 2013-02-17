@@ -117,7 +117,7 @@ class ServerAuthentication(Authentication):
             else:
                 return False # we failed, return false
         except KeyError as e:
-            raise BadRequest('Missing authentication param')
+            raise BadRequest('Missing authentication param: '+str(e))
 
 class ServerAuthorization(Authorization):
     def create_detail(self, object_list, bundle):
