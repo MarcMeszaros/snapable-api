@@ -29,16 +29,16 @@ class UserResource(api.base_v1.resources.UserResource):
 
     creation_date = fields.DateTimeField(attribute='creation_date', readonly=True, help_text='When the user was created. (UTC)')
 
-    Meta = api.base_v1.resources.UserResource.Meta # set Meta to the public API Meta
-    Meta.fields += ['billing_zip', 'terms']
-    Meta.list_allowed_methods = ['get', 'post']
-    Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
-    Meta.passwordreset_allowed_methods = ['get', 'post']
-    Meta.authentication = api.auth.ServerAuthentication()
-    Meta.authorization = api.auth.ServerAuthorization()
-    Meta.filtering = dict(Meta.filtering, **{
-        'creation_date': ALL,
-    })
+    class Meta(api.base_v1.resources.UserResource.Meta): # set Meta to the public API Meta
+        fields = api.base_v1.resources.UserResource.Meta.fields + ['billing_zip', 'terms']
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        passwordreset_allowed_methods = ['get', 'post']
+        authentication = api.auth.ServerAuthentication()
+        authorization = api.auth.ServerAuthorization()
+        filtering = dict(api.base_v1.resources.UserResource.Meta.filtering, **{
+            'creation_date': ALL,
+        })
 
     def dehydrate(self, bundle):
         db_pass = bundle.obj.password.split('$', 1)

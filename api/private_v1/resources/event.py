@@ -35,23 +35,23 @@ class EventResource(api.base_v1.resources.EventResource):
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
 
-    Meta = api.base_v1.resources.EventResource.Meta # set Meta to the public API Meta
-    Meta.fields += ['cover', 'photo_count']
-    Meta.list_allowed_methods = ['get', 'post']
-    Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
-    Meta.ordering += ['start', 'end']
-    Meta.authentication = api.auth.ServerAuthentication()
-    Meta.authorization = Authorization()
-    Meta.serializer = EventSerializer(formats=['json', 'jpeg'])
-    Meta.filtering = dict(Meta.filtering, **{
-        'enabled': ['exact'],
-        'account': ['exact'],
-        'start': ALL,
-        'end': ALL,
-        'photo_count': ['gte'],
-        'title': ALL,
-        'url': ALL,
-    })
+    class Meta(api.base_v1.resources.EventResource.Meta): # set Meta to the public API Meta
+        fields = api.base_v1.resources.EventResource.Meta.fields + ['cover', 'photo_count']
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        ordering = api.base_v1.resources.EventResource.Meta.ordering + ['start', 'end']
+        authentication = api.auth.ServerAuthentication()
+        authorization = Authorization()
+        serializer = EventSerializer(formats=['json', 'jpeg'])
+        filtering = dict(api.base_v1.resources.EventResource.Meta.filtering, **{
+            'enabled': ['exact'],
+            'account': ['exact'],
+            'start': ALL,
+            'end': ALL,
+            'photo_count': ['gte'],
+            'title': ALL,
+            'url': ALL,
+        })
 
     # should use prepend_url, but only works with tastypie v0.9.12+
     # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584

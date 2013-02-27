@@ -33,22 +33,22 @@ class EventResource(api.base_v1.resources.EventResource):
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
 
-    Meta = api.base_v1.resources.EventResource.Meta
-    Meta.fields += ['photo_count']
-    Meta.list_allowed_methods = ['get', 'post']
-    Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
-    Meta.authentication = api.auth.DatabaseAuthentication()
-    Meta.authorization = api.auth.DatabaseAuthorization()
-    Meta.serializer = EventSerializer(formats=['json', 'jpeg'])
-    Meta.filtering = dict(Meta.filtering, **{
-        'enabled': ['exact'],
-        'account': ['exact'],
-        'start': ALL,
-        'end': ALL,
-        'title': ALL,
-        'url': ALL,
-        'q': ['exact'],
-    })
+    class Meta(api.base_v1.resources.EventResource.Meta):
+        fields = api.base_v1.resources.EventResource.Meta.fields + ['photo_count']
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        authentication = api.auth.DatabaseAuthentication()
+        authorization = api.auth.DatabaseAuthorization()
+        serializer = EventSerializer(formats=['json', 'jpeg'])
+        filtering = dict(api.base_v1.resources.EventResource.Meta.filtering, **{
+            'enabled': ['exact'],
+            'account': ['exact'],
+            'start': ALL,
+            'end': ALL,
+            'title': ALL,
+            'url': ALL,
+            'q': ['exact'],
+        })
 
     def build_filters(self, filters=None):
         if filters is None:

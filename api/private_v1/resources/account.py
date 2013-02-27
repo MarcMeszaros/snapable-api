@@ -15,9 +15,9 @@ class AccountResource(api.base_v1.resources.AccountResource):
     addons = fields.ManyToManyField('api.private_v1.resources.AccountAddonResource', 'accountaddon_set', null=True, full=True)
     users = fields.ManyToManyField('api.private_v1.resources.AccountUserResource', 'accountuser_set', full=True)
 
-    Meta = api.base_v1.resources.AccountResource.Meta # set Meta to the public API Meta
-    Meta.fields += ['valid_until']
-    Meta.list_allowed_methods = ['get']
-    Meta.detail_allowed_methods = ['get', 'put']
-    Meta.authentication = api.auth.ServerAuthentication()
-    Meta.authorization = Authorization()
+    class Meta(api.base_v1.resources.AccountResource.Meta): # set Meta to the public API Meta
+        fields = api.base_v1.resources.AccountResource.Meta.fields + ['valid_until']
+        list_allowed_methods = ['get']
+        detail_allowed_methods = ['get', 'put']
+        authentication = api.auth.ServerAuthentication()
+        authorization = Authorization()

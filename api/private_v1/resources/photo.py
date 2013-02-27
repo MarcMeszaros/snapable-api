@@ -32,17 +32,17 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
 
     timestamp = fields.DateTimeField(attribute='timestamp', readonly=True, help_text='The photo timestamp. (UTC)')
 
-    Meta = api.base_v1.resources.PhotoResource.Meta # set Meta to the public API Meta
-    Meta.fields += ['metrics']
-    Meta.list_allowed_methods = ['get', 'post']
-    Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
-    Meta.authentication = api.auth.ServerAuthentication()
-    Meta.authorization = Authorization()
-    Meta.serializer = PhotoSerializer(formats=['json', 'jpeg'])
-    Meta.filtering = dict(Meta.filtering, **{
-        'event': ['exact'],
-        'timestamp': ALL,
-    })
+    class Meta(api.base_v1.resources.PhotoResource.Meta): # set Meta to the public API Meta
+        fields = api.base_v1.resources.PhotoResource.Meta.fields + ['metrics'];
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        authentication = api.auth.ServerAuthentication()
+        authorization = Authorization()
+        serializer = PhotoSerializer(formats=['json', 'jpeg'])
+        filtering = dict(api.base_v1.resources.PhotoResource.Meta.filtering, **{
+            'event': ['exact'],
+            'timestamp': ALL,
+        })
 
     def dehydrate(self, bundle):
 
