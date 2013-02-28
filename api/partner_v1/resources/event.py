@@ -14,6 +14,7 @@ from django.http import HttpResponse, Http404
 from tastypie import fields
 from tastypie.authorization import Authorization
 from tastypie.resources import ALL
+from tastypie.validation import Validation
 
 from account import AccountResource
 
@@ -24,11 +25,31 @@ from data.models import User
 
 from api.utils import EventSerializer
 
+class EventValidation(Validation):
+    def is_valid(self, bundle, request=None):
+        errors = {}
+
+        required = ['account', 'end', 'start', 'title', 'url']
+        for key in required:
+            try:
+                bundle.data[key]
+            except KeyError:
+                errors[key] = 'Missing field'
+
+        for key, value in bundle.data.items():
+            # if the addresses field is set
+            if key == 'locations':
+                # check the outer item
+                errors[key] = 'Improper endpoint usage'
+                # check the inner item
+
+        return errors
+
 class EventResource(api.base_v1.resources.EventResource):
 
     # relations
     account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
-    addresses = fields.ToManyField('api.partner_v1.resources.AddressResource', 'address_set', null=True, full=True) 
+    locations = fields.ToManyField('api.partner_v1.resources.LocationResource', 'address_set', null=True, full=True) 
 
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
@@ -39,6 +60,7 @@ class EventResource(api.base_v1.resources.EventResource):
         detail_allowed_methods = ['get', 'post', 'put', 'delete']
         authentication = api.auth.DatabaseAuthentication()
         authorization = api.auth.DatabaseAuthorization()
+        validation = EventValidation()
         serializer = EventSerializer(formats=['json', 'jpeg'])
         filtering = dict(api.base_v1.resources.EventResource.Meta.filtering, **{
             'enabled': ['exact'],

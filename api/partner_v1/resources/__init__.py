@@ -1,4 +1,4 @@
 from account import AccountResource
-from address import AddressResource
 from event import EventResource
+from location import LocationResource
 from user import UserResource
