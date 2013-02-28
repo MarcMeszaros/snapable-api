@@ -20,6 +20,17 @@ class User(models.Model):
     last_access = models.DateTimeField(auto_now_add=True, help_text='When the user last accessed the system. (UTC)')
     payment_gateway_user_id = models.CharField(max_length=255, null=True, default=None, help_text='The user ID on the payment gateway linked to this user.')
 
+    ## virtual properties getters/setters ##
+    # return the number of photos related to this event
+    def _get_name(self):
+        return self.first_name + ' ' + self.last_name
+
+    def _set_name(self, value):
+        pass
+
+    # add the virtual properties
+    name = property(_get_name, _set_name)
+
     def set_password(self, raw_password, hasher='pbkdf2_sha256'):
         self.password = generate_password(raw_password, hasher)
 

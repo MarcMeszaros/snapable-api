@@ -14,3 +14,11 @@ class Guest(models.Model):
 
     name = models.CharField(max_length=255, help_text='The guest name.')
     email = models.CharField(max_length=255, help_text='The guest email address.')
+
+    def __unicode__(self):
+        return str({
+            'email': self.email,
+            'event': self.event,
+            'name': self.name,
+            'type': self.type,
+        })

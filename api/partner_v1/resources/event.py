@@ -20,6 +20,7 @@ from account import AccountResource
 
 from data.models import Address
 from data.models import Event
+from data.models import Guest
 from data.models import Photo
 from data.models import User
 
@@ -71,6 +72,19 @@ class EventResource(api.base_v1.resources.EventResource):
             'url': ALL,
             'q': ['exact'],
         })
+
+    def obj_create(self, bundle, **kwargs):
+        # get the API key associated with the request
+        apikey = api.auth.DatabaseAuthentication().get_identifier(bundle.request)
+
+        bundle = super(EventResource, self).obj_create(bundle, **kwargs)
+
+        # create a new guest
+        user = bundle.obj.account.users.all()[0]
+        guest = Guest(event=bundle.obj, type_id=1, email=user.email, name=user.name)
+        guest.save()
+
+        return bundle
 
     def build_filters(self, filters=None):
         if filters is None:
