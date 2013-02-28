@@ -30,6 +30,12 @@ def isAuthorizedApiVersion(request):
     else:
         return False
 
+def matching_api_account(first, second):
+    if first == second:
+        return True
+    else:
+        raise Unauthorized('Not authorized to access resource.')
+
 class DatabaseAuthentication(Authentication):
     def is_authenticated(self, request, **kwargs):
         try:
@@ -80,6 +86,7 @@ class DatabaseAuthentication(Authentication):
         return ApiKey.objects.get(key=auth_params['snap_key'])
 
 class DatabaseAuthorization(Authorization):
+
     def create_detail(self, object_list, bundle):
         return isAuthorizedApiVersion(bundle.request)
 
@@ -117,24 +124,15 @@ class DatabaseAuthorization(Authorization):
 
         # filter objects as required
         if isinstance(bundle.obj, data.models.Account):
-            if bundle.obj.api_account != api_key.account:
-                raise Unauthorized('Not authorized to access resource.')
-            return bundle.obj.api_account == api_key.account
+            return matching_api_account(bundle.obj.api_account, api_key.account)
         elif isinstance(bundle.obj, data.models.Event):
-            if bundle.obj.account.api_account != api_key.account:
-                raise Unauthorized('Not authorized to access resource.')
-            return bundle.obj.account.api_account == api_key.account
+            return matching_api_account(bundle.obj.account.api_account, api_key.account)
         elif isinstance(bundle.obj, data.models.Address):
-            if bundle.obj.event.account.api_account != api_key.account:
-                raise Unauthorized('Not authorized to access resource.')
-            return bundle.obj.event.account.api_account == api_key.account
+            return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
         elif isinstance(bundle.obj, data.models.User):
-            if bundle.obj.account.api_account != api_key.account:
-                raise Unauthorized('Not authorized to access resource.')
-            return bundle.obj.account.api_account == api_key.account
+            return matching_api_account(bundle.obj.account.api_account, api_key.account)
         else:
             raise Unauthorized('Not authorized to access resource.')
-            return False
 
     def update_list(self, object_list, bundle):
         raise Unauthorized("Sorry, no update of lists.")
