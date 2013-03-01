@@ -103,9 +103,11 @@ class DatabaseAuthorization(Authorization):
         # filter objects as required
         if isinstance(object_list[0], data.models.Account):
             return object_list.filter(api_account=api_key.account)
+        elif isinstance(object_list[0], data.models.Address):
+            return object_list.filter(event__account__api_account=api_key.account)
         elif isinstance(object_list[0], data.models.Event):
             return object_list.filter(account__api_account=api_key.account)
-        elif isinstance(object_list[0], data.models.Address):
+        elif isinstance(object_list[0], data.models.Guest):
             return object_list.filter(event__account__api_account=api_key.account)
         elif isinstance(object_list[0], data.models.User):
             return object_list.filter(account__api_account=api_key.account)
@@ -125,9 +127,11 @@ class DatabaseAuthorization(Authorization):
         # filter objects as required
         if isinstance(bundle.obj, data.models.Account):
             return matching_api_account(bundle.obj.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.Address):
+            return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
         elif isinstance(bundle.obj, data.models.Event):
             return matching_api_account(bundle.obj.account.api_account, api_key.account)
-        elif isinstance(bundle.obj, data.models.Address):
+        elif isinstance(bundle.obj, data.models.Guest):
             return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
         elif isinstance(bundle.obj, data.models.User):
             return matching_api_account(bundle.obj.account.api_account, api_key.account)
@@ -135,13 +139,13 @@ class DatabaseAuthorization(Authorization):
             raise Unauthorized('Not authorized to access resource.')
 
     def update_list(self, object_list, bundle):
-        raise Unauthorized("Sorry, no update of lists.")
+        return [] # No update of lists
 
     def update_detail(self, object_list, bundle):
         return isAuthorizedApiVersion(bundle.request)
 
     def delete_list(self, object_list, bundle):
-        raise Unauthorized("Sorry, no delete of lists.")
+        return [] # No delete of lists
 
     def delete_detail(self, object_list, bundle):
         return isAuthorizedApiVersion(bundle.request)
