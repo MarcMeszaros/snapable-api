@@ -18,6 +18,7 @@ from tastypie.validation import Validation
 
 from account import AccountResource
 
+from data.models import Account
 from data.models import Address
 from data.models import Event
 from data.models import Guest
@@ -37,11 +38,18 @@ class EventValidation(Validation):
             except KeyError:
                 errors[key] = 'Missing field'
 
+        # make sure there's only one account
+        acc_str = bundle.data['account']
+        acc_parts = acc_str.strip('/').split('/')
+        account = Account.objects.get(pk=acc_parts[-1])
+        if account.event_set.count() > 1:
+            errors['account'] = 'Only one event per account allowed with the partner API.'
+
         for key, value in bundle.data.items():
             # if the addresses field is set
             if key == 'locations':
                 # check the outer item
-                errors[key] = 'Improper endpoint usage'
+                errors[key] = "Cannot create endpoints via the event. Use the 'location' endpoint."
                 # check the inner item
 
         return errors
@@ -74,9 +82,6 @@ class EventResource(api.base_v1.resources.EventResource):
         })
 
     def obj_create(self, bundle, **kwargs):
-        # get the API key associated with the request
-        apikey = api.auth.DatabaseAuthentication().get_identifier(bundle.request)
-
         bundle = super(EventResource, self).obj_create(bundle, **kwargs)
 
         # create a new guest
