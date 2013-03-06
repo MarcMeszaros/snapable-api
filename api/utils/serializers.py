@@ -28,8 +28,11 @@ class PhotoSerializer(Serializer):
         if (bundle.data != None and bundle.data.has_key('size')):
             size = bundle.data['size']
 
-        snapimg = photo.get_image(size)
-        return snapimg.img.tostring('jpeg', 'RGB')
+        try:
+            snapimg = photo.get_image(size)
+            return snapimg.img.tostring('jpeg', 'RGB')
+        except Exception as e:
+            raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
 
     def from_jpeg(self, content):
         data = []
