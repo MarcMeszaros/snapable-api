@@ -23,5 +23,14 @@ nbproject/*
 build/*
 *\.pyc
 
+# Testing #
+###########
+.coverage
+
+# Vagrant #
+###########
+*.pem
+.vagrant*
+
 # ignore other files
 gunicorn.pid
