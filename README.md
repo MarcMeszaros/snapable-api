@@ -93,9 +93,6 @@ higher than the "snapable" API source code folder.
     # django settings
     DEBUG = True
 
-    DEBUG_AUTHENTICATION = True
-    DEBUG_AUTHORIZATION = True
-
     ADMINS = (
         ('Marc Meszaros', 'marc@snapable.com'),
         ('Andrew Draper', 'andrew@snapable.com'),
@@ -115,9 +112,6 @@ higher than the "snapable" API source code folder.
 
     # sentry/raven
     SENTRY_DSN = 'http://user:pass@host/2'
-    RAVEN_CONFIG = {
-        'register_signals': True,
-    }
 
     # API keys
     APIKEY = {

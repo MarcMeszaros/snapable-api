@@ -2,6 +2,8 @@ import dateutil.parser
 import hashlib
 import hmac
 import pytz
+import random
+import time
 
 from datetime import datetime, timedelta
 from django.conf import settings
@@ -56,6 +58,30 @@ def legacyIsAuthorized(request):
         return False
 
 class ServerAuthentication(Authentication):
+    
+    @staticmethod
+    def get_nonce(length=16):
+        random_hash = hashlib.sha512(str(random.SystemRandom().getrandbits(512))).hexdigest()
+        if length >= 16:
+            return random_hash[:length]
+        else:
+            return random_hash[:16]
+
+    @staticmethod
+    def create_signature(api_key, api_secret, method, uri, legacy=False):
+        # add the parts to proper varibles for signature
+        snap_nonce = ServerAuthentication.get_nonce()
+        if not legacy:
+            snap_timestamp = time.strftime('%s', time.localtime())
+            raw = api_key + method + uri + snap_nonce + snap_timestamp
+            signature = hmac.new(api_secret, raw, hashlib.sha1).hexdigest()
+            return 'SNAP snap_key="'+api_key+'",snap_signature="'+signature+'",snap_nonce="'+snap_nonce+'",snap_timestamp="'+snap_timestamp+'"'
+        else:
+            snap_date = time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())
+            raw = api_key + method + uri + snap_nonce + snap_date
+            signature = hmac.new(api_secret, raw, hashlib.sha1).hexdigest()
+            return 'SNAP snap_key="'+api_key+'",snap_signature="'+signature+'",snap_nonce="'+snap_nonce+'",snap_date="'+snap_date+'"'
+
     def is_authenticated(self, request, **kwargs):
         try:
             # get the Authorization header
@@ -76,7 +102,10 @@ class ServerAuthentication(Authentication):
 
                 # add the parts to proper varibles for signature
                 key = auth_params['snap_key']
-                secret = settings.APIKEY[key]
+                try:
+                    secret = settings.APIKEY[key]
+                except KeyError:
+                    return False
                 signature = auth_params['snap_signature']
                 x_snap_nonce = auth_params['snap_nonce']
                 if 'snap_timestamp' in auth_params:
@@ -87,7 +116,10 @@ class ServerAuthentication(Authentication):
             else:
                 # api signature info in multiple headers
                 key = auth[1].split(':')[0]
-                secret = settings.APIKEY[key]
+                try:
+                    secret = settings.APIKEY[key]
+                except KeyError:
+                    return False
                 signature = auth[1].split(':')[1]
                 x_snap_nonce = request.META['HTTP_X_SNAP_NONCE']
                 x_snap_date = request.META['HTTP_X_SNAP_DATE']
