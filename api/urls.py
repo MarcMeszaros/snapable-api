@@ -1,8 +1,13 @@
 from django.conf.urls import patterns, include, url
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
 
 import api.partner_v1
 import api.private_v1
+
+# custom error handlers
+handler404 = lambda r: render(r, '404.txt', status=404, content_type='text/plain')
+handler500 = lambda r: render(r, '500.txt', status=500, content_type='text/plain')
 
 urlpatterns = patterns('',
     # redirect the root API to prevent error pages
