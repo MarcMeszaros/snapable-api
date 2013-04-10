@@ -5,18 +5,6 @@ import sys
 # create the 'logs' folder(s) if it doesn't already exist
 if not os.path.exists(os.path.join(os.getcwd(), 'logs')):
     os.makedirs(os.path.join(os.getcwd(), 'logs'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'debug')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'debug'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'info')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'info'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'warning')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'warning'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'error')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'error'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'critical')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'critical'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'firehose')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'firehose'))
 
 # start newrelic if on athena (staging)
 if ('athena' in socket.gethostname()):
@@ -159,63 +147,64 @@ INSTALLED_APPS = (
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
     'handlers': {
-        'file.firehose': {
+        'null': {
+            'level':'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+        },
+        'sentry': {
             'level': 'WARNING',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'firehose', 'firehose.log'),
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'file.critical': {
-            'level': 'CRITICAL',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'critical', 'critical.log'),
-        },
-        'file.error': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'error', 'error.log'),
-        },
-        'file.warning': {
-            'level': 'WARNING',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'warning', 'warning.log'),
-        },
-        'file.info': {
-            'level': 'INFO',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'info', 'info.log'),
-        },
-        'file.debug': {
+        'file.firehose': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'debug', 'debug.log'),
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join('logs', 'firehose.log'),
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 14,
+            'utc': True,
         },
     },
     'loggers': {
         '': {
-            'handlers': ['file.firehose', 'mail_admins'],
+            'handlers': ['console', 'file.firehose'],
             'level': 'INFO',
             'propagate': True,
         },
-        'snapable': {
-            'handlers': ['file.debug', 'file.info', 'file.warning', 'file.error', 'file.critical', 'mail_admins'],
-            'level': 'DEBUG',
+        'django': {
+            'handlers': ['file.firehose', 'sentry', 'mail_admins'],
+            'level': 'WARNING',
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['file.firehose', 'sentry', 'mail_admins'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.db.backend': {
+            'handlers': ['file.firehose', 'sentry'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'snapable': {
+            'handlers': ['console', 'file.firehose', 'sentry'],
+            'level': 'DEBUG',
             'propagate': True,
         },
     }
@@ -246,3 +235,9 @@ except Exception as e:
 # make the debug values whatever the debug value django is after local settings are applied
 TEMPLATE_DEBUG = DEBUG
 TASTYPIE_FULL_DEBUG = DEBUG
+
+# default debug API keys
+if DEBUG:
+    APIKEY = {
+        'abc123': '123',
+    }

@@ -91,12 +91,7 @@ higher than the "snapable" API source code folder.
     }
 
     # django settings
-    DEBUG = True
-
-    ADMINS = (
-        ('Marc Meszaros', 'marc@snapable.com'),
-        ('Andrew Draper', 'andrew@snapable.com'),
-    )
+    DEBUG = False
 
     # sendgrid
     EMAIL_HOST = 'smtp.sendgrid.net'
@@ -115,5 +110,5 @@ higher than the "snapable" API source code folder.
 
     # API keys
     APIKEY = {
-        'abc123': '123', # general testing key/secret pair
+        'abc123': '123', # production testing key/secret pair
     }
