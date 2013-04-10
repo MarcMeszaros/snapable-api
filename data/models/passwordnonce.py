@@ -1,8 +1,11 @@
+# python
 import hashlib
-import Crypto.Random
+import random
 
+# django/tastypie
 from django.db import models
 
+# snapable
 from data.models import User
 
 class PasswordNonce(models.Model):
@@ -39,4 +42,4 @@ class PasswordNonce(models.Model):
         """
         Generate a random sha512 hash
         """
-        return hashlib.sha512(Crypto.Random.get_random_bytes(512)).hexdigest()
+        return hashlib.sha512(str(random.SystemRandom().getrandbits(512))).hexdigest()
