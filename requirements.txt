@@ -10,5 +10,5 @@ python-cloudfiles>=1.7.10,<1.8
 pytz>=2012d
 pillow>=1.7.7,<1.8
 raven>=3.3.3,<3.4
-py-bcrypt>=0.2
+py-bcrypt>=0.3
 newrelic>=1.5.0.103
