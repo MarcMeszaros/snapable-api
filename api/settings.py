@@ -18,12 +18,6 @@ elif ('ares' in socket.gethostname()):
 # Django settings for api project.
 DEBUG = True
 
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-)
-
-MANAGERS = ADMINS
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -47,8 +41,6 @@ TIME_ZONE = 'UTC'
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
-
-SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -155,12 +147,12 @@ LOGGING = {
     },
     'handlers': {
         'null': {
-            'level':'DEBUG',
-            'class':'django.utils.log.NullHandler',
+            'level': 'DEBUG',
+            'class': 'django.utils.log.NullHandler',
         },
         'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
         },
         'sentry': {
             'level': 'INFO',
@@ -232,12 +224,9 @@ try:
 except Exception as e:
     pass
 
-# make the debug values whatever the debug value django is after local settings are applied
-TEMPLATE_DEBUG = DEBUG
-TASTYPIE_FULL_DEBUG = DEBUG
-
 # default debug API keys
+#APIKEY = {}
 if DEBUG:
     APIKEY = {
-        'abc123': '123',
+        'key123': 'sec123',
     }
