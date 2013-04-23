@@ -111,3 +111,12 @@ class Photo(models.Model):
 
         except cloudfiles.errors.NoSuchContainer as e:
             return None
+
+    def __unicode__(self):
+        return str({
+            'caption': self.caption,
+            'event': self.event,
+            'metrics': self.metrics,
+            'streamable': self.streamable,
+            'timestamp': self.timestamp,
+        })

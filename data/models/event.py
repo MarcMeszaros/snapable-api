@@ -46,3 +46,17 @@ class Event(models.Model):
 
         return super(Event, self).save(*args, **kwargs)
 
+    def __unicode__(self):
+        return str({
+            'account': self.account,
+            'creation_date': self.creation_date,
+            'enabled': self.enabled,
+            'end': self.end,
+            'pin': self.pin,
+            'public': self.public,
+            'start': self.start,
+            'title': self.title,
+            'url': self.url,
+            'tz_offset': self.tz_offset,
+        })
+
