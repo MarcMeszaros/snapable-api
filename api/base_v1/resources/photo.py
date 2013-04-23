@@ -19,3 +19,6 @@ class PhotoResource(ModelResource):
         detail_allowed_methods = ['get']
         always_return_data = True
         filtering = {}
+
+    def dehydrate_timestamp(self, bundle):
+        return bundle.data['timestamp'].strftime('%Y-%m-%dT%H:%M:%SZ')

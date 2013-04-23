@@ -44,6 +44,9 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
             'timestamp': ALL,
         })
 
+    def dehydrate_timestamp(self, bundle):
+        return bundle.data['timestamp'].strftime('%Y-%m-%dT%H:%M:%S')
+
     def dehydrate(self, bundle):
 
         # try and add the guest name
