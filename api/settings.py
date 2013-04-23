@@ -215,6 +215,7 @@ RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = 10000
 
 # tastypie settings
 API_LIMIT_PER_PAGE = 50
+TASTYPIE_DEFAULT_FORMATS = ['json']
 
 # import local settings
 try:
