@@ -208,6 +208,9 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
 
+# email backend
+EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
+
 # RACKSPACE
 RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_photos_'
 RACKSPACE_CLOUDFILE_TIMEOUT = 120
