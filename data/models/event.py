@@ -39,13 +39,6 @@ class Event(models.Model):
     # create the property
     photo_count = property(_get_photo_count, _set_photo_count)
 
-    # override the save function to set defaults if required
-    def save(self, *args, **kwargs):
-        if not self.pin:
-            self.pin = str(random.randint(1000, 9999)) # random int between 1000 and 9999 (inclusive)
-
-        return super(Event, self).save(*args, **kwargs)
-
     def __unicode__(self):
         return str({
             'account': self.account,
@@ -60,3 +53,9 @@ class Event(models.Model):
             'tz_offset': self.tz_offset,
         })
 
+    # override the save function to set defaults if required
+    def save(self, *args, **kwargs):
+        if not self.pin:
+            self.pin = str(random.randint(1000, 9999)) # random int between 1000 and 9999 (inclusive)
+
+        return super(Event, self).save(*args, **kwargs)

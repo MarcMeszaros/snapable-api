@@ -28,6 +28,15 @@ class Photo(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, help_text='The photo timestamp.')
     metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics
 
+    def __unicode__(self):
+        return str({
+            'caption': self.caption,
+            'event': self.event,
+            'metrics': self.metrics,
+            'streamable': self.streamable,
+            'timestamp': self.timestamp,
+        })
+
     # override built-in delete function
     def delete(self):
         conn = cloudfiles.Connection(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY, settings.RACKSPACE_CLOUDFILE_TIMEOUT)
@@ -111,12 +120,3 @@ class Photo(models.Model):
 
         except cloudfiles.errors.NoSuchContainer as e:
             return None
-
-    def __unicode__(self):
-        return str({
-            'caption': self.caption,
-            'event': self.event,
-            'metrics': self.metrics,
-            'streamable': self.streamable,
-            'timestamp': self.timestamp,
-        })

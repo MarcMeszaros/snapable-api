@@ -25,3 +25,8 @@ class Type(models.Model):
     )
 
     name = models.CharField(max_length=255, help_text='The name of the TYPE value mapping.')
+
+    def __unicode__(self):
+        return str({
+            'name': self.name,
+        })

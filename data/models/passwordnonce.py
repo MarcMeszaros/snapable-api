@@ -22,7 +22,11 @@ class PasswordNonce(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, help_text='When the nonce was created. (UTC)')
 
     def __unicode__(self):
-        return self.nonce
+        return str({
+            'nonce': self.nonce,
+            'timestamp': self.timestamp,
+            'valid': self.valid,
+        })
 
     def save(self, *args, **kwargs):
         """
