@@ -10,4 +10,5 @@ class SnapableApi(Api):
         self.register(resources.EventResource())
         self.register(resources.GuestResource())
         self.register(resources.LocationResource())
+        self.register(resources.PhotoResource())
         self.register(resources.UserResource())
