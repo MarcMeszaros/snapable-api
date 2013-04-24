@@ -25,7 +25,7 @@ from data.models import Guest
 from data.models import Photo
 from data.models import User
 
-from api.utils import EventSerializer
+from api.utils.serializers import EventSerializer
 
 class EventValidation(Validation):
     def is_valid(self, bundle, request=None):

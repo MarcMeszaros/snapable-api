@@ -23,7 +23,7 @@ from data.models import Event
 from data.models import Photo
 from data.models import User
 
-from api.utils import EventSerializer
+from api.utils.serializers import EventSerializer
 
 class EventResource(api.base_v1.resources.EventResource):
 

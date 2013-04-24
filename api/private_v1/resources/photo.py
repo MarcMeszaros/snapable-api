@@ -18,7 +18,7 @@ from type import TypeResource
 
 from data.models import Guest
 
-from api.utils import PhotoSerializer
+from api.utils.serializers import PhotoSerializer
 
 from data.images import SnapImage
 import StringIO

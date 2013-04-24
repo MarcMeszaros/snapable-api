@@ -19,7 +19,7 @@ import api.auth
 import api.utils
 import api.base_v1.resources
 
-from api.utils import PhotoSerializer
+from api.utils.serializers import PhotoSerializer
 from event import EventResource
 from guest import GuestResource
 #from type import TypeResource
