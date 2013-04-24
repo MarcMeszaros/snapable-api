@@ -34,3 +34,4 @@ build/*
 
 # ignore other files
 gunicorn.pid
+settings_local.py

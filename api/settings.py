@@ -222,8 +222,7 @@ TASTYPIE_DEFAULT_FORMATS = ['json']
 
 # import local settings
 try:
-    sys.path.append('../')
-    os.path.isfile('../settings_local.py')
+    os.path.isfile('settings_local.py')
     from settings_local import *
 except Exception as e:
     pass
