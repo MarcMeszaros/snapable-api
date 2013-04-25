@@ -22,7 +22,7 @@ class PhotoResourceTest(ResourceTestCase):
 
         # The data we'll send on POST requests.
         filename = 'trashcat.jpg'
-        filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
+        filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'assets', filename)
         f = open(filepath, 'rb')
 
         self.post_data = {
