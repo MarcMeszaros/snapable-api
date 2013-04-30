@@ -232,7 +232,13 @@ if DEBUG:
     # custom test runner
     TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
     # what modules to exclude from the test coverage
-    COVERAGE_MODULE_EXCLUDES = ['\.migrations\.', 'raven', 'south', 'tastypie']
+    COVERAGE_MODULE_EXCLUDES = [
+        # custom
+        'raven', 'south', 'tastypie',
+        # default
+        'tests$', 'settings$', 'urls$', 'locale$', 'common.views.test', '__init__', 'django', 'migrations'
+    ]
+    COVERAGE_REPORT_HTML_OUTPUT_DIR = 'build/reports'
 
     APIKEY = {
         'key123': 'sec123',
