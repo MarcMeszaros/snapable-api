@@ -227,9 +227,13 @@ try:
 except Exception as e:
     pass
 
-# default debug API keys
-#APIKEY = {}
+# set debug defaults
 if DEBUG:
+    # custom test runner
+    TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
+    # what modules to exclude from the test coverage
+    COVERAGE_MODULE_EXCLUDES = ['\.migrations\.', 'raven', 'south', 'tastypie']
+
     APIKEY = {
         'key123': 'sec123',
     }

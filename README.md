@@ -29,6 +29,7 @@ NOTE: * items are installed from the Debian distribution using APT.
 
 # INSTALLATION #
 
+## Production Install ##
 The installation assumes that the following steps are executed on a server that meets the requirements.
 The application is set to use the following MySQL credentials by default:
 
@@ -41,6 +42,11 @@ The application is set to use the following MySQL credentials by default:
 2. Setup the migration management via south/django and the "syncdb" command.
 3. Apply the database migrations.
 4. Simply run the application using wsgi. Using gunicorn (http://gunicorn.org/) is recommended.
+
+## Development Install ##
+
+1. Complete the "Production Install"
+2. Run `pip install -r requirements-dev.txt`
 
 ## INSTALLATION EXAMPLE: ##
 Run the following commands:
