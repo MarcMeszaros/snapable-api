@@ -31,6 +31,16 @@ class User(models.Model):
     # add the virtual properties
     name = property(_get_name, _set_name)
 
+    def __unicode__(self):
+        return str({
+            'email': self.email,
+            'password': self.password,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'billing_zip': self.billing_zip,
+            'terms': self.terms,
+        })
+
     def set_password(self, raw_password, hasher='pbkdf2_sha256'):
         self.password = generate_password(raw_password, hasher)
 
@@ -42,13 +52,3 @@ class User(models.Model):
             return make_password(raw_password, hasher='pbkdf2_sha256')
         else:
             return make_password(raw_password, hasher='pbkdf2_sha256')
-
-    def __unicode__(self):
-        return str({
-            'email': self.email,
-            'password': self.password,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'billing_zip': self.billing_zip,
-            'terms': self.terms,
-        })
