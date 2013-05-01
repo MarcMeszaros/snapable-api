@@ -16,7 +16,7 @@ elif ('ares' in socket.gethostname()):
     newrelic.agent.initialize('newrelic.ini', 'production')
 
 # Django settings for api project.
-DEBUG = True
+DEBUG = False
 
 DATABASES = {
     'default': {
