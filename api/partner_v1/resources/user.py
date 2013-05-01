@@ -1,11 +1,11 @@
+# django/tastypie/libs
+from tastypie import fields
+
+# snapable
 import api.auth
 import api.base_v1.resources
 
-from tastypie import fields
-
-from data.models import Account
-from data.models import AccountUser
-from data.models import User
+from data.models import Account, AccountUser, User
 
 class UserResource(api.base_v1.resources.UserResource):
 

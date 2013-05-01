@@ -1,11 +1,13 @@
-import api.auth
-import api.base_v1.resources
+# django/tastypie/libs
 from tastypie import fields
 from tastypie.authorization import Authorization
 
-from event import EventResource
+# snapable
+import api.auth
+import api.base_v1.resources
 
 from data.models import Type
+from event import EventResource
 
 class GuestResource(api.base_v1.resources.GuestResource):
 

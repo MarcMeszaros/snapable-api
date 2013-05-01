@@ -3,6 +3,7 @@ import StringIO
 
 # django/tastypie/libs
 import cloudfiles
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import HttpResponse
@@ -20,13 +21,10 @@ import api.utils
 import api.base_v1.resources
 
 from api.utils.serializers import PhotoSerializer
+from data.images import SnapImage
+from data.models import Guest, Type
 from event import EventResource
 from guest import GuestResource
-#from type import TypeResource
-
-from data.images import SnapImage
-from data.models import Guest
-from data.models import Type
 
 class PhotoValidation(Validation):
     def is_valid(self, bundle, request=None):
@@ -43,10 +41,11 @@ class PhotoValidation(Validation):
 
 class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoResource):
 
+    # relations
     event = fields.ForeignKey(EventResource, 'event')
     guest = fields.ForeignKey(GuestResource, 'guest', null=True) # allow the foreign key to be null
-    #type = fields.ForeignKey(TypeResource, 'type')
 
+    # virtual fields
     timestamp = fields.DateTimeField(attribute='timestamp', readonly=True, help_text='The photo timestamp. (UTC)')
 
     class Meta(api.base_v1.resources.PhotoResource.Meta): # set Meta to the public API Meta

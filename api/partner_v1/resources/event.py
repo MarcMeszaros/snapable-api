@@ -1,31 +1,27 @@
-import api.auth
-import api.base_v1.resources
-import pytz
-
+# python
 from datetime import datetime, timedelta
 from decimal import Decimal
+
+# django/tastypie/libs
+import pytz
 
 from django.conf.urls.defaults import *
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.paginator import Paginator, InvalidPage
 from django.db.models import Q
 from django.http import HttpResponse, Http404
-
 from tastypie import fields
 from tastypie.authorization import Authorization
 from tastypie.resources import ALL
 from tastypie.validation import Validation
 
+# snapable
+import api.auth
+import api.base_v1.resources
+
 from account import AccountResource
-
-from data.models import Account
-from data.models import Address
-from data.models import Event
-from data.models import Guest
-from data.models import Photo
-from data.models import User
-
 from api.utils.serializers import EventSerializer
+from data.models import Account, Address, Event, Guest, Photo, User
 
 class EventValidation(Validation):
     def is_valid(self, bundle, request=None):
