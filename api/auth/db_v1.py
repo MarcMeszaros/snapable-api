@@ -115,6 +115,10 @@ class DatabaseAuthorization(Authorization):
             return []
 
     def read_detail(self, object_list, bundle):
+        # allow schema to be read
+        if bundle.request.path.split('/')[-2] == 'schema':
+            return True
+
         # check if authorized to access the API
         if not isAuthorizedApiVersion(bundle.request):
             raise Unauthorized('Not authorized to access API.')
