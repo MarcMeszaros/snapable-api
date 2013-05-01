@@ -1,10 +1,8 @@
 # django/tastypie/libs
 from tastypie.test import ResourceTestCase
-from PIL import Image
 
 # snapable
 from api.auth.server import ServerAuthentication
-from api.utils.serializers import MultipartSerializer
 from data.models import Guest
 
 class GuestResourceTest(ResourceTestCase):
