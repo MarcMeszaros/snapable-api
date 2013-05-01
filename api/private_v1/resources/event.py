@@ -1,29 +1,28 @@
-import api.auth
-import api.base_v1.resources
+# python
 import copy
-import pytz
 
 from datetime import datetime, timedelta
 from decimal import Decimal
+
+# django/tastypie/libs
+import pytz
 
 from django.conf.urls.defaults import *
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.paginator import Paginator, InvalidPage
 from django.db.models import Q
 from django.http import HttpResponse, Http404
-
 from tastypie import fields
 from tastypie.authorization import Authorization
 from tastypie.resources import ALL
 
+# snapable
+import api.auth
+import api.base_v1.resources
+
 from account import AccountResource
-
-from data.models import Address
-from data.models import Event
-from data.models import Photo
-from data.models import User
-
 from api.utils.serializers import EventSerializer
+from data.models import Address, Event, Photo, User
 
 class EventResource(api.base_v1.resources.EventResource):
 
@@ -53,8 +52,6 @@ class EventResource(api.base_v1.resources.EventResource):
             'url': ALL,
         })
 
-    # should use prepend_url, but only works with tastypie v0.9.12+
-    # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584
     def prepend_urls(self):
         return [
             url(r'^(?P<resource_name>%s)/search/$' % self._meta.resource_name, self.wrap_view('get_search'), name="api_get_search"),
@@ -115,6 +112,9 @@ class EventResource(api.base_v1.resources.EventResource):
                 bundle.data['type'] = '/private_v1/type/6/'
             else:
                 bundle.data['type'] = '/private_v1/type/5/'
+
+            # add the old 'creation_date' field
+            bundle.data['creation_date'] = bundle.data['created']
 
         except ObjectDoesNotExist:
             pass

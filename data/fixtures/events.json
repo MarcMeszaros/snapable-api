@@ -5,7 +5,7 @@
     "model": "data.event", 
     "fields": {
         "account": 1,
-        "creation_date": "2012-07-21T04:48:10+00:00",
+        "created": "2012-07-21T04:48:10+00:00",
         "enabled": 1,
         "end": "2012-10-09T12:00:00+00:00",
         "last_access": "2012-07-21T04:48:10+00:00",

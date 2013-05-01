@@ -1,7 +1,10 @@
+# python
 import random
 
+# django/tastypie/libs
 from django.db import models
 
+# snapable
 from data.models import Account
 from data.models import Addon
 
@@ -23,7 +26,7 @@ class Event(models.Model):
     url = models.CharField(max_length=255, help_text='A "short name" for the event.')
     public = models.BooleanField(default=True, help_text='Is the event considered "public".')
     pin = models.CharField(max_length=255, help_text='Pseudo-random PIN used for private events.')
-    creation_date = models.DateTimeField(auto_now_add=True, help_text='When the event created. (UTC)')
+    created = models.DateTimeField(auto_now_add=True, help_text='When the event created. (UTC)')
     last_access = models.DateTimeField(auto_now_add=True, help_text='When the event was last accessed. (UTC)')
     access_count = models.IntegerField(default=0)
     enabled = models.BooleanField(help_text='Is the event considered "active" in the system.')
@@ -42,7 +45,7 @@ class Event(models.Model):
     def __unicode__(self):
         return str({
             'account': self.account,
-            'creation_date': self.creation_date,
+            'created': self.created,
             'enabled': self.enabled,
             'end': self.end,
             'pin': self.pin,

@@ -34,6 +34,7 @@ class EventResourceTest(ResourceTestCase):
             'addons',
             'addresses',
             'cover',
+            'created',
             'creation_date',
             'enabled',
             'end',
