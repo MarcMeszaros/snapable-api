@@ -1,9 +1,7 @@
 # INTRODUCTION #
-
 This is the main API code used for Snapable.
 
 # REQUIREMENTS #
-
 Development is done on Debian 6.0.5 (a.k.a. Squeeze) systems (http://www.debian.org/).
 You can view the library versions developed against in the "requirements.txt" file.
 To install all the libraries at once using pip (http://www.pip-installer.org/).
@@ -51,7 +49,7 @@ The application is set to use the following MySQL credentials by default:
 ## INSTALLATION EXAMPLE: ##
 Run the following commands:
 
-    > sudo apt-get install build-essential python python-dev python-pip libmysqlclient-dev libjpeg-dev libraw-dev libevent-dev
+    > sudo apt-get install build-essential python python-dev python-pip libmysqlclient-dev libjpeg-dev libevent-dev
     > sudo pip install --upgrade
     > sudo pip install virtualenv
     > mkdir ~/environments/
@@ -63,7 +61,7 @@ Run the following commands:
     > pip install -r requirements.txt
     > ./manage.py syncdb
     > ./manage.py migrate data
-    > mkdir logs
+    > ./manage.py migrate api
     > gunicorn api.wsgi:application -c gunicorn_config.py
 
 Execute the following commands to control the server:
@@ -74,8 +72,15 @@ Execute the following commands to control the server:
     # kill (note: ` [backticks] are required)
     kill -9 `cat gunicorn.pid`
 
-# CONFIGURATION #
+# DEVELOPMENT #
 
+## Unit Tests ##
+To run the unit tests, execute:
+
+    ./manage.py test
+
+
+# CONFIGURATION #
 Below is a sample configuration for the local settings file. It should be placed one folder level
 higher than the "snapable" API source code folder.
 
@@ -95,9 +100,6 @@ higher than the "snapable" API source code folder.
             'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
         }
     }
-
-    # django settings
-    DEBUG = False
 
     # sendgrid
     EMAIL_HOST = 'smtp.sendgrid.net'

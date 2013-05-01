@@ -234,7 +234,7 @@ if DEBUG:
     # what modules to exclude from the test coverage
     COVERAGE_MODULE_EXCLUDES = [
         # custom
-        'raven', 'south', 'tastypie',
+        'raven', 'south', 'tastypie', 'api.wsgi',
         # default
         'tests$', 'settings$', 'urls$', 'locale$', 'common.views.test', '__init__', 'django', 'migrations'
     ]
