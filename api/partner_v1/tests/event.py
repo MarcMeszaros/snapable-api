@@ -14,7 +14,7 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
         self.api_key = 'key123'
         self.api_secret = 'sec123'
 
-        self.api_account_1 = ApiAccount.objects.get()
+        self.api_account_1 = ApiAccount.objects.all()[0]
         self.events = Event.objects.filter(account__api_account=self.api_account_1)
         self.event_1 = self.events[0]
 
