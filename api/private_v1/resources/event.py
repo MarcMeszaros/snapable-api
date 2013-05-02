@@ -137,15 +137,17 @@ class EventResource(api.base_v1.resources.EventResource):
         # only do the lat/lng filtering on a list get request if both values are set
         if (request.GET.has_key('lat') and request.GET.has_key('lng')):
 
+            # [(distance(m) / 0.111) * 0.000001] = ratio delta
+            # ie: [(25000 / 0.111) * 0.000001] = 0.225225 ~ 25km
+            #
             # 0.000001 = 0.111 m
-            # 0.000001 * 450450 = 0.450449 ~ 50km
             # 0.000001 * 225255 = 0.225225 ~ 25km
             # 0.000001 * 90090 = 0.09009 ~ 10km
             # 0.000001 * 45045 = 0.045045 ~ 5km
             # 0.000001 * 18018 = 0.018018 ~ 2km
             # 0.000001 * 9009 = 0.009009 ~ 1km
             # variance calculation
-            delta_distance = Decimal('0.225225')
+            delta_distance = Decimal('0.09009')
             lat_lower = Decimal(request.GET['lat']) - delta_distance
             lat_upper = Decimal(request.GET['lat']) + delta_distance
             lng_lower = Decimal(request.GET['lng']) - delta_distance
