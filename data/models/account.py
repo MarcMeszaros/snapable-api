@@ -17,3 +17,12 @@ class Account(models.Model):
     users = models.ManyToManyField(User, through='AccountUser')
     valid_until = models.DateTimeField(null=True, default=None, help_text='If set, the account is valid until this date (UTC). [Usually set when buying a package.]')
     api_account = models.ForeignKey(ApiAccount, null=True, default=None)
+
+    def __unicode__(self):
+        return str({
+            'api_account': self.api_account,
+            'package': self.package,
+            'pk': self.pk, # Primary Key is infered from Django
+            'users': self.users,
+            'valid_until': self.valid_until,
+        })
