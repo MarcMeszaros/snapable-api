@@ -5,7 +5,6 @@ import re
 # django/tastypie
 from django.conf import settings
 from tastypie.test import ResourceTestCase, TestApiClient
-from PIL import Image
 
 # snapable
 from api.auth.server import ServerAuthentication
@@ -46,7 +45,7 @@ class Private_v1__PhotoResourceTest(ResourceTestCase):
 
         # make sure the resource was created
         self.assertHttpCreated(resp)
-        
+
         # test to make sure all the keys are in the response
         self.assertKeys(self.deserialize(resp), [
             'author_name',

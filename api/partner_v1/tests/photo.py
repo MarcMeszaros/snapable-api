@@ -4,7 +4,6 @@ import os
 # django/tastypie
 from django.conf import settings
 from tastypie.test import ResourceTestCase, TestApiClient
-from PIL import Image
 
 # snapable
 from api.auth.db_v1 import DatabaseAuthentication
