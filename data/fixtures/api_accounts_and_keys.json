@@ -77,12 +77,36 @@
 
 {
     "pk": 2, 
+    "model": "data.address", 
+    "fields": {
+        "event": 2,
+        "address": "78 George Street, Ottawa, ON",
+        "lat": "45.427372",
+        "lng": "-75.691411",
+        "creation_date": "2012-07-21T04:48:10Z"
+    }
+},
+
+{
+    "pk": 2, 
     "model": "data.guest", 
     "fields": {
         "event": 2,
         "name": "Bob Example2",
         "email": "bob.example2@example.com",
         "type": 1
+    }
+},
+
+{
+    "pk": 2,
+    "model": "data.photo",
+    "fields": {
+        "event": 2,
+        "guest": 2,
+        "type": 5,
+        "caption": "My awesome photo!",
+        "timestamp": "2012-10-09T06:34:12Z"
     }
 }
 
