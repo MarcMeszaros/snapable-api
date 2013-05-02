@@ -24,11 +24,12 @@ class ApiKey(models.Model):
     def __unicode__(self):
         return str({
             'api_account': self.api_account,
-            'key': self.key, 
-            'secret': self.secret,
-            'version': self.version,
             'created': self.created,
             'enabled': self.enabled,
+            'key': self.key,
+            'pk': self.pk,
+            'secret': self.secret,
+            'version': self.version,
         })
 
     def save(self, *args, **kwargs):

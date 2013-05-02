@@ -15,4 +15,5 @@ class ApiAccount(models.Model):
             'email': self.email,
             'company': self.company,
             'created': self.created,
+            'pk': self.pk,
         })
