@@ -12,7 +12,6 @@ import pytz
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, Unauthorized
@@ -151,7 +150,10 @@ class DatabaseAuthorization(Authorization):
         elif isinstance(bundle.obj, data.models.Guest):
             return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
         elif isinstance(bundle.obj, data.models.User):
-            return matching_api_account(bundle.obj.account.api_account, api_key.account)
+            for account in bundle.obj.account_set.all():
+                if matching_api_account(account.api_account, api_key.account):
+                    return True
+            return False
         else:
             raise Unauthorized('Not authorized to access resource.')
 
