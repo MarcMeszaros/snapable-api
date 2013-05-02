@@ -1,3 +1,8 @@
+# python
+import hashlib
+import random
+
+## snapable ##
 # Authentication
 from api.auth.db_v1 import DatabaseAuthentication
 from api.auth.server import ServerAuthentication
@@ -18,3 +23,10 @@ def getAuthParams(request):
         auth_params[items[0].lower()] = items[1]
 
     return auth_params
+
+def get_nonce(length=16):
+    random_hash = hashlib.sha512(str(random.SystemRandom().getrandbits(512))).hexdigest()
+    if length >= 16:
+        return random_hash[:length]
+    else:
+        return random_hash[:16]

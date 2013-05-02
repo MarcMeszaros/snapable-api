@@ -3,6 +3,8 @@ import dateutil.parser
 import hashlib
 import hmac
 import pytz
+import random
+import time
 
 # django
 from datetime import datetime, timedelta
@@ -37,6 +39,16 @@ def matching_api_account(first, second):
         raise Unauthorized('Not authorized to access resource.')
 
 class DatabaseAuthentication(Authentication):
+
+    @staticmethod
+    def create_signature(api_key, api_secret, method, uri):
+        # add the parts to proper varibles for signature
+        snap_nonce = api.auth.get_nonce()
+        snap_timestamp = time.strftime('%s', time.localtime())
+        raw = api_key + method + uri + snap_nonce + snap_timestamp
+        signature = hmac.new(api_secret, raw, hashlib.sha1).hexdigest()
+        return 'SNAP snap_key="'+api_key+'",snap_signature="'+signature+'",snap_nonce="'+snap_nonce+'",snap_timestamp="'+snap_timestamp+'"'
+
     def is_authenticated(self, request, **kwargs):
         try:
             # get the Authorization header

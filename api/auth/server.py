@@ -1,21 +1,24 @@
+# python
 import dateutil.parser
 import hashlib
 import hmac
-import pytz
 import random
 import time
+
+# django/tastypie/libs
+import pytz
 
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
-from tastypie.exceptions import BadRequest
-from tastypie.exceptions import Unauthorized
+from tastypie.exceptions import BadRequest, Unauthorized
 
-from data.models import PasswordNonce
-from data.models import User
+# snapable
+import api.auth
+
+from data.models import PasswordNonce, User
 
 def legacyIsAuthorized(request):
     if not 'HTTP_X_SNAP_USER' in request.META and (request.method in ['GET', 'POST']):
@@ -58,19 +61,11 @@ def legacyIsAuthorized(request):
         return False
 
 class ServerAuthentication(Authentication):
-    
-    @staticmethod
-    def get_nonce(length=16):
-        random_hash = hashlib.sha512(str(random.SystemRandom().getrandbits(512))).hexdigest()
-        if length >= 16:
-            return random_hash[:length]
-        else:
-            return random_hash[:16]
 
     @staticmethod
     def create_signature(api_key, api_secret, method, uri, legacy=False):
         # add the parts to proper varibles for signature
-        snap_nonce = ServerAuthentication.get_nonce()
+        snap_nonce = api.auth.get_nonce()
         if not legacy:
             snap_timestamp = time.strftime('%s', time.localtime())
             raw = api_key + method + uri + snap_nonce + snap_timestamp
