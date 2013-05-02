@@ -2,9 +2,13 @@ import os
 import socket
 import sys
 
+# get the project path
+PROJECT_PATH_INNER = os.path.dirname(__file__)
+PROJECT_PATH = os.path.dirname(PROJECT_PATH_INNER)
+
 # create the 'logs' folder(s) if it doesn't already exist
-if not os.path.exists(os.path.join(os.getcwd(), 'logs')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs'))
+if not os.path.exists(os.path.join(PROJECT_PATH, 'logs')):
+    os.makedirs(os.path.join(PROJECT_PATH, 'logs'))
 
 # start newrelic if on athena (staging)
 if ('athena' in socket.gethostname()):
@@ -222,7 +226,7 @@ TASTYPIE_DEFAULT_FORMATS = ['json']
 
 # import local settings
 try:
-    os.path.isfile('settings_local.py')
+    os.path.isfile(os.path.join(PROJECT_PATH, 'settings_local.py'))
     from settings_local import *
 except Exception as e:
     pass
