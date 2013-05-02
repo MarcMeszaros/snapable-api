@@ -15,7 +15,7 @@ class Partner_v1__UserResourceTest(ResourceTestCase):
         self.api_secret = 'sec123'
 
         self.api_account_1 = ApiAccount.objects.all()[0]
-        self.users = User.objects.filter(account__api_account__isnull=False)
+        self.users = User.objects.filter(account__api_account=self.api_account_1)
         self.user_1 = self.users[0]
 
     def get_credentials(self, method, uri):

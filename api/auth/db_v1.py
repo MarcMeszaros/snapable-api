@@ -150,10 +150,10 @@ class DatabaseAuthorization(Authorization):
         elif isinstance(bundle.obj, data.models.Guest):
             return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
         elif isinstance(bundle.obj, data.models.User):
-            for account in bundle.obj.account_set.all():
-                if matching_api_account(account.api_account, api_key.account):
-                    return True
-            return False
+            if bundle.obj.account_set.filter(api_account=api_key.account).count() > 0:
+                return True
+            else:
+                return False
         else:
             raise Unauthorized('Not authorized to access resource.')
 
