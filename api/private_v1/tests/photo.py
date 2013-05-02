@@ -3,6 +3,7 @@ import os
 import re
 
 # django/tastypie
+from django.conf import settings
 from tastypie.test import ResourceTestCase, TestApiClient
 from PIL import Image
 
@@ -22,7 +23,7 @@ class Private_v1__PhotoResourceTest(ResourceTestCase):
 
         # The data we'll send on POST requests.
         filename = 'trashcat.jpg'
-        filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'assets', filename)
+        filepath = os.path.join(settings.PROJECT_PATH, 'api', 'assets', filename)
         f = open(filepath, 'rb')
 
         self.post_data = {
