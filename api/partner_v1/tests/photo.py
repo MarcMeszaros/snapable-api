@@ -68,3 +68,19 @@ class Partner_v1__PhotoResourceTest(ResourceTestCase):
             'resource_uri',
             'timestamp',
         ])
+
+    def test_post_photo(self):
+        uri = '/partner_v1/photo/'
+        resp = self.api_client.post(uri, data=self.post_data, format='multipart', authentication=self.get_credentials('POST', uri))
+
+        # make sure the resource was created
+        self.assertHttpCreated(resp)
+
+        # test to make sure all the keys are in the response
+        self.assertKeys(self.deserialize(resp), [
+            'caption',
+            'event',
+            'guest',
+            'resource_uri',
+            'timestamp',
+        ])

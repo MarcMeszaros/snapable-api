@@ -61,6 +61,11 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
             'timestamp': ALL,
         })
 
+    def dehydrate(self, bundle):
+        if 'image' in bundle.data:
+            del bundle.data['image']
+        return bundle
+
     def hydrate(self, bundle):
         bundle.obj.type = Type.objects.get(pk=5)
 
