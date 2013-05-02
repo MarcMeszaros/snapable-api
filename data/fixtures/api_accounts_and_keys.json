@@ -73,6 +73,17 @@
         "title": "Crazy Event",
         "url": "crazy2"
     }
+},
+
+{
+    "pk": 2, 
+    "model": "data.guest", 
+    "fields": {
+        "event": 2,
+        "name": "Bob Example2",
+        "email": "bob.example2@example.com",
+        "type": 1
+    }
 }
 
 ]
