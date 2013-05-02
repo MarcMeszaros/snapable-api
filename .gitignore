@@ -21,6 +21,7 @@ nbproject/*
 # Build Directory/File #
 ########################
 build/*
+docs/build/*
 *\.pyc
 
 # Testing #
