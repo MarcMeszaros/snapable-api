@@ -1,29 +1,30 @@
-# python/third-party
+# python
 import dateutil.parser
 import hashlib
 import hmac
-import pytz
 import random
 import time
 
-# django
 from datetime import datetime, timedelta
+
+# django/tastypie/libs
+import pytz
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-# tastypie
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
-from tastypie.exceptions import BadRequest
-from tastypie.exceptions import Unauthorized
+from tastypie.exceptions import BadRequest, Unauthorized
 
 # snapable
 import api.auth
-from api.models import ApiKey
 import data.models
 
+from api.models import ApiKey
+
 def isAuthorizedApiVersion(request):
-    auth_params = api.auth.getAuthParams(request)
+    auth_params = api.auth.get_auth_params(request)
     api_key = ApiKey.objects.get(key=auth_params['snap_key'])
     version = request.META['PATH_INFO'].strip('/').split('/')[0]
 
@@ -60,7 +61,7 @@ class DatabaseAuthentication(Authentication):
             request_path = request.path
 
             # get signature info from the Authorization header
-            auth_params = api.auth.getAuthParams(request)
+            auth_params = api.auth.get_auth_params(request)
 
             # add the parts to proper varibles for signature
             key = auth_params['snap_key']
@@ -94,7 +95,7 @@ class DatabaseAuthentication(Authentication):
 
     # Optional but recommended
     def get_identifier(self, request):
-        auth_params = api.auth.getAuthParams(request)
+        auth_params = api.auth.get_auth_params(request)
         return ApiKey.objects.get(key=auth_params['snap_key'])
 
 class DatabaseAuthorization(Authorization):
