@@ -5,11 +5,11 @@ from tastypie.test import ResourceTestCase
 from api.auth.server import ServerAuthentication
 from data.models import Guest
 
-class GuestResourceTest(ResourceTestCase):
+class Private_v1__GuestResourceTest(ResourceTestCase):
     fixtures = ['packages.json', 'accounts_and_users.json', 'events.json', 'photos.json', 'guests.json']
 
     def setUp(self):
-        super(GuestResourceTest, self).setUp()
+        super(Private_v1__GuestResourceTest, self).setUp()
         self.api_key = 'key123'
         self.api_secret = 'sec123'
 

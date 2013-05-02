@@ -10,11 +10,11 @@ from PIL import Image
 from api.auth.server import ServerAuthentication
 from api.utils.serializers import MultipartSerializer
 
-class PhotoResourceTest(ResourceTestCase):
+class Private_v1__PhotoResourceTest(ResourceTestCase):
     fixtures = ['packages.json', 'accounts_and_users.json', 'events.json', 'photos.json']
 
     def setUp(self):
-        super(PhotoResourceTest, self).setUp()
+        super(Private_v1__PhotoResourceTest, self).setUp()
         # we need a custom serializer for multipart uploads
         self.api_client = TestApiClient(serializer=MultipartSerializer())
         self.api_key = 'key123'
