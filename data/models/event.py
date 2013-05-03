@@ -23,7 +23,7 @@ class Event(models.Model):
     end = models.DateTimeField(help_text='Event end time. (UTC)')
     tz_offset = models.IntegerField(default=0, help_text='The timezone offset (in minutes) from UTC.')
     title = models.CharField(max_length=255, help_text='Event title.')
-    url = models.CharField(max_length=255, help_text='A "short name" for the event.')
+    url = models.CharField(max_length=255, unique=True, help_text='A "short name" for the event.')
     public = models.BooleanField(default=True, help_text='Is the event considered "public".')
     pin = models.CharField(max_length=255, help_text='Pseudo-random PIN used for private events.')
     created = models.DateTimeField(auto_now_add=True, help_text='When the event created. (UTC)')
