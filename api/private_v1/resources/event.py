@@ -60,6 +60,7 @@ class EventResource(api.base_v1.resources.EventResource):
     def get_search(self, request, **kwargs):
         self.method_check(request, allowed=['get'])
         self.is_authenticated(request)
+        self.throttle_check(request)
 
         # Do the query.
         now_datetime = datetime.now(pytz.utc) # current time on server
@@ -99,11 +100,14 @@ class EventResource(api.base_v1.resources.EventResource):
             ### DEPRECATED/COMPATIBILITY ###
             # add the old user field
             users = User.objects.filter(account=bundle.obj.account, accountuser__admin=True)
-            bundle.data['user'] = '/private_v1/user/'+str(users[0].id)+'/'
+            if users.count() > 0:
+                bundle.data['user'] = '/private_v1/user/{0}/'.format(users[0].pk)
+            else:
+                bundle.data['user'] = ''
 
             # add the old package field
             if bundle.obj.account.package:
-                bundle.data['package'] = '/private_v1/package/'+str(bundle.obj.account.package.id)+'/'
+                bundle.data['package'] = '/private_v1/package/{0}/'.format(bundle.obj.account.package.pk)
             else:
                 bundle.data['package'] = '/private_v1/package/1/'
 
