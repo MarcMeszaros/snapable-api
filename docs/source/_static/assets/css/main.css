@@ -1,0 +1,24 @@
+.navbar-inner {
+  background-image: linear-gradient(to bottom,#416f91,#1e4969)
+}
+
+.navbar .brand,
+.navbar .nav>li>a {
+    color: #fff;
+    text-shadow: none; 
+}
+
+.navbar .brand,
+.navbar .nav>li>a:hover {
+    color: #eee;
+}
+
+.navbar .nav li.dropdown>.dropdown-toggle .caret {
+    border-top-color: #fff;
+    border-bottom-color: #fff;
+}
+
+.navbar .nav li.dropdown:hover>.dropdown-toggle .caret {
+    border-top-color: #eee;
+    border-bottom-color: #eee;
+}

@@ -1,20 +1,21 @@
-.. Snapable documentation master file
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+============
+Introduction
+============
 
-Welcome to Snapable's documentation!
-====================================
+This site contains the documentation required to interact with the Snapable API.
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
 
+   authentication/index
 
-Indices and tables
-==================
+.. Indices and tables
+.. ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
 
