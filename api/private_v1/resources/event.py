@@ -74,7 +74,7 @@ class EventResource(api.base_v1.resources.EventResource):
         to_be_serialized = paginator.page()
 
         # Dehydrate the bundles in preparation for serialization.
-        bundles = [self.build_bundle(obj=obj) for obj in sorted_objects]
+        bundles = [self.build_bundle(obj=obj, request=request) for obj in sorted_objects]
         to_be_serialized['objects'] = [self.full_dehydrate(bundle) for bundle in bundles]
 
         return self.create_response(request, to_be_serialized)
