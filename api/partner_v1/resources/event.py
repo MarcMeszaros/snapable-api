@@ -1,4 +1,6 @@
 # python
+import re
+
 from datetime import datetime, timedelta
 from decimal import Decimal
 
@@ -40,6 +42,15 @@ class EventValidation(Validation):
         account = Account.objects.get(pk=acc_parts[-1])
         if account.event_set.count() > 1:
             errors['account'] = 'Only one event per account allowed with the partner API.'
+
+        # check the url
+        url_str = bundle.data['url']
+        if len(url_str) < 6:
+            errors['url'] = 'Event url is too short. Must be at least 6 characters.'
+        if re.search('[^a-zA-Z0-9-_]', url_str) is not None:
+            errors['url'] = 'Invalid url characters. Only allowed: [a-zA-Z0-9-_]'
+        if Event.objects.filter(url=url_str).count() > 0:
+            errors['url'] = 'An event with that url already exists.'
 
         for key, value in bundle.data.items():
             # if the addresses field is set

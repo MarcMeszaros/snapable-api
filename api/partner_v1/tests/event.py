@@ -1,3 +1,6 @@
+# python
+import time
+
 # django/tastypie
 from tastypie.test import ResourceTestCase
 
@@ -17,6 +20,14 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
         self.api_account_1 = ApiAccount.objects.all()[0]
         self.events = Event.objects.filter(account__api_account=self.api_account_1)
         self.event_1 = self.events[0]
+
+        self.post_data = {
+            'account': '/partner_v1/account/{0}/'.format(self.api_account_1.account_set.all()[0].pk),
+            'end': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(time.time() + 60*60)),
+            'start': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            'title': 'Super Awesome Title',
+            'url': 'super-awesome-title',
+        }
 
     def get_credentials(self, method, uri):
         return DatabaseAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
@@ -54,3 +65,33 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
             'tz_offset',
             'url',
         ])
+
+    def test_post_event(self):
+        uri = '/partner_v1/event/'
+        resp = self.api_client.post(uri, data=self.post_data, format='json', authentication=self.get_credentials('POST', uri))
+
+        # make sure it was created
+        self.assertHttpCreated(resp)
+
+    def test_post_event_invalid_url(self):
+        uri = '/partner_v1/event/'
+        new_event = self.post_data.copy()
+        new_event['url'] = Event.objects.all()[0].url # get an existing url
+        
+        # existing url should fail
+        resp = self.api_client.post(uri, data=new_event, format='json', authentication=self.get_credentials('POST', uri))
+        self.assertHttpBadRequest(resp)
+
+        # invalid urls should fail
+        new_event2 = self.post_data.copy()
+        new_event2['url'] = 'inva&lid-url'
+        resp = self.api_client.post(uri, data=new_event2, format='json', authentication=self.get_credentials('POST', uri))
+        self.assertHttpBadRequest(resp)
+
+        new_event2['url'] = 'inva#lid-url'
+        resp = self.api_client.post(uri, data=new_event2, format='json', authentication=self.get_credentials('POST', uri))
+        self.assertHttpBadRequest(resp)
+
+        new_event2['url'] = 'invalid-url '
+        resp = self.api_client.post(uri, data=new_event2, format='json', authentication=self.get_credentials('POST', uri))
+        self.assertHttpBadRequest(resp)
