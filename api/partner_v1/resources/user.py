@@ -10,13 +10,24 @@ from data.models import Account, AccountUser, User
 class UserResource(api.base_v1.resources.UserResource):
 
     # the accounts the user belongs to
-    accounts = fields.ToManyField('api.partner_v1.resources.AccountResource', 'account_set', default=None, blank=True, null=True)
+    #accounts = fields.ToManyField('api.partner_v1.resources.AccountResource', 'account_set', default=None, blank=True, null=True)
 
     class Meta(api.base_v1.resources.UserResource.Meta):
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put']
         authentication = api.auth.DatabaseAuthentication()
         authorization = api.auth.DatabaseAuthorization()
+
+    def dehydrate(self, bundle):
+        apikey = api.auth.DatabaseAuthentication().get_identifier(bundle.request)
+        # get the accounts the user belongs to
+        json_accounts = []
+        for account in bundle.obj.account_set.filter(api_account=apikey.account):
+            json_accounts.append('/partner_v1/account/{0}/'.format(account.pk))
+
+        bundle.data['accounts'] = json_accounts
+
+        return bundle
 
     def obj_create(self, bundle, **kwargs):
         # get the API key associated with the request

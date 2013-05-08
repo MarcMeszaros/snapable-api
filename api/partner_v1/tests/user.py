@@ -18,6 +18,12 @@ class Partner_v1__UserResourceTest(ResourceTestCase):
         self.users = User.objects.filter(account__api_account=self.api_account_1)
         self.user_1 = self.users[0]
 
+        self.post_data = {
+            'email': 'bob+testexample3@example.com',
+            'first_name': 'Bob', 
+            'last_name': 'Example3',
+        }
+
     def get_credentials(self, method, uri):
         return DatabaseAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
 
@@ -46,3 +52,35 @@ class Partner_v1__UserResourceTest(ResourceTestCase):
             'last_name',
             'resource_uri',
         ])
+
+    def test_update_user(self):
+        uri = '/partner_v1/user/{0}/'.format(self.user_1.pk)
+        update_data = {
+            'email': 'bob.test@example.com',
+        }
+        resp = self.api_client.put(uri, data=update_data, format='json', authentication=self.get_credentials('PUT', uri))
+
+        # make sure it was updated
+        self.assertHttpAccepted(resp)
+
+        # check the email value
+        self.assertEqual(self.deserialize(resp)['email'], 'bob.test@example.com')
+
+    def test_post_user(self):
+        uri = '/partner_v1/user/'
+        resp = self.api_client.post(uri, data=self.post_data, format='json', authentication=self.get_credentials('POST', uri))
+
+        # make sure it was create
+        self.assertHttpCreated(resp)
+
+        # test to make sure all the keys are in the response
+        self.assertKeys(self.deserialize(resp), [
+            'accounts',
+            'email',
+            'first_name',
+            'last_name',
+            'resource_uri',
+        ])
+
+        # check the email value
+        self.assertEqual(self.deserialize(resp)['email'], 'bob+testexample3@example.com')
