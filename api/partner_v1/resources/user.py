@@ -39,7 +39,7 @@ class UserResource(api.base_v1.resources.UserResource):
         # no existing user, create them
         except User.DoesNotExist as e:
             if 'password' not in bundle.data:
-                kwargs['password'] = User.generate_password(bundle.data['email'])
+                kwargs['password'] = User.generate_password(api.auth.get_nonce(32))
             if 'billing_zip' not in bundle.data:
                 kwargs['billing_zip'] = '00000'
             if 'terms' not in bundle.data:
