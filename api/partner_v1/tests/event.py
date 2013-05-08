@@ -7,7 +7,7 @@ from tastypie.test import ResourceTestCase
 # snapable
 from api.auth.db_v1 import DatabaseAuthentication
 from api.models import ApiAccount
-from data.models import Event
+from data.models import Account, Event
 
 class Partner_v1__EventResourceTest(ResourceTestCase):
     fixtures = ['api_accounts_and_keys.json', 'packages.json', 'accounts_and_users.json', 'events.json']
@@ -18,11 +18,12 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
         self.api_secret = 'sec123'
 
         self.api_account_1 = ApiAccount.objects.all()[0]
+        self.accounts = self.api_account_1.account_set.all()
         self.events = Event.objects.filter(account__api_account=self.api_account_1)
         self.event_1 = self.events[0]
 
         self.post_data = {
-            'account': '/partner_v1/account/{0}/'.format(self.api_account_1.account_set.all()[0].pk),
+            'account': '/partner_v1/account/{0}/'.format(self.accounts[0].pk),
             'end': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(time.time() + 60*60)),
             'start': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
             'title': 'Super Awesome Title',
@@ -68,10 +69,12 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
 
     def test_post_event(self):
         uri = '/partner_v1/event/'
+        self.assertEqual(self.accounts[0].event_set.count(), 1) # make sure there is one event
         resp = self.api_client.post(uri, data=self.post_data, format='json', authentication=self.get_credentials('POST', uri))
 
-        # make sure it was created
-        self.assertHttpCreated(resp)
+        # make sure it was not created
+        self.assertHttpBadRequest(resp)
+        self.assertEqual(self.accounts[0].event_set.count(), 1)
 
     def test_post_event_invalid_url(self):
         uri = '/partner_v1/event/'
