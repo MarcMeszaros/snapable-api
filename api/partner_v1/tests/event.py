@@ -53,7 +53,6 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
         # test to make sure all the keys are in the response
         self.assertKeys(self.deserialize(resp), [
             'account',
-            'created',
             'enabled',
             'end',
             'locations',

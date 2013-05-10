@@ -35,7 +35,7 @@ class EventResource(api.base_v1.resources.EventResource):
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
 
     class Meta(api.base_v1.resources.EventResource.Meta): # set Meta to the public API Meta
-        fields = api.base_v1.resources.EventResource.Meta.fields + ['cover', 'photo_count']
+        fields = api.base_v1.resources.EventResource.Meta.fields + ['created', 'cover', 'photo_count']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete']
         ordering = api.base_v1.resources.EventResource.Meta.ordering + ['start', 'end']
