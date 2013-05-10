@@ -3,6 +3,7 @@ import dateutil.parser
 import hashlib
 import hmac
 import random
+import re
 import time
 
 # django/tastypie/libs
@@ -70,7 +71,7 @@ class ServerAuthentication(Authentication):
             snap_timestamp = time.strftime('%s', time.localtime())
             raw = api_key + method + uri + snap_nonce + snap_timestamp
             signature = hmac.new(api_secret, raw, hashlib.sha1).hexdigest()
-            return 'SNAP snap_key="'+api_key+'",snap_signature="'+signature+'",snap_nonce="'+snap_nonce+'",snap_timestamp="'+snap_timestamp+'"'
+            return 'SNAP key="'+api_key+'",signature="'+signature+'",nonce="'+snap_nonce+'",timestamp="'+snap_timestamp+'"'
         else:
             snap_date = time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())
             raw = api_key + method + uri + snap_nonce + snap_date
@@ -87,7 +88,7 @@ class ServerAuthentication(Authentication):
             request_method = request.META['REQUEST_METHOD']
             request_path = request.path
 
-            if "snap_signature" in auth[1]:
+            if 'signature' in auth[1]:
                 # get signature info all in Authorization header
                 auth_parts = auth[1].strip().split(',')
                 auth_params = dict()
@@ -96,18 +97,33 @@ class ServerAuthentication(Authentication):
                     auth_params[items[0]] = items[1]
 
                 # add the parts to proper varibles for signature
-                key = auth_params['snap_key']
+                try:
+                    key = auth_params['key']
+                except:
+                    key = auth_params['snap_key'] # deprecated(2013-05-10) kept for compatibility
+                try:
+                    signature = auth_params['signature']
+                except:
+                    signature = auth_params['snap_signature'] # deprecated(2013-05-10) kept for compatibility
+                try:
+                    x_snap_nonce = auth_params['nonce']
+                except:
+                    x_snap_nonce = auth_params['snap_nonce'] # deprecated(2013-05-10) kept for compatibility
+                try:
+                    x_snap_timestamp = auth_params['timestamp']
+                except:
+                    # deprecated(2013-05-10) kept for compatibility
+                    if 'snap_timestamp' in auth_params:
+                        x_snap_timestamp = auth_params['snap_timestamp']
+                    else:
+                        x_snap_date = auth_params['snap_date']
+
                 try:
                     secret = settings.APIKEY[key]
                 except KeyError:
                     return False
-                signature = auth_params['snap_signature']
-                x_snap_nonce = auth_params['snap_nonce']
-                if 'snap_timestamp' in auth_params:
-                    x_snap_timestamp = auth_params['snap_timestamp']
-                else:
-                    x_snap_date = auth_params['snap_date']
 
+            # deprecated but kept for compatibility
             else:
                 # api signature info in multiple headers
                 key = auth[1].split(':')[0]
