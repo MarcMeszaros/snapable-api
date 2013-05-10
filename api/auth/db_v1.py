@@ -24,7 +24,7 @@ from api.models import ApiKey
 
 def isAuthorizedApiVersion(request):
     auth_params = api.auth.get_auth_params(request)
-    api_key = ApiKey.objects.get(key=auth_params['snap_key'])
+    api_key = ApiKey.objects.get(key=auth_params['key'])
     version = request.META['PATH_INFO'].strip('/').split('/')[0]
 
     if version == str(api_key.version) and api_key.enabled:
@@ -47,7 +47,7 @@ class DatabaseAuthentication(Authentication):
         snap_timestamp = time.strftime('%s', time.localtime())
         raw = api_key + method + uri + snap_nonce + snap_timestamp
         signature = hmac.new(api_secret, raw, hashlib.sha1).hexdigest()
-        return 'SNAP snap_key="'+api_key+'",snap_signature="'+signature+'",snap_nonce="'+snap_nonce+'",snap_timestamp="'+snap_timestamp+'"'
+        return 'SNAP key="'+api_key+'",signature="'+signature+'",nonce="'+snap_nonce+'",timestamp="'+snap_timestamp+'"'
 
     def is_authenticated(self, request, **kwargs):
         try:
@@ -63,12 +63,12 @@ class DatabaseAuthentication(Authentication):
             auth_params = api.auth.get_auth_params(request)
 
             # add the parts to proper varibles for signature
-            key = auth_params['snap_key']
+            key = auth_params['key']
             api_key = ApiKey.objects.get(key=key)
             secret = str(api_key.secret)
-            signature = auth_params['snap_signature']
-            x_snap_nonce = auth_params['snap_nonce']
-            x_snap_timestamp = auth_params['snap_timestamp']
+            signature = auth_params['signature']
+            x_snap_nonce = auth_params['nonce']
+            x_snap_timestamp = auth_params['timestamp']
 
             # create the raw string to hash
             raw = key + request_method + request_path + x_snap_nonce + x_snap_timestamp
@@ -95,7 +95,7 @@ class DatabaseAuthentication(Authentication):
     # Optional but recommended
     def get_identifier(self, request):
         auth_params = api.auth.get_auth_params(request)
-        return ApiKey.objects.get(key=auth_params['snap_key'])
+        return ApiKey.objects.get(key=auth_params['key'])
 
 class DatabaseAuthorization(Authorization):
 
