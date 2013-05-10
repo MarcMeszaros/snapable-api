@@ -68,7 +68,7 @@ class EventResource(api.base_v1.resources.EventResource):
         pre_now_datetime = now_datetime + timedelta(0, 0, 0, 0, -delta_minutes) # delta minutes in the past
         post_now_datetime = now_datetime + timedelta(0, 0, 0, 0, delta_minutes) # delta minutes in the future
         sqs = Event.objects.filter(
-            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end__gte=post_now_datetime)
+            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end__gte=pre_now_datetime)
         )
 
         sorted_objects = self.apply_sorting(sqs, options=request.GET)
