@@ -37,7 +37,8 @@ class Partner_v1__LocationResourceTest(ResourceTestCase):
         self.assertValidJSONResponse(resp)
 
         # make sure we have the right number of objects
-        self.assertEqual(len(self.deserialize(resp)['objects']), self.locations.count())
+        self.assertNotEqual(Address.objects.all().count(), self.locations.count())
+        self.assertEqual(self.deserialize(resp)['meta']['total_count'], self.locations.count())
 
     def test_get_location(self):
         uri = '/partner_v1/location/{0}/'.format(self.location_1.pk)
@@ -63,3 +64,5 @@ class Partner_v1__LocationResourceTest(ResourceTestCase):
         # make sure the we can't add more than one location
         self.assertHttpBadRequest(resp)
         self.assertEqual(self.events[0].address_set.count(), 1)
+
+        self.assertNotEqual(Address.objects.all().count(), self.locations.count())

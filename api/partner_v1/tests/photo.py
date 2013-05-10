@@ -9,10 +9,10 @@ from tastypie.test import ResourceTestCase, TestApiClient
 from api.auth.db_v1 import DatabaseAuthentication
 from api.models import ApiAccount
 from api.utils.serializers import MultipartSerializer
-from data.models import Photo
+from data.models import Event, Photo
 
 class Partner_v1__PhotoResourceTest(ResourceTestCase):
-    fixtures = ['api_accounts_and_keys.json', 'packages.json', 'accounts_and_users.json', 'events.json', 'guests.json']
+    fixtures = ['api_accounts_and_keys.json', 'packages.json', 'accounts_and_users.json', 'events.json', 'guests.json', 'photos.json']
 
     def setUp(self):
         super(Partner_v1__PhotoResourceTest, self).setUp()
@@ -22,6 +22,7 @@ class Partner_v1__PhotoResourceTest(ResourceTestCase):
         self.api_secret = 'sec123'
 
         self.api_account_1 = ApiAccount.objects.all()[0]
+        self.events = Event.objects.filter(account__api_account=self.api_account_1)
         self.photos = Photo.objects.filter(event__account__api_account=self.api_account_1)
         self.photo_1 = self.photos[0]
 
@@ -31,7 +32,7 @@ class Partner_v1__PhotoResourceTest(ResourceTestCase):
         f = open(filepath, 'rb')
 
         self.post_data = {
-            'event': '/partner_v1/event/2/',
+            'event': '/partner_v1/event/{0}/'.format(self.events[0].pk),
             'caption': 'My super awesome caption!',
             'image': {
                 'filename': filename,
@@ -50,7 +51,8 @@ class Partner_v1__PhotoResourceTest(ResourceTestCase):
         self.assertValidJSONResponse(resp)
 
         # make sure we have the right number of objects
-        self.assertEqual(len(self.deserialize(resp)['objects']), self.photos.count())
+        self.assertNotEqual(Photo.objects.all().count(), self.photos.count())
+        self.assertEqual(self.deserialize(resp)['meta']['total_count'], self.photos.count())
 
     def test_get_photo(self):
         uri = '/partner_v1/photo/{0}/'.format(self.photo_1.pk)

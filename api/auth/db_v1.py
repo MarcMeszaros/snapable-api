@@ -100,7 +100,16 @@ class DatabaseAuthentication(Authentication):
 class DatabaseAuthorization(Authorization):
 
     def create_detail(self, object_list, bundle):
-        return isAuthorizedApiVersion(bundle.request)
+        # check if authorized to access the API
+        if not isAuthorizedApiVersion(bundle.request):
+            raise Unauthorized('Not authorized to access API.')
+
+        # get the API key
+        api_key = DatabaseAuthentication().get_identifier(bundle.request)
+        if api_key.enabled == False:
+            raise Unauthorized('This API key is unauthorized.')
+
+        return True
 
     def read_list(self, object_list, bundle):
         # check if authorized to access the API
@@ -120,6 +129,8 @@ class DatabaseAuthorization(Authorization):
         elif isinstance(object_list[0], data.models.Event):
             return object_list.filter(account__api_account=api_key.account)
         elif isinstance(object_list[0], data.models.Guest):
+            return object_list.filter(event__account__api_account=api_key.account)
+        elif isinstance(object_list[0], data.models.Photo):
             return object_list.filter(event__account__api_account=api_key.account)
         elif isinstance(object_list[0], data.models.User):
             return object_list.filter(account__api_account=api_key.account)
@@ -149,6 +160,8 @@ class DatabaseAuthorization(Authorization):
             return matching_api_account(bundle.obj.account.api_account, api_key.account)
         elif isinstance(bundle.obj, data.models.Guest):
             return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.Photo):
+            return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
         elif isinstance(bundle.obj, data.models.User):
             if bundle.obj.account_set.filter(api_account=api_key.account).count() > 0:
                 return True
@@ -161,10 +174,62 @@ class DatabaseAuthorization(Authorization):
         return [] # No update of lists
 
     def update_detail(self, object_list, bundle):
-        return isAuthorizedApiVersion(bundle.request)
+        # check if authorized to access the API
+        if not isAuthorizedApiVersion(bundle.request):
+            raise Unauthorized('Not authorized to access API.')
+
+        # get the API key
+        api_key = DatabaseAuthentication().get_identifier(bundle.request)
+        if api_key.enabled == False:
+            raise Unauthorized('This API key is unauthorized.')
+
+        # filter objects as required
+        if isinstance(bundle.obj, data.models.Account):
+            return matching_api_account(bundle.obj.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.Address):
+            return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.Event):
+            return matching_api_account(bundle.obj.account.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.Guest):
+            return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.Photo):
+            return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.User):
+            if bundle.obj.account_set.filter(api_account=api_key.account).count() > 0:
+                return True
+            else:
+                return False
+        else:
+            raise Unauthorized('Not authorized to access resource.')
 
     def delete_list(self, object_list, bundle):
         return [] # No delete of lists
 
     def delete_detail(self, object_list, bundle):
-        return isAuthorizedApiVersion(bundle.request)
+        # check if authorized to access the API
+        if not isAuthorizedApiVersion(bundle.request):
+            raise Unauthorized('Not authorized to access API.')
+
+        # get the API key
+        api_key = DatabaseAuthentication().get_identifier(bundle.request)
+        if api_key.enabled == False:
+            raise Unauthorized('This API key is unauthorized.')
+
+        # filter objects as required
+        if isinstance(bundle.obj, data.models.Account):
+            return matching_api_account(bundle.obj.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.Address):
+            return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.Event):
+            return matching_api_account(bundle.obj.account.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.Guest):
+            return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.Photo):
+            return matching_api_account(bundle.obj.event.account.api_account, api_key.account)
+        elif isinstance(bundle.obj, data.models.User):
+            if bundle.obj.account_set.filter(api_account=api_key.account).count() > 0:
+                return True
+            else:
+                return False
+        else:
+            raise Unauthorized('Not authorized to access resource.')

@@ -9,8 +9,6 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import HttpResponse
 from PIL import Image
 from tastypie import fields
-from tastypie.authentication import Authentication
-from tastypie.authorization import Authorization
 from tastypie.resources import ALL
 from tastypie.utils.mime import determine_format, build_content_type
 from tastypie.validation import Validation
@@ -52,8 +50,8 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         fields = ['caption', 'timestamp'];
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete']
-        authentication = Authentication()
-        authorization = Authorization()
+        authentication = api.auth.DatabaseAuthentication()
+        authorization = api.auth.DatabaseAuthorization()
         validation = PhotoValidation()
         serializer = PhotoSerializer(formats=['json', 'jpeg'])
         filtering = dict(api.base_v1.resources.PhotoResource.Meta.filtering, **{
