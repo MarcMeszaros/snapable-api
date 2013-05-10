@@ -1,0 +1,13 @@
+[
+
+{"pk": 1, "model": "data.photo", 
+    "fields": {
+        "event": 1,  
+        "type": 1, 
+        "caption": "My awesome caption",
+        "streamable": true,
+        "timestamp": "2012-07-21T05:05:10+00:00"
+    }
+}
+
+]

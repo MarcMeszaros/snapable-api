@@ -1,4 +1,20 @@
 [
+{"pk": 1, "model": "data.package", 
+    "fields": {
+        "name": "Free",
+        "short_name": "free",
+        "price": 0,
+        "enabled": true,
+        "items": {
+            "addons": [], 
+            "features": ["guest_reminders", "slideshow", "table_cards"], 
+            "modifiers": {
+                "albums": 1, 
+                "price_per_print": 100
+            }
+        }
+    }
+},
 {"pk": 2, "model": "data.package", 
     "fields": {
         "name": "Standard", 

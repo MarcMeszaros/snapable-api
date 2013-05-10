@@ -10,7 +10,7 @@ from data.models import Event
 from data.models import Guest
 from data.models import Type
 
-import api.loggers
+from api.utils import Log
 
 class Photo(models.Model):
 
@@ -27,6 +27,15 @@ class Photo(models.Model):
     streamable = models.BooleanField(help_text='If the photo is streamable.')
     timestamp = models.DateTimeField(auto_now_add=True, help_text='The photo timestamp.')
     metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics
+
+    def __unicode__(self):
+        return str({
+            'caption': self.caption,
+            'event': self.event,
+            'metrics': self.metrics,
+            'streamable': self.streamable,
+            'timestamp': self.timestamp,
+        })
 
     # override built-in delete function
     def delete(self):
@@ -101,7 +110,7 @@ class Photo(models.Model):
             cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
         except cloudfiles.errors.NoSuchContainer as e:
             cont = conn.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
-            api.loggers.Log.i('created a new container: ' + settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+            Log.i('created a new container: ' + settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
         # save the new photo size
         try:

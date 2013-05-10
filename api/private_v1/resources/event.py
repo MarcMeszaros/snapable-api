@@ -1,31 +1,30 @@
-import api.auth
-import api.v1.resources
+# python
 import copy
-import pytz
 
 from datetime import datetime, timedelta
 from decimal import Decimal
+
+# django/tastypie/libs
+import pytz
 
 from django.conf.urls.defaults import *
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.paginator import Paginator, InvalidPage
 from django.db.models import Q
 from django.http import HttpResponse, Http404
-
 from tastypie import fields
 from tastypie.authorization import Authorization
 from tastypie.resources import ALL
 
+# snapable
+import api.auth
+import api.base_v1.resources
+
 from account import AccountResource
+from api.utils.serializers import EventSerializer
+from data.models import Address, Event, Photo, User
 
-from data.models import Address
-from data.models import Event
-from data.models import Photo
-from data.models import User
-
-from api.serializers import EventSerializer
-
-class EventResource(api.v1.resources.EventResource):
+class EventResource(api.base_v1.resources.EventResource):
 
     # relations
     account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
@@ -35,30 +34,25 @@ class EventResource(api.v1.resources.EventResource):
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
 
-    Meta = api.v1.resources.EventResource.Meta # set Meta to the public API Meta
-    Meta.fields += ['cover', 'photo_count']
-    Meta.list_allowed_methods = ['get', 'post']
-    Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
-    Meta.ordering += ['start', 'end']
-    Meta.authentication = api.auth.ServerAuthentication()
-    Meta.authorization = Authorization()
-    Meta.serializer = EventSerializer(formats=['json', 'jpeg'])
-    Meta.filtering = dict(Meta.filtering, **{
-        'enabled': ['exact'],
-        'account': ['exact'],
-        'start': ALL,
-        'end': ALL,
-        'photo_count': ['gte'],
-        'title': ALL,
-        'url': ALL,
-    })
+    class Meta(api.base_v1.resources.EventResource.Meta): # set Meta to the public API Meta
+        fields = api.base_v1.resources.EventResource.Meta.fields + ['created', 'cover', 'photo_count']
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        ordering = api.base_v1.resources.EventResource.Meta.ordering + ['start', 'end']
+        authentication = api.auth.ServerAuthentication()
+        authorization = Authorization()
+        serializer = EventSerializer(formats=['json', 'jpeg'])
+        filtering = dict(api.base_v1.resources.EventResource.Meta.filtering, **{
+            'enabled': ['exact'],
+            'account': ['exact'],
+            'start': ALL,
+            'end': ALL,
+            'photo_count': ['gte'],
+            'title': ALL,
+            'url': ALL,
+        })
 
-    def __init__(self):
-        api.v1.resources.EventResource.__init__(self)
-
-    # should use prepend_url, but only works with tastypie v0.9.12+
-    # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584
-    def override_urls(self):
+    def prepend_urls(self):
         return [
             url(r'^(?P<resource_name>%s)/search/$' % self._meta.resource_name, self.wrap_view('get_search'), name="api_get_search"),
         ]
@@ -66,11 +60,15 @@ class EventResource(api.v1.resources.EventResource):
     def get_search(self, request, **kwargs):
         self.method_check(request, allowed=['get'])
         self.is_authenticated(request)
+        self.throttle_check(request)
 
         # Do the query.
+        delta_minutes = 24 * 60
         now_datetime = datetime.now(pytz.utc) # current time on server
+        pre_now_datetime = now_datetime + timedelta(0, 0, 0, 0, -delta_minutes) # delta minutes in the past
+        post_now_datetime = now_datetime + timedelta(0, 0, 0, 0, delta_minutes) # delta minutes in the future
         sqs = Event.objects.filter(
-            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end__gte=now_datetime)
+            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end__gte=pre_now_datetime)
         )
 
         sorted_objects = self.apply_sorting(sqs, options=request.GET)
@@ -79,7 +77,7 @@ class EventResource(api.v1.resources.EventResource):
         to_be_serialized = paginator.page()
 
         # Dehydrate the bundles in preparation for serialization.
-        bundles = [self.build_bundle(obj=obj) for obj in sorted_objects]
+        bundles = [self.build_bundle(obj=obj, request=request) for obj in sorted_objects]
         to_be_serialized['objects'] = [self.full_dehydrate(bundle) for bundle in bundles]
 
         return self.create_response(request, to_be_serialized)
@@ -105,11 +103,14 @@ class EventResource(api.v1.resources.EventResource):
             ### DEPRECATED/COMPATIBILITY ###
             # add the old user field
             users = User.objects.filter(account=bundle.obj.account, accountuser__admin=True)
-            bundle.data['user'] = '/private_v1/user/'+str(users[0].id)+'/'
+            if users.count() > 0:
+                bundle.data['user'] = '/private_v1/user/{0}/'.format(users[0].pk)
+            else:
+                bundle.data['user'] = ''
 
             # add the old package field
             if bundle.obj.account.package:
-                bundle.data['package'] = '/private_v1/package/'+str(bundle.obj.account.package.id)+'/'
+                bundle.data['package'] = '/private_v1/package/{0}/'.format(bundle.obj.account.package.pk)
             else:
                 bundle.data['package'] = '/private_v1/package/1/'
 
@@ -118,6 +119,9 @@ class EventResource(api.v1.resources.EventResource):
                 bundle.data['type'] = '/private_v1/type/6/'
             else:
                 bundle.data['type'] = '/private_v1/type/5/'
+
+            # add the old 'creation_date' field
+            bundle.data['creation_date'] = bundle.data['created']
 
         except ObjectDoesNotExist:
             pass
@@ -140,15 +144,17 @@ class EventResource(api.v1.resources.EventResource):
         # only do the lat/lng filtering on a list get request if both values are set
         if (request.GET.has_key('lat') and request.GET.has_key('lng')):
 
+            # [(distance(m) / 0.111) * 0.000001] = ratio delta
+            # ie: [(25000 / 0.111) * 0.000001] = 0.225225 ~ 25km
+            #
             # 0.000001 = 0.111 m
-            # 0.000001 * 450450 = 0.450449 ~ 50km
             # 0.000001 * 225255 = 0.225225 ~ 25km
             # 0.000001 * 90090 = 0.09009 ~ 10km
             # 0.000001 * 45045 = 0.045045 ~ 5km
             # 0.000001 * 18018 = 0.018018 ~ 2km
             # 0.000001 * 9009 = 0.009009 ~ 1km
             # variance calculation
-            delta_distance = Decimal('0.225225')
+            delta_distance = Decimal('0.09009')
             lat_lower = Decimal(request.GET['lat']) - delta_distance
             lat_upper = Decimal(request.GET['lat']) + delta_distance
             lng_lower = Decimal(request.GET['lng']) - delta_distance

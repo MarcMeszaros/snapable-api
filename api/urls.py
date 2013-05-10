@@ -1,11 +1,13 @@
 from django.conf.urls import patterns, include, url
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
 
-import api.v1
+import api.partner_v1
 import api.private_v1
 
-api_v1 = api.v1.SnapableApi()
-private_v1 = api.private_v1.SnapableApi()
+# custom error handlers
+handler404 = lambda r: render(r, '404.txt', status=404, content_type='text/plain')
+handler500 = lambda r: render(r, '500.txt', status=500, content_type='text/plain')
 
 urlpatterns = patterns('',
     # redirect the root API to prevent error pages
@@ -15,8 +17,11 @@ urlpatterns = patterns('',
 
     ## define all the API versions here ##
     # public APIs
-    #url(r'', include(api_v1.urls)),
+    #url(r'', include(api.v1.SnapableApi().urls)),
+
+    # partner APIs
+    url(r'', include(api.partner_v1.SnapableApi().urls)),
 
     # private APIs
-    url(r'', include(private_v1.urls)),
+    url(r'', include(api.private_v1.SnapableApi().urls)),
 )

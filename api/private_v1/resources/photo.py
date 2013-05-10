@@ -1,7 +1,6 @@
 import api.auth
-import api.loggers
-import api.multi
-import api.v1.resources
+import api.utils
+import api.base_v1.resources
 import cloudfiles
 
 from django.conf import settings
@@ -19,13 +18,13 @@ from type import TypeResource
 
 from data.models import Guest
 
-from api.serializers import PhotoSerializer
+from api.utils.serializers import PhotoSerializer
 
 from data.images import SnapImage
 import StringIO
 from PIL import Image
 
-class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource):
+class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoResource):
 
     event = fields.ForeignKey(EventResource, 'event')
     guest = fields.ForeignKey(GuestResource, 'guest', null=True) # allow the foreign key to be null
@@ -33,20 +32,20 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
 
     timestamp = fields.DateTimeField(attribute='timestamp', readonly=True, help_text='The photo timestamp. (UTC)')
 
-    Meta = api.v1.resources.PhotoResource.Meta # set Meta to the public API Meta
-    Meta.fields += ['metrics']
-    Meta.list_allowed_methods = ['get', 'post']
-    Meta.detail_allowed_methods = ['get', 'post', 'put', 'delete']
-    Meta.authentication = api.auth.ServerAuthentication()
-    Meta.authorization = Authorization()
-    Meta.serializer = PhotoSerializer(formats=['json', 'jpeg'])
-    Meta.filtering = dict(Meta.filtering, **{
-        'event': ['exact'],
-        'timestamp': ALL,
-    })
+    class Meta(api.base_v1.resources.PhotoResource.Meta): # set Meta to the public API Meta
+        fields = api.base_v1.resources.PhotoResource.Meta.fields + ['metrics'];
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        authentication = api.auth.ServerAuthentication()
+        authorization = Authorization()
+        serializer = PhotoSerializer(formats=['json', 'jpeg'])
+        filtering = dict(api.base_v1.resources.PhotoResource.Meta.filtering, **{
+            'event': ['exact'],
+            'timestamp': ALL,
+        })
 
-    def __init__(self):
-        api.v1.resources.PhotoResource.__init__(self)
+    def dehydrate_timestamp(self, bundle):
+        return bundle.data['timestamp'].strftime('%Y-%m-%dT%H:%M:%S')
 
     def dehydrate(self, bundle):
 
@@ -71,8 +70,8 @@ class PhotoResource(api.multi.MultipartResource, api.v1.resources.PhotoResource)
 
         return bundle
 
-    def obj_create(self, bundle, request=None, **kwargs):
-        bundle = super(PhotoResource, self).obj_create(bundle, request)
+    def obj_create(self, bundle, **kwargs):
+        bundle = super(PhotoResource, self).obj_create(bundle, **kwargs)
 
         # save the image to the database
         img = Image.open(StringIO.StringIO(bundle.data['image'].read()))

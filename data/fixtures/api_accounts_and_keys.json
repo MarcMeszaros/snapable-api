@@ -1,0 +1,113 @@
+[
+
+{
+    "pk": 1, 
+    "model": "api.apiaccount", 
+    "fields": {
+        "company": "Snapable",
+        "created": "2012-08-02T00:00:00Z",
+        "email": "marc@snapable.com"
+    }
+},
+
+{
+    "pk": 1,
+    "model": "api.apikey",
+    "fields": {
+        "account": 1,
+        "created": "2012-08-01T00:00:00Z",
+        "enabled": 1,
+        "key": "key123",
+        "secret": "sec123",
+        "version": "partner_v1"
+    }
+},
+
+{
+    "pk": 2, 
+    "model": "data.account", 
+    "fields": {
+        "package": 1,
+        "api_account": 1
+    }
+},
+
+{
+    "pk": 2, 
+    "model": "data.user", 
+    "fields": {
+        "billing_zip": "k1",
+        "creation_date": "2012-07-19T19:25:17+00:00", 
+        "email": "marc@snapable.com",
+        "first_name": "Marc",
+        "last_access": "2012-07-19T19:25:17+00:00",
+        "last_name": "Meszaros",
+        "password": "pbkdf2_sha256$10000$u5Eu61BvBueU$Qx5gGz+FvdaKFxJRBJHmLOE05PkQ2eQ3DriOdhbeSlY=",
+        "terms": 1
+    }
+},
+
+{
+    "pk": 2, 
+    "model": "data.accountuser", 
+    "fields": {
+        "account": 2,
+        "user": 2,
+        "admin": 1,
+        "date_added": "2012-07-19T19:25:17+00:00"
+    }
+},
+
+{
+    "pk": 2, 
+    "model": "data.event", 
+    "fields": {
+        "account": 2,
+        "created": "2012-07-21T04:48:10+00:00",
+        "enabled": 1,
+        "end": "2012-10-09T12:00:00+00:00",
+        "last_access": "2012-07-21T04:48:10+00:00",
+        "pin": "1234",
+        "public": 0,
+        "start": "2012-10-09T00:00:00+00:00",
+        "title": "Crazy Event",
+        "url": "crazy2"
+    }
+},
+
+{
+    "pk": 2, 
+    "model": "data.address", 
+    "fields": {
+        "event": 2,
+        "address": "78 George Street, Ottawa, ON",
+        "lat": "45.427372",
+        "lng": "-75.691411",
+        "creation_date": "2012-07-21T04:48:10Z"
+    }
+},
+
+{
+    "pk": 2, 
+    "model": "data.guest", 
+    "fields": {
+        "event": 2,
+        "name": "Bob Example2",
+        "email": "bob.example2@example.com",
+        "type": 1
+    }
+},
+
+{
+    "pk": 2,
+    "model": "data.photo",
+    "fields": {
+        "event": 2,
+        "guest": 2,
+        "type": 5,
+        "caption": "My awesome photo!",
+        "timestamp": "2012-10-09T06:34:12Z"
+    }
+}
+
+]

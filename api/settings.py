@@ -2,21 +2,13 @@ import os
 import socket
 import sys
 
+# get the project path
+PROJECT_PATH_INNER = os.path.dirname(__file__)
+PROJECT_PATH = os.path.dirname(PROJECT_PATH_INNER)
+
 # create the 'logs' folder(s) if it doesn't already exist
-if not os.path.exists(os.path.join(os.getcwd(), 'logs')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'debug')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'debug'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'info')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'info'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'warning')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'warning'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'error')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'error'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'critical')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'critical'))
-if not os.path.exists(os.path.join(os.getcwd(), 'logs', 'firehose')):
-    os.makedirs(os.path.join(os.getcwd(), 'logs', 'firehose'))
+if not os.path.exists(os.path.join(PROJECT_PATH, 'logs')):
+    os.makedirs(os.path.join(PROJECT_PATH, 'logs'))
 
 # start newrelic if on athena (staging)
 if ('athena' in socket.gethostname()):
@@ -28,13 +20,7 @@ elif ('ares' in socket.gethostname()):
     newrelic.agent.initialize('newrelic.ini', 'production')
 
 # Django settings for api project.
-DEBUG = True
-
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-)
-
-MANAGERS = ADMINS
+DEBUG = False
 
 DATABASES = {
     'default': {
@@ -54,21 +40,19 @@ DATABASES = {
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = None
+TIME_ZONE = 'UTC'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
-SITE_ID = 1
-
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
-USE_I18N = True
+USE_I18N = False
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
-USE_L10N = True
+USE_L10N = False
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
@@ -153,70 +137,70 @@ INSTALLED_APPS = (
     'raven.contrib.django',
     'tastypie',
     'south',
-    'gunicorn',
 )
 
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
     'handlers': {
-        'file.firehose': {
-            'level': 'WARNING',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'firehose', 'firehose.log'),
+        'null': {
+            'level': 'DEBUG',
+            'class': 'django.utils.log.NullHandler',
+        },
+        'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+        'sentry': {
+            'level': 'INFO',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'file.critical': {
-            'level': 'CRITICAL',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'critical', 'critical.log'),
-        },
-        'file.error': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'error', 'error.log'),
-        },
-        'file.warning': {
-            'level': 'WARNING',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'warning', 'warning.log'),
-        },
-        'file.info': {
-            'level': 'INFO',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'info', 'info.log'),
-        },
-        'file.debug': {
+        'file.firehose': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join('logs', 'debug', 'debug.log'),
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join('logs', 'firehose.log'),
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 14,
+            'utc': True,
         },
     },
     'loggers': {
         '': {
-            'handlers': ['file.firehose', 'mail_admins'],
+            'handlers': ['console', 'file.firehose'],
             'level': 'INFO',
             'propagate': True,
         },
-        'snapable': {
-            'handlers': ['file.debug', 'file.info', 'file.warning', 'file.error', 'file.critical', 'mail_admins'],
-            'level': 'DEBUG',
+        'django': {
+            'handlers': ['file.firehose', 'sentry', 'mail_admins'],
+            'level': 'WARNING',
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['file.firehose', 'sentry', 'mail_admins'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.db.backend': {
+            'handlers': ['file.firehose', 'sentry'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'snapable': {
+            'handlers': ['console', 'file.firehose', 'sentry'],
+            'level': 'DEBUG',
             'propagate': True,
         },
     }
@@ -228,8 +212,8 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
 
-DEBUG_AUTHENTICATION = DEBUG
-DEBUG_AUTHORIZATION = DEBUG
+# email backend
+EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
 
 # RACKSPACE
 RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_photos_'
@@ -238,15 +222,28 @@ RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = 10000
 
 # tastypie settings
 API_LIMIT_PER_PAGE = 50
+TASTYPIE_DEFAULT_FORMATS = ['json']
 
 # import local settings
 try:
-    sys.path.append('../')
-    os.path.isfile('../settings_local.py')
+    os.path.isfile(os.path.join(PROJECT_PATH, 'settings_local.py'))
     from settings_local import *
 except Exception as e:
     pass
 
-# make the debug values whatever the debug value django is after local settings are applied
-TEMPLATE_DEBUG = DEBUG
-TASTYPIE_FULL_DEBUG = DEBUG
+# set debug defaults
+if DEBUG:
+    # custom test runner
+    TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
+    # what modules to exclude from the test coverage
+    COVERAGE_MODULE_EXCLUDES = [
+        # custom
+        'raven', 'south', 'tastypie', 'api.wsgi',
+        # default
+        'tests$', 'settings$', 'urls$', 'locale$', 'common.views.test', '__init__', 'django', 'migrations'
+    ]
+    COVERAGE_REPORT_HTML_OUTPUT_DIR = 'build/reports'
+
+    APIKEY = {
+        'key123': 'sec123',
+    }

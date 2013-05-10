@@ -1,20 +1,16 @@
 import api.auth
-import api.v1.resources
+import api.base_v1.resources
 from tastypie.authorization import Authorization
 from tastypie.resources import ALL
 
-class PackageResource(api.v1.resources.PackageResource):
+class PackageResource(api.base_v1.resources.PackageResource):
 
-    Meta = api.v1.resources.PackageResource.Meta # set Meta to the public API Meta
-    Meta.fields += []
-    Meta.list_allowed_methods = ['get']
-    Meta.detail_allowed_methods = ['get']
-    Meta.authentication = api.auth.ServerAuthentication()
-    Meta.authorization = Authorization()
-    Meta.filtering = {
-        'short_name': ALL,
-        'enabled': ['exact'],
-    }
-
-    def __init__(self):
-        api.v1.resources.PackageResource.__init__(self)
+    class Meta(api.base_v1.resources.PackageResource.Meta): # set Meta to the public API Meta
+        list_allowed_methods = ['get']
+        detail_allowed_methods = ['get']
+        authentication = api.auth.ServerAuthentication()
+        authorization = Authorization()
+        filtering = {
+            'short_name': ALL,
+            'enabled': ['exact'],
+        }

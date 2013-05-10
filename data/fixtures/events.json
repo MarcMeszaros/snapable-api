@@ -5,15 +5,27 @@
     "model": "data.event", 
     "fields": {
         "account": 1,
-        "creation_date": "2012-07-21T04:48:10+00:00",
+        "created": "2012-07-21T04:48:10Z",
         "enabled": 1,
-        "end": "2012-10-09T12:00:00+00:00",
-        "last_access": "2012-07-21T04:48:10+00:00",
+        "end": "2012-10-09T12:00:00Z",
+        "last_access": "2012-07-21T04:48:10Z",
         "pin": "1234",
         "public": 0,
-        "start": "2012-10-09T00:00:00+00:00",
+        "start": "2012-10-09T00:00:00Z",
         "title": "Crazy Event",
         "url": "crazy"
+    }
+},
+
+{
+    "pk": 1, 
+    "model": "data.address", 
+    "fields": {
+        "event": 1,
+        "address": "78 George Street, Ottawa, ON",
+        "lat": "45.427372",
+        "lng": "-75.691411",
+        "creation_date": "2012-07-21T04:48:10Z"
     }
 }
 

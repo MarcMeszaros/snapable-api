@@ -21,3 +21,9 @@ class Order(models.Model):
     print_gateway_invoice_id = models.CharField(max_length=255, null=True, help_text='The invoice id for the print gateway.')
     paid = models.BooleanField(default=False, help_text='If the order has been paid for.')
     coupon = models.CharField(max_length=255, null=True, default=None, help_text='The coupon code used in the order.')
+
+    def __unicode__(self):
+        return str({
+            'coupon': self.coupon,
+            'timestamp': self.timestamp,
+        })

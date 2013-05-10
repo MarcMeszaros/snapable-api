@@ -1,9 +1,7 @@
 # INTRODUCTION #
-
 This is the main API code used for Snapable.
 
 # REQUIREMENTS #
-
 Development is done on Debian 6.0.5 (a.k.a. Squeeze) systems (http://www.debian.org/).
 You can view the library versions developed against in the "requirements.txt" file.
 To install all the libraries at once using pip (http://www.pip-installer.org/).
@@ -29,6 +27,7 @@ NOTE: * items are installed from the Debian distribution using APT.
 
 # INSTALLATION #
 
+## Production Install ##
 The installation assumes that the following steps are executed on a server that meets the requirements.
 The application is set to use the following MySQL credentials by default:
 
@@ -42,10 +41,15 @@ The application is set to use the following MySQL credentials by default:
 3. Apply the database migrations.
 4. Simply run the application using wsgi. Using gunicorn (http://gunicorn.org/) is recommended.
 
+## Development Install ##
+
+1. Complete the "Production Install"
+2. Run `pip install -r requirements-dev.txt`
+
 ## INSTALLATION EXAMPLE: ##
 Run the following commands:
 
-    > sudo apt-get install build-essential python python-dev python-pip libmysqlclient-dev libjpeg-dev libraw-dev libevent-dev
+    > sudo apt-get install build-essential python python-dev python-pip libmysqlclient-dev libjpeg-dev libevent-dev
     > sudo pip install --upgrade
     > sudo pip install virtualenv
     > mkdir ~/environments/
@@ -57,7 +61,7 @@ Run the following commands:
     > pip install -r requirements.txt
     > ./manage.py syncdb
     > ./manage.py migrate data
-    > mkdir logs
+    > ./manage.py migrate api
     > gunicorn api.wsgi:application -c gunicorn_config.py
 
 Execute the following commands to control the server:
@@ -68,8 +72,15 @@ Execute the following commands to control the server:
     # kill (note: ` [backticks] are required)
     kill -9 `cat gunicorn.pid`
 
-# CONFIGURATION #
+# DEVELOPMENT #
 
+## Unit Tests ##
+To run the unit tests, execute:
+
+    ./manage.py test
+
+
+# CONFIGURATION #
 Below is a sample configuration for the local settings file. It should be placed one folder level
 higher than the "snapable" API source code folder.
 
@@ -90,17 +101,6 @@ higher than the "snapable" API source code folder.
         }
     }
 
-    # django settings
-    DEBUG = True
-
-    DEBUG_AUTHENTICATION = True
-    DEBUG_AUTHORIZATION = True
-
-    ADMINS = (
-        ('Marc Meszaros', 'marc@snapable.com'),
-        ('Andrew Draper', 'andrew@snapable.com'),
-    )
-
     # sendgrid
     EMAIL_HOST = 'smtp.sendgrid.net'
     EMAIL_HOST_USER = 'my_user' # only save in local settings
@@ -115,11 +115,8 @@ higher than the "snapable" API source code folder.
 
     # sentry/raven
     SENTRY_DSN = 'http://user:pass@host/2'
-    RAVEN_CONFIG = {
-        'register_signals': True,
-    }
 
     # API keys
     APIKEY = {
-        'abc123': '123', # general testing key/secret pair
+        'abc123': '123', # production testing key/secret pair
     }

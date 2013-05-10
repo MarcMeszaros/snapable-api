@@ -1,5 +1,7 @@
 from django.db import models
 
+from api.models import ApiAccount
+
 from data.models import Addon
 from data.models import Package
 from data.models import User
@@ -14,3 +16,13 @@ class Account(models.Model):
     addons = models.ManyToManyField(Addon, through='AccountAddon')
     users = models.ManyToManyField(User, through='AccountUser')
     valid_until = models.DateTimeField(null=True, default=None, help_text='If set, the account is valid until this date (UTC). [Usually set when buying a package.]')
+    api_account = models.ForeignKey(ApiAccount, null=True, default=None)
+
+    def __unicode__(self):
+        return str({
+            'api_account': self.api_account,
+            'package': self.package,
+            'pk': self.pk, # Primary Key is infered from Django
+            'users': self.users,
+            'valid_until': self.valid_until,
+        })
