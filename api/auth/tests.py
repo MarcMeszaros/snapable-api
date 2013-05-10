@@ -40,9 +40,9 @@ class ServerAuthenticationTest(TestCase):
             auth_params[items[0]] = items[1]
 
         # add the parts to proper varibles for signature
-        signature = auth_params['snap_signature']
-        snap_nonce = auth_params['snap_nonce']
-        snap_timestamp = auth_params['snap_timestamp']
+        signature = auth_params['signature']
+        snap_nonce = auth_params['nonce']
+        snap_timestamp = auth_params['timestamp']
         raw = self.key + 'GET' + self.uri + snap_nonce + snap_timestamp
         expected_signature = hmac.new(self.secret, raw, hashlib.sha1).hexdigest()
 
