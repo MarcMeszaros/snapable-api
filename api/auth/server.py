@@ -88,7 +88,7 @@ class ServerAuthentication(Authentication):
             request_method = request.META['REQUEST_METHOD']
             request_path = request.path
 
-            if re.search('[^_]signature', auth[1]) is not None:
+            if 'signature' in auth[1]:
                 # get signature info all in Authorization header
                 auth_parts = auth[1].strip().split(',')
                 auth_params = dict()
@@ -97,36 +97,31 @@ class ServerAuthentication(Authentication):
                     auth_params[items[0]] = items[1]
 
                 # add the parts to proper varibles for signature
-                key = auth_params['key']
+                try:
+                    key = auth_params['key']
+                except:
+                    key = auth_params['snap_key'] # deprecated(2013-05-10) kept for compatibility
+                try:
+                    signature = auth_params['signature']
+                except:
+                    signature = auth_params['snap_signature'] # deprecated(2013-05-10) kept for compatibility
+                try:
+                    x_snap_nonce = auth_params['nonce']
+                except:
+                    x_snap_nonce = auth_params['snap_nonce'] # deprecated(2013-05-10) kept for compatibility
+                try:
+                    x_snap_timestamp = auth_params['timestamp']
+                except:
+                    # deprecated(2013-05-10) kept for compatibility
+                    if 'snap_timestamp' in auth_params:
+                        x_snap_timestamp = auth_params['snap_timestamp']
+                    else:
+                        x_snap_date = auth_params['snap_date']
+
                 try:
                     secret = settings.APIKEY[key]
                 except KeyError:
                     return False
-                signature = auth_params['signature']
-                x_snap_nonce = auth_params['nonce']
-                x_snap_timestamp = auth_params['timestamp']
-
-            # deprecated(2013-05-10) but kept for compatibility
-            elif 'snap_signature' in auth[1]:
-                # get signature info all in Authorization header
-                auth_parts = auth[1].strip().split(',')
-                auth_params = dict()
-                for part in auth_parts:
-                    items = part.replace('"','').split('=')
-                    auth_params[items[0]] = items[1]
-
-                # add the parts to proper varibles for signature
-                key = auth_params['snap_key']
-                try:
-                    secret = settings.APIKEY[key]
-                except KeyError:
-                    return False
-                signature = auth_params['snap_signature']
-                x_snap_nonce = auth_params['snap_nonce']
-                if 'snap_timestamp' in auth_params:
-                    x_snap_timestamp = auth_params['snap_timestamp']
-                else:
-                    x_snap_date = auth_params['snap_date']
 
             # deprecated but kept for compatibility
             else:
