@@ -42,7 +42,7 @@ class User(models.Model):
         })
 
     def set_password(self, raw_password, hasher='pbkdf2_sha256'):
-        self.password = generate_password(raw_password, hasher)
+        self.password = User.generate_password(raw_password, hasher)
 
     @staticmethod
     def generate_password(raw_password, hasher='pbkdf2_sha256'):
