@@ -24,7 +24,7 @@ class Photo(models.Model):
     type = models.ForeignKey(Type)
 
     caption = models.CharField(max_length=255, help_text='The photo caption.')
-    streamable = models.BooleanField(help_text='If the photo is streamable.')
+    streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
     timestamp = models.DateTimeField(auto_now_add=True, help_text='The photo timestamp.')
     metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics
 
