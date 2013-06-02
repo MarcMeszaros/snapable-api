@@ -19,7 +19,3 @@ worker_class = 'sync' # default: sync; alternate: gevent
 pidfile = 'gunicorn.pid'
 timeout = 120
 graceful_timeout = 120
-
-# setup logging
-accesslog = os.path.join(os.getcwd(), 'logs', 'access.log')
-errorlog = os.path.join(os.getcwd(), 'logs', 'error.log')
