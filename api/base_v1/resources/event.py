@@ -20,3 +20,9 @@ class EventResource(ModelResource):
         filtering = {
             'url': ALL,
         }
+
+    def dehydrate_end(self, bundle):
+        return bundle.data['end'].strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    def dehydrate_start(self, bundle):
+        return bundle.data['start'].strftime('%Y-%m-%dT%H:%M:%SZ')

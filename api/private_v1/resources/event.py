@@ -98,6 +98,13 @@ class EventResource(api.base_v1.resources.EventResource):
 
         return semi_filtered
 
+
+    def dehydrate_end(self, bundle):
+        return bundle.data['end'].strftime('%Y-%m-%dT%H:%M:%S')
+
+    def dehydrate_start(self, bundle):
+        return bundle.data['start'].strftime('%Y-%m-%dT%H:%M:%S')
+
     def dehydrate(self, bundle):
         try:
             ### DEPRECATED/COMPATIBILITY ###
