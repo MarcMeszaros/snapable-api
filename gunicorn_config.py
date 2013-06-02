@@ -15,7 +15,6 @@ if not 'ares' in socket.gethostname():
 # the gunicorn parameters
 bind = cfg_eth1_address + ':' + cfg_port
 workers = multiprocessing.cpu_count() * 2 + 1
-daemon = True
 worker_class = 'sync' # default: sync; alternate: gevent
 pidfile = 'gunicorn.pid'
 timeout = 120
