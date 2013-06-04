@@ -3,7 +3,7 @@ from tastypie.test import ResourceTestCase
 
 # snapable
 from api.auth.server import ServerAuthentication
-from data.models import User
+from data.models import PasswordNonce, User
 
 class Private_v1__UserResourceTest(ResourceTestCase):
     fixtures = ['packages.json', 'accounts_and_users.json', 'events.json', 'guests.json']
@@ -79,3 +79,27 @@ class Private_v1__UserResourceTest(ResourceTestCase):
             'resource_uri',
             'terms',
         ])
+
+    def test_password_reset(self):
+        # get nonce
+        user_before = User.objects.get(pk=1)
+        nonce = PasswordNonce.objects.get(pk=1)
+        password_before = user_before.password
+
+        # update the password
+        put_uri = '/private_v1/user/{0}/'.format(user_before.pk)
+        put_data = {
+            'password': 'my1337password',
+        }
+        extra = {
+            'HTTP_X_SNAP_USER': '{0}:{1}'.format(user_before.email, nonce.nonce),
+        }
+
+        #print user_before
+        put_resp = self.api_client.put(put_uri, data=put_data, format='json', authentication=self.get_credentials('PUT', put_uri), **extra)
+        self.assertHttpAccepted(put_resp)
+        user_after = User.objects.get(pk=1)
+
+        password_after = user_after.password
+
+        self.assertNotEqual(password_after, password_before)

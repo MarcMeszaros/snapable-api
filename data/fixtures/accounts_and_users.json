@@ -27,6 +27,17 @@
         "admin": 1,
         "date_added": "2012-07-19T19:25:17+00:00"
     }
+},
+    
+{
+    "pk": 1, 
+    "model": "data.passwordnonce", 
+    "fields": {
+        "user": 1,
+        "nonce": "nonce123",
+        "valid": 1,
+        "timestamp": "2012-07-19T19:25:17+00:00"
+    }
 }
 
 ]
