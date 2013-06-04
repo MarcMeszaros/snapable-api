@@ -79,8 +79,8 @@ class DatabaseAuthentication(Authentication):
             # calculate time differences
             x_snap_datetime = datetime.fromtimestamp(int(x_snap_timestamp), tz=pytz.utc)# parse the date header
             now_datetime = datetime.now(pytz.utc) # current time on server
-            pre_now_datetime = now_datetime + timedelta(0, -120) # 2 minutes in the past
-            post_now_datetime = now_datetime + timedelta(0, 120) # 2 minutes in the future
+            pre_now_datetime = now_datetime + timedelta(0, -300) # 5 minutes in the past
+            post_now_datetime = now_datetime + timedelta(0, 300) # 5 minutes in the future
 
             # if all conditions pass, return true
             if auth_snap == 'snap' and (x_snap_datetime >= pre_now_datetime and x_snap_datetime <= post_now_datetime) and signature == hashed.hexdigest():
