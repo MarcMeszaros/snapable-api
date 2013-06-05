@@ -1,5 +1,6 @@
 # python
 import copy
+import itertools
 
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -67,17 +68,27 @@ class EventResource(api.base_v1.resources.EventResource):
         now_datetime = datetime.now(pytz.utc) # current time on server
         pre_now_datetime = now_datetime + timedelta(0, 0, 0, 0, -delta_minutes) # delta minutes in the past
         post_now_datetime = now_datetime + timedelta(0, 0, 0, 0, delta_minutes) # delta minutes in the future
+        # query set with only events that aren't finished
         sqs = Event.objects.filter(
             (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end__gte=pre_now_datetime)
         )
+        # second query set without events that have finished
+        sqs2 = Event.objects.filter(
+            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end__lt=pre_now_datetime)
+        )
 
+        # get the union
         sorted_objects = self.apply_sorting(sqs, options=request.GET)
+        sorted_objects2 = self.apply_sorting(sqs2, options=request.GET)
 
-        paginator = self._meta.paginator_class(request.GET, sorted_objects)
+        # union of both query sets into a list one after the other
+        result_objects = list(itertools.chain(sorted_objects, sorted_objects2))
+
+        paginator = self._meta.paginator_class(request.GET, result_objects)
         to_be_serialized = paginator.page()
 
         # Dehydrate the bundles in preparation for serialization.
-        bundles = [self.build_bundle(obj=obj, request=request) for obj in sorted_objects]
+        bundles = [self.build_bundle(obj=obj, request=request) for obj in result_objects]
         to_be_serialized['objects'] = [self.full_dehydrate(bundle) for bundle in bundles]
 
         return self.create_response(request, to_be_serialized)
@@ -97,6 +108,13 @@ class EventResource(api.base_v1.resources.EventResource):
             semi_filtered = filter(lambda x: x.photo_count >= int(custom), list(semi_filtered))
 
         return semi_filtered
+
+
+    def dehydrate_end(self, bundle):
+        return bundle.data['end'].strftime('%Y-%m-%dT%H:%M:%S')
+
+    def dehydrate_start(self, bundle):
+        return bundle.data['start'].strftime('%Y-%m-%dT%H:%M:%S')
 
     def dehydrate(self, bundle):
         try:

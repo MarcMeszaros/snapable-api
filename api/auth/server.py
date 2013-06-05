@@ -22,41 +22,42 @@ import api.auth
 from data.models import PasswordNonce, User
 
 def legacyIsAuthorized(request):
-    if not 'HTTP_X_SNAP_USER' in request.META and (request.method in ['GET', 'POST']):
-        return True
-
     try:
-        # get the header data
-        x_snap_user = request.META['HTTP_X_SNAP_USER']
-        user_details = x_snap_user.strip().split(':')
-
-        # get the user model matching the email
-        user = User.objects.get(email=user_details[0])
-        passwordnonces = [dbnonce.nonce for dbnonce in PasswordNonce.objects.filter(user=user.id, valid=True)]
-
-        # get the matched user's password data
-        db_pass = user.password.split('$', 1)
-        pass_data = {}
-
-        # various data based on db_pass type
-        if db_pass[0] == 'bcrypt':
-            pass_data['password_algorithm'] = db_pass[0]
-            pass_data['password_data'] = db_pass[1]
-
-        elif db_pass[0] == 'pbkdf2_sha256':
-            pass_parts = db_pass[1].split('$')
-            pass_data['password_hash'] = pass_parts[2]
-
-        # if the db password hash and the one in the header match, display the user details
-        if pass_data['password_hash'] == user_details[1]:
-            return True
-        elif (user_details[1] in passwordnonces):
-            oldnonce = PasswordNonce.objects.get(nonce=user_details[1])
-            oldnonce.valid = False # invalidate the nonce so it can't be used again
-            oldnonce.save()
+        if 'HTTP_X_SNAP_USER' not in request.META and (request.method in ['GET', 'POST']):
             return True
         else:
-            return False
+            # get the header data
+            x_snap_user = request.META['HTTP_X_SNAP_USER']
+            user_details = x_snap_user.strip().split(':')
+
+            # get the user model matching the email
+            user = User.objects.get(email=user_details[0])
+            nonce = PasswordNonce.objects.get(user=user, valid=True, nonce=user_details[1])
+
+            # get the matched user's password data
+            db_pass = user.password.split('$', 1)
+            pass_data = {}
+
+            # various data based on db_pass type
+            if db_pass[0] == 'bcrypt':
+                pass_data['password_algorithm'] = db_pass[0]
+                pass_data['password_data'] = db_pass[1]
+
+            elif db_pass[0] == 'pbkdf2_sha256':
+                pass_parts = db_pass[1].split('$')
+                pass_data['password_hash'] = pass_parts[2]
+
+            # if the db password hash and the one in the header match, display the user details
+            if pass_data['password_hash'] == user_details[1]:
+                return True
+            elif (nonce.valid):
+                nonce.valid = False # invalidate the nonce so it can't be used again 
+                # WEIRDness... uncomment and the function returns 'None',
+                # comment it and it works...
+                # nonce.save()
+                return True
+            else:
+                return False
 
     except:
         return False
@@ -151,8 +152,8 @@ class ServerAuthentication(Authentication):
                 x_snap_datetime = dateutil.parser.parse(x_snap_date) # parse the date header
 
             now_datetime = datetime.now(pytz.utc) # current time on server
-            pre_now_datetime = now_datetime + timedelta(0, -120) # 2 minutes in the past
-            post_now_datetime = now_datetime + timedelta(0, 120) # 2 minutes in the future
+            pre_now_datetime = now_datetime + timedelta(0, -300) # 5 minutes in the past
+            post_now_datetime = now_datetime + timedelta(0, 300) # 5 minutes in the future
 
             # if all conditions pass, return true
             if auth_snap == 'snap' and (x_snap_datetime >= pre_now_datetime and x_snap_datetime <= post_now_datetime) and signature == hashed.hexdigest():
@@ -182,13 +183,13 @@ class ServerAuthorization(Authorization):
             raise Unauthorized("Sorry, no update.")
 
     def update_detail(self, object_list, bundle):
-        return legacyIsAuthorized(bundle.request)
+        if legacyIsAuthorized(bundle.request):
+            return True
+        else:
+            raise Unauthorized("Sorry, no update.")
 
     def delete_list(self, object_list, bundle):
-        if (legacyIsAuthorized(bundle.request)):
-            return object_list
-        else:
-            raise Unauthorized("Sorry, no deletes.")
+        return []
 
     def delete_detail(self, object_list, bundle):
         return legacyIsAuthorized(bundle.request)

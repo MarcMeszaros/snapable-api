@@ -66,7 +66,9 @@ class Private_v1__EventResourceTest(ResourceTestCase):
     def test_get_events_search(self):
         uri_post = '/private_v1/event/'
         uri_get = '/private_v1/event/search/'
-        data_get = {'q': 'test', 'enabled': 'true', 'order_by': 'end'}
+        data_get = {'q': 'event', 'enabled': 'true', 'order_by': 'end'}
+        events = Event.objects.all()
+        events_count = events.count() # count() checks database, not queryset, so we save now
 
         resp_post = self.api_client.post(uri_post, data=self.post_data, format='json', authentication=self.get_credentials('POST', uri_post))
 
@@ -79,3 +81,12 @@ class Private_v1__EventResourceTest(ResourceTestCase):
         self.assertValidJSONResponse(resp_get)
         # make sure we have some search results
         self.assertTrue(self.deserialize(resp_get)['meta']['total_count'] > 0)
+
+        # we should have n+1 where n is existing events (+ 1 new)
+        self.assertEqual(self.deserialize(resp_get)['meta']['total_count'], events_count + 1)
+
+        # the first should be the new event url
+        self.assertEqual(self.deserialize(resp_get)['objects'][0]['url'], self.post_data['url'])
+
+        # the second should be the first event url
+        self.assertEqual(self.deserialize(resp_get)['objects'][1]['url'], self.event_1.url)
