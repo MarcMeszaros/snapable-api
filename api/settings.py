@@ -109,6 +109,9 @@ MIDDLEWARE_CLASSES = (
     #'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # snapable
+    'api.utils.middleware.RequestLoggingMiddleware',
 )
 
 ROOT_URLCONF = 'api.urls'
@@ -144,6 +147,14 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s [%(process)d] [%(levelname)s] %(message)s'
+        },
+        'simple': {
+            'format': '[%(levelname)s] %(message)s'
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -155,12 +166,13 @@ LOGGING = {
             'class': 'django.utils.log.NullHandler',
         },
         'console':{
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
         'sentry': {
             'level': 'INFO',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'class': 'raven.contrib.django.handlers.SentryHandler',
         },
         'mail_admins': {
             'level': 'ERROR',
@@ -176,10 +188,20 @@ LOGGING = {
             'backupCount': 14,
             'utc': True,
         },
+        'file.requests': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': os.path.join('logs', 'requests.log'),
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 14,
+            'utc': True,
+        },
     },
     'loggers': {
         '': {
-            'handlers': ['console', 'file.firehose'],
+            'handlers': ['file.firehose'],
             'level': 'INFO',
             'propagate': True,
         },
@@ -189,19 +211,24 @@ LOGGING = {
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['file.firehose', 'sentry', 'mail_admins'],
-            'level': 'ERROR',
+            'handlers': ['console', 'file.firehose', 'sentry'],
+            'level': 'INFO',
             'propagate': True,
         },
         'django.db.backend': {
-            'handlers': ['file.firehose', 'sentry'],
+            'handlers': ['sentry'],
             'level': 'WARNING',
             'propagate': True,
         },
         'snapable': {
-            'handlers': ['console', 'file.firehose', 'sentry'],
+            'handlers': ['console', 'sentry'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        'snapable.request': {
+            'handlers': ['console', 'file.requests'],
+            'level': 'INFO',
+            'propagate': False,
         },
     }
 }
