@@ -182,7 +182,7 @@ LOGGING = {
         'file.firehose': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join('logs', 'firehose.log'),
+            'filename': os.path.join(PROJECT_PATH, 'logs', 'firehose.log'),
             'when': 'D',
             'interval': 1,
             'backupCount': 14,
@@ -192,7 +192,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'formatter': 'verbose',
-            'filename': os.path.join('logs', 'requests.log'),
+            'filename': os.path.join(PROJECT_PATH, 'logs', 'requests.log'),
             'when': 'D',
             'interval': 1,
             'backupCount': 14,
@@ -226,7 +226,7 @@ LOGGING = {
             'propagate': True,
         },
         'snapable.request': {
-            'handlers': ['console', 'file.requests'],
+            'handlers': ['file.requests'],
             'level': 'INFO',
             'propagate': False,
         },
