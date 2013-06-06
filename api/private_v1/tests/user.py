@@ -29,6 +29,24 @@ class Private_v1__UserResourceTest(ResourceTestCase):
     def get_credentials(self, method, uri):
         return ServerAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
 
+    def test_get_auth(self):
+        uri = '/private_v1/user/auth/'
+        extra_valid = {
+            'HTTP_X_SNAP_USER': '{0}:{1}'.format(self.user_1.email, self.user_1.password.split('$')[-1]),
+        }
+        resp_valid = self.api_client.get(uri, format='json', authentication=self.get_credentials('GET', uri), **extra_valid)
+
+        # assert that the valid auth check works
+        self.assertValidJSONResponse(resp_valid)
+
+        # setup some invalid headers that should cause the request to fail
+        extra_invalid = {
+            'HTTP_X_SNAP_USER': '{0}:{1}'.format(self.user_1.email, self.user_1.password.split('$')[-1][:-5]),
+        }
+        resp_invalid = self.api_client.get(uri, format='json', authentication=self.get_credentials('GET', uri), **extra_invalid)
+
+        self.assertHttpBadRequest(resp_invalid)
+
     def test_get_users(self):
         uri = '/private_v1/user/'
         resp = self.api_client.get(uri, format='json', authentication=self.get_credentials('GET', uri))
