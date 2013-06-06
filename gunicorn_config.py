@@ -17,5 +17,6 @@ bind = cfg_eth1_address + ':' + cfg_port
 workers = multiprocessing.cpu_count() * 2 + 1
 worker_class = 'sync' # default: sync; alternate: gevent
 pidfile = 'gunicorn.pid'
+proc_name = 'snap_api'
 timeout = 120
 graceful_timeout = 120
