@@ -2,13 +2,13 @@
 This is the main API code used for Snapable.
 
 # REQUIREMENTS #
-Development is done on Debian 6.0.5 (a.k.a. Squeeze) systems (http://www.debian.org/).
+Development is done on Ubuntu 12.04 LTS systems (http://www.ubuntu.com/).
 You can view the library versions developed against in the "requirements.txt" file.
 To install all the libraries at once using pip (http://www.pip-installer.org/).
 
 The following are the minimum system requirements:
 
-* *python 2.6+ (http://www.python.org/) Note: "python-dev" package required to install "Netifaces"
+* *python 2.7+ (http://www.python.org/) Note: "python-dev" package required to install "Netifaces"
 * *python-pip
 * *libjpeg-dev
 * *libraw-dev
