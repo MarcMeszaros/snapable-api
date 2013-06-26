@@ -62,7 +62,7 @@ Run the following commands:
     > ./manage.py syncdb
     > ./manage.py migrate data
     > ./manage.py migrate api
-    > gunicorn api.wsgi:application -c gunicorn_config.py
+    > gunicorn api.wsgi:application -c gunicorn.conf.py
 
 Execute the following commands to control the server:
 
