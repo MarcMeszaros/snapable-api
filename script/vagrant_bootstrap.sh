@@ -15,7 +15,7 @@ echo "+-------------------------+"
 echo "| Install System Packages |"
 echo "+-------------------------+"
 echo ""
-apt-get -y install ntp python-dev python-pip libjpeg-dev libevent-dev libmysqlclient-dev
+apt-get -y install ntp git make python-dev python-pip libjpeg-dev libwebp-dev libevent-dev libmysqlclient-dev
 pip install supervisor virtualenv
 
 # setup the supervisor configs
@@ -55,17 +55,17 @@ echo "+----------------+"
 echo ""
 # setup the mysql db
 mysql -u root --password=snapable12345 -e 'CREATE DATABASE snapabledb;'
+mysql -u root --password=snapable12345 -e 'GRANT ALL PRIVILEGES ON snapabledb.* to root@localhost;'
 # setup the virtualenv
 su - vagrant -c 'mkdir ~/environments'
 su - vagrant -c 'virtualenv -q ~/environments/api'
 su - vagrant -c 'ln -s /vagrant ~/environments/api/snapable'
 # run the setup instruction commands for the api
-su - vagrant -c '~/environments/api/bin/pip install -r /vagrant/requirements.txt'
+su - vagrant -c '~/environments/api/bin/pip install -v -r /vagrant/requirements.txt'
+su - vagrant -c '~/environments/api/bin/pip install -v -r /vagrant/requirements-dev.txt'
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py syncdb'
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py migrate data'
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py migrate api'
 # setup supervisor
 su - vagrant -c 'cp -f /vagrant/script/vagrant_snap_api.conf ~/supervisor/snap_api.conf'
 su - vagrant -c 'supervisorctl update'
-su - vagrant -c 'supervisorctl reread'
-su - vagrant -c 'supervisorctl start snap_api'

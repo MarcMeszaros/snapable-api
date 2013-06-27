@@ -12,6 +12,7 @@ The following are the minimum system requirements:
 * *python-pip
 * *libjpeg-dev
 * *libraw-dev
+* *libwebp-dev
 * *libevent-dev
 * *libmysqlclient-dev
 * MySQLdb (http://sourceforge.net/projects/mysql-python)
@@ -46,7 +47,7 @@ The application is set to use the following MySQL credentials by default:
 1. Complete the "Production Install"
 2. Run `pip install -r requirements-dev.txt`
 
-## INSTALLATION EXAMPLE: ##
+## MANUAL INSTALLATION EXAMPLE: ##
 Run the following commands:
 
     > sudo apt-get install build-essential python python-dev python-pip libmysqlclient-dev libjpeg-dev libevent-dev
@@ -64,21 +65,12 @@ Run the following commands:
     > ./manage.py migrate api
     > gunicorn api.wsgi:application -c gunicorn.conf.py
 
-Execute the following commands to control the server:
-
-    # reload (note: ` [backticks] are required)
-    kill -HUP `cat gunicorn.pid`
-
-    # kill (note: ` [backticks] are required)
-    kill -9 `cat gunicorn.pid`
-
 # DEVELOPMENT #
 
 ## Unit Tests ##
 To run the unit tests, execute:
 
     ./manage.py test
-
 
 # CONFIGURATION #
 Below is a sample configuration for the local settings file. It should be placed one folder level
@@ -111,7 +103,7 @@ higher than the "snapable" API source code folder.
     # RACKSPACE
     RACKSPACE_USERNAME = 'my_user'
     RACKSPACE_APIKEY = 'my_api_key'
-    RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_photos_'
+    RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_images_'
 
     # sentry/raven
     SENTRY_DSN = 'http://user:pass@host/2'
