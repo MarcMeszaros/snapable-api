@@ -242,6 +242,9 @@ PASSWORD_HASHERS = (
 # email backend
 EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
 
+# Django 1.5+ requires this 
+AUTH_USER_MODEL = 'data.User'
+
 # RACKSPACE
 RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_images_'
 RACKSPACE_CLOUDFILE_TIMEOUT = 120
