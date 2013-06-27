@@ -244,10 +244,7 @@ EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
 
 # Django 1.5+ requires this 
 AUTH_USER_MODEL = 'data.User'
-ALLOWED_HOSTS = [
-    'snapable.com',
-    '.snapable.com',
-]
+ALLOWED_HOSTS = ['.snapable.com']
 
 # RACKSPACE
 RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_images_'
