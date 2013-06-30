@@ -8,23 +8,16 @@ To install all the libraries at once using pip (http://www.pip-installer.org/).
 
 The following are the minimum system requirements:
 
-* *python 2.7+ (http://www.python.org/) Note: "python-dev" package required to install "Netifaces"
-* *python-pip
-* *libjpeg-dev
-* *libraw-dev
-* *libwebp-dev
-* *libevent-dev
-* *libmysqlclient-dev
-* MySQLdb (http://sourceforge.net/projects/mysql-python)
-* Django (https://www.djangoproject.com/)
-* JSONField (https://github.com/bradjasper/django-jsonfield)
-* South (https://bitbucket.org/andrewgodwin/south)
-* Tastypie (https://github.com/toastdriven/django-tastypie)
-* Netifaces (http://alastairs-place.net/projects/netifaces/)
-* Rackspace Cloudfiles (https://github.com/rackspace/python-cloudfiles)
-* Pillow (https://github.com/python-imaging/Pillow)
-
-NOTE: * items are installed from the Debian distribution using APT.
+* python 2.7+ (http://www.python.org/)
+* ntp 
+* git 
+* make
+* python-dev
+* python-pip
+* libjpeg-dev
+* libwebp-dev
+* libevent-dev
+* libmysqlclient-dev
 
 # INSTALLATION #
 
@@ -73,8 +66,8 @@ To run the unit tests, execute:
     ./manage.py test
 
 # CONFIGURATION #
-Below is a sample configuration for the local settings file. It should be placed one folder level
-higher than the "snapable" API source code folder.
+Below is a sample configuration for the local settings file. It should be placed 
+in the root API source code folder.
 
     import os
 
