@@ -2,8 +2,6 @@
 import StringIO
 
 # django/tastypie/libs
-import cloudfiles
-
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import HttpResponse

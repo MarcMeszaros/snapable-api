@@ -250,6 +250,7 @@ ALLOWED_HOSTS = ['.snapable.com']
 RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_images_'
 RACKSPACE_CLOUDFILE_TIMEOUT = 120
 RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = 10000
+RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = True
 
 # tastypie settings
 API_LIMIT_PER_PAGE = 50
@@ -261,6 +262,12 @@ try:
     from settings_local import *
 except Exception as e:
     pass
+
+# set default pyrax settings
+import pyrax
+pyrax.set_setting('identity_type', 'rackspace')
+pyrax.set_credentials(RACKSPACE_USERNAME, RACKSPACE_APIKEY)
+pyrax.set_default_region('DFW')
 
 # set debug defaults
 if DEBUG:

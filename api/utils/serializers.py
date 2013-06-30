@@ -3,7 +3,6 @@ import mimetypes
 import StringIO
 
 # django/tastypie/libs
-import cloudfiles
 from django.conf import settings
 from PIL import Image
 import tastypie.exceptions

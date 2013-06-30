@@ -1,7 +1,6 @@
 import api.auth
 import api.utils
 import api.base_v1.resources
-import cloudfiles
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
