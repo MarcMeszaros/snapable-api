@@ -6,16 +6,8 @@ echo "+-------------------+"
 echo "| Update the System |"
 echo "+-------------------+"
 echo ""
-apt-get update
 #apt-get -y upgrade
-
-# install packages
-echo ""
-echo "+-------------------------+"
-echo "| Install System Packages |"
-echo "+-------------------------+"
-echo ""
-apt-get -y install ntp git make python-dev python-pip libjpeg-dev libwebp-dev libevent-dev libmysqlclient-dev
+# include extra dependecies
 pip install supervisor virtualenv
 
 # setup the supervisor configs
