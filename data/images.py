@@ -1,3 +1,4 @@
+# django/tastypie/libs
 from PIL import Image
 from PIL.ExifTags import TAGS
 
@@ -14,8 +15,6 @@ class SnapImage(object):
         else:
             self._img = Image
 
-        self._rotate_upright()
-
     def __getattr__(self, name):
         if name == 'img':
             return self._img
@@ -28,18 +27,15 @@ class SnapImage(object):
             return getattr(self._img, name)
 
     def resize(self, size):
-        if self._rotate_upright():
-            img = self._img.copy()
+        if self.rotate_upright():
             try:
                 # get the size param
                 self._img = self._img.resize(size, Image.ANTIALIAS)
                 return True
             except Exception as e:
-                self._img = img
                 return False
 
-    def _rotate_upright(self):
-        img = self._img.copy()
+    def rotate_upright(self):
         try:
             exif = self.exif
             # rotate as required
@@ -53,5 +49,4 @@ class SnapImage(object):
 
             return True
         except Exception as e:
-            self._img = img
             return False
