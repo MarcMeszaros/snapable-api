@@ -27,7 +27,7 @@ docs/build/*
 # Testing #
 ###########
 .coverage
-trashcat_*_test\.jpg
+trashcat_*_test*
 
 # Vagrant #
 ###########

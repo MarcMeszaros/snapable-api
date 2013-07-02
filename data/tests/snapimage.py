@@ -138,3 +138,25 @@ class SnapImageTestCase(TestCase):
         self.assertEqual(snapimg_3.size, snapimg_3_test.size)
         self.assertEqual(snapimg_6.size, snapimg_6_test.size)
         self.assertEqual(snapimg_8.size, snapimg_8_test.size)
+
+    def test_image_crop(self):
+        snapimg_1 = SnapImage(image=self.img_1)
+        snapimg_3 = SnapImage(image=self.img_3)
+        snapimg_6 = SnapImage(image=self.img_6)
+        snapimg_8 = SnapImage(image=self.img_8)
+
+        #The crop rectangle, as a (left, upper, right, lower)-tuple.
+        snapimg_1.crop_square()
+        snapimg_3.crop_square()
+        snapimg_6.crop_square()
+        snapimg_8.crop_square()
+
+        filepath_1 = os.path.join(settings.PROJECT_PATH, 'api', 'assets', '%s_test_crop.jpg' % self.file_basename_1)
+        filepath_3 = os.path.join(settings.PROJECT_PATH, 'api', 'assets', '%s_test_crop.jpg' % self.file_basename_3)
+        filepath_6 = os.path.join(settings.PROJECT_PATH, 'api', 'assets', '%s_test_crop.jpg' % self.file_basename_6)
+        filepath_8 = os.path.join(settings.PROJECT_PATH, 'api', 'assets', '%s_test_crop.jpg' % self.file_basename_8)
+        snapimg_1.img.save(filepath_1, 'JPEG')
+        snapimg_3.img.save(filepath_3, 'JPEG')
+        snapimg_6.img.save(filepath_6, 'JPEG')
+        snapimg_8.img.save(filepath_8, 'JPEG')
+        

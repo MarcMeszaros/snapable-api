@@ -44,7 +44,7 @@ class Photo(models.Model):
         cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
         # get all files related to this photo (original + resizes)
-        images = cont.list_objects(prefix=str(self.event.id)+'/'+str(self.id)+'_')
+        images = cont.list_objects(prefix='{0}/{1}_'.format(self.event.id, self.id))
 
         # loop through the list and delete them
         for image in images:
@@ -66,15 +66,22 @@ class Photo(models.Model):
 
                 # try an get the size wanted
                 try:
-                    obj = cont.get_object(str(self.event.id) + '/' + str(self.id) + '_' + size + '.jpg')
+                    obj = cont.get_object('{0}/{1}_{2}.jpg'.format(self.event.id, self.id, size))
                     img = Image.open(StringIO.StringIO(obj.get()))
                     snapimg = SnapImage(img)
 
                     return snapimg
                 except:
-                    obj = cont.get_object(str(self.event.id) + '/' + str(self.id) + '_orig.jpg')
-                    img = Image.open(StringIO.StringIO(obj.get()))
-                    snapimg = SnapImage(img)
+                    try:
+                        obj = cont.get_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id))
+                        img = Image.open(StringIO.StringIO(obj.get()))
+                        snapimg = SnapImage(img)
+                    except pyrax.exceptions.NoSuchObject as e:
+                        obj = cont.get_object('{0}/{1}_orig.jpg'.format(self.event.id, self.id))
+                        img = Image.open(StringIO.StringIO(obj.get()))
+                        snapimg = SnapImage(img)
+                        snapimg.crop_square()
+                        obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), snapimg.img.tostring('jpeg', 'RGB'))
 
                     # resize the image
                     sizeList = size.split('x')
@@ -82,8 +89,7 @@ class Photo(models.Model):
                     snapimg.resize(sizeTupple)
 
                     # save the new photo size
-                    obj = cont.store_object(str(self.event.id) + '/' + str(self.id) + '_' + size + '.jpg', snapimg.img.tostring('jpeg', 'RGB'))
-
+                    obj = cont.store_object('{0}/{1}_{2}.jpg'.format(self.event.id, self.id, size), snapimg.img.tostring('jpeg', 'RGB'))
                     return snapimg
 
             except pyrax.exceptions.NoSuchObject as e:
@@ -98,11 +104,6 @@ class Photo(models.Model):
         """
         Save the SnapImage to CloudFiles.
         """
-        size = 'orig'
-        if orig == False:
-            width, height = image.img.size
-            size = str(width)+'x'+str(height)
-
         conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
         cont = None
         try:
@@ -111,9 +112,17 @@ class Photo(models.Model):
             cont = conn.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
             Log.i('created a new container: ' + settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
-        # save the new photo size
-        try:
-            obj = cont.store_object(str(self.event.id) + '/' + str(self.id) + '_' + size + '.jpg', image.img.tostring('jpeg', 'RGB'))
-
-        except pyrax.exceptions.NoSuchContainer as e:
-            return None
+        if orig == False:
+            width, height = image.img.size
+            size = '{0}x{1}'.format(width, height)
+            try:
+                obj = cont.store_object('{0}/{1}_{2}.jpeg'.format(self.event.id, self.id, size), image.img.tostring('jpeg', 'RGB'))
+            except pyrax.exceptions.NoSuchContainer as e:
+                return None
+        else:
+            try:
+                obj = cont.store_object('{0}/{1}_orig.jpg'.format(self.event.id, self.id), image.img.tostring('jpeg', 'RGB'))
+                image.crop_square()
+                obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.tostring('jpeg', 'RGB'))
+            except pyrax.exceptions.NoSuchContainer as e:
+                return None
