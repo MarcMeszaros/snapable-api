@@ -14,6 +14,6 @@ class AlbumResource(api.base_v1.resources.AlbumResource):
 
     class Meta(api.base_v1.resources.AlbumResource.Meta): # set Meta to the public API Meta
         list_allowed_methods = ['get', 'post']
-        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()

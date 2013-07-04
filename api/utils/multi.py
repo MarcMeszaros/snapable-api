@@ -13,9 +13,3 @@ class MultipartResource(object):
             return data
 
         return super(MultipartResource, self).deserialize(request, data, format)
-
-    def put_detail(self, request, **kwargs):
-        if not hasattr(request, '_body'):
-            request._body = ''
-
-        return super(MultipartResource, self).put_detail(request, **kwargs)

@@ -63,4 +63,18 @@ class Private_v1__PhotoResourceTest(ResourceTestCase):
         # make sure the timestamp is in the format we want (ISO8601) without micro
         # expected format: 2013-01-21T18:12:45
         self.assertTrue(re.search('^\d{4}-(\d{2}-?){2}T(\d{2}:?){3}$', data['timestamp']))
+
+    def test_put_photo(self):
+        uri = '/private_v1/photo/1/'
+        put_data = {
+            'caption': 'awesome'
+        }
+        resp = self.api_client.put(uri, data=put_data, format='json', authentication=self.get_credentials('PUT', uri))
+        data = self.deserialize(resp)
+
+        # make sure the resource has a valid response
+        self.assertHttpAccepted(resp)
+
+        # test to make sure all the keys are in the response
+        self.assertEqual(data['caption'], put_data['caption'])
         

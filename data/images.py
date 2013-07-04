@@ -1,3 +1,4 @@
+# django/tastypie/libs
 from PIL import Image
 from PIL.ExifTags import TAGS
 
@@ -14,8 +15,6 @@ class SnapImage(object):
         else:
             self._img = Image
 
-        self._rotate_upright()
-
     def __getattr__(self, name):
         if name == 'img':
             return self._img
@@ -27,31 +26,49 @@ class SnapImage(object):
         else:
             return getattr(self._img, name)
 
+    def crop(self, box):
+        try:
+            # The crop rectangle, as a (left, upper, right, lower)-tuple.
+            self._img = self._img.crop(box=box)
+
+        except Exception as e:
+            return False
+
+    def crop_square(self):
+        self.rotate_upright()
+        # x > y
+        if self.size[0] > self.size[1]:
+            left = (self.size[0] - self.size[1]) / 2
+            crop_box = (left, 0, left + self.size[1], self.size[1])
+        # y > x
+        else:
+            top = (self.size[1] - self.size[0]) / 2
+            crop_box = (0 , top, self.size[0], top + self.size[0])
+
+        return self.crop(box=crop_box)
+
+
     def resize(self, size):
-        if self._rotate_upright():
-            img = self._img.copy()
+        if self.rotate_upright():
             try:
                 # get the size param
                 self._img = self._img.resize(size, Image.ANTIALIAS)
                 return True
             except Exception as e:
-                self._img = img
                 return False
 
-    def _rotate_upright(self):
-        img = self._img.copy()
+    def rotate_upright(self):
         try:
             exif = self.exif
             # rotate as required
             # 0x0112 = orientation
-            if exif.has_key(0x0112) and exif[0x0112] == 3:
+            if 0x0112 in exif and exif[0x0112] == 3:
                 self._img = self._img.rotate(180, expand=True)
-            elif exif.has_key(0x0112) and exif[0x0112] == 6:
+            elif 0x0112 in exif and exif[0x0112] == 6:
                 self._img = self._img.rotate(270, expand=True)
-            elif exif.has_key(0x0112) and exif[0x0112] == 8:
+            elif 0x0112 in exif and exif[0x0112] == 8:
                 self._img = self._img.rotate(90, expand=True)
 
             return True
         except Exception as e:
-            self._img = img
             return False

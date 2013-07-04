@@ -3,7 +3,6 @@ import mimetypes
 import StringIO
 
 # django/tastypie/libs
-import cloudfiles
 from django.conf import settings
 from PIL import Image
 import tastypie.exceptions
@@ -25,10 +24,10 @@ class PhotoSerializer(Serializer):
     def to_jpeg(self, bundle, options=None):
         photo = bundle.obj
         event = bundle.obj.event
-        size = 'orig'
+        size = 'crop'
 
         # set the size variable
-        if (bundle.data != None and bundle.data.has_key('size')):
+        if (bundle.data != None and 'size' in bundle.data):
             size = bundle.data['size']
 
         try:
@@ -51,13 +50,13 @@ class EventSerializer(Serializer):
 
     def to_jpeg(self, bundle, options=None):
         event = bundle.obj
-        size = 'orig'
+        size = 'crop'
 
         # get the photo count
         photos_count = Photo.objects.filter(event_id=event.id).count()
 
         # set the size variable
-        if (bundle.data != None and bundle.data.has_key('size')):
+        if (bundle.data != None and 'size' in bundle.data):
             size = bundle.data['size']
 
         # event cover it is set

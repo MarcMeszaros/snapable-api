@@ -27,11 +27,13 @@ docs/build/*
 # Testing #
 ###########
 .coverage
+trashcat_*_test*
 
 # Vagrant #
 ###########
 *.pem
 .vagrant*
+vagrant
 
 # ignore other files
 gunicorn.pid

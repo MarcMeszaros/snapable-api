@@ -40,7 +40,7 @@ class EventValidation(Validation):
         acc_str = bundle.data['account']
         acc_parts = acc_str.strip('/').split('/')
         account = Account.objects.get(pk=acc_parts[-1])
-        if account.event_set.count() >= 1:
+        if bundle.request.META['REQUEST_METHOD'] == 'POST' and account.event_set.count() >= 1:
             errors['account'] = 'Only one event per account allowed with the partner API.'
 
         # check the url
@@ -73,7 +73,7 @@ class EventResource(api.base_v1.resources.EventResource):
     class Meta(api.base_v1.resources.EventResource.Meta):
         fields = api.base_v1.resources.EventResource.Meta.fields + ['photo_count']
         list_allowed_methods = ['get', 'post']
-        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         authentication = api.auth.DatabaseAuthentication()
         authorization = api.auth.DatabaseAuthorization()
         validation = EventValidation()

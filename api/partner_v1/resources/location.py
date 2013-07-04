@@ -37,7 +37,7 @@ class LocationResource(api.base_v1.resources.AddressResource):
     class Meta(api.base_v1.resources.AddressResource.Meta): # set Meta to the public API Meta
         fields = api.base_v1.resources.AddressResource.Meta.fields + ['address', 'lat', 'lng']
         list_allowed_methods = ['get', 'post']
-        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         authentication = api.auth.DatabaseAuthentication()
         authorization = api.auth.DatabaseAuthorization()
         validation = LocationValidation()

@@ -2,8 +2,6 @@
 import StringIO
 
 # django/tastypie/libs
-import cloudfiles
-
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import HttpResponse
@@ -49,7 +47,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
     class Meta(api.base_v1.resources.PhotoResource.Meta): # set Meta to the public API Meta
         fields = ['caption', 'timestamp'];
         list_allowed_methods = ['get', 'post']
-        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         authentication = api.auth.DatabaseAuthentication()
         authorization = api.auth.DatabaseAuthorization()
         validation = PhotoValidation()

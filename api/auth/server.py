@@ -32,7 +32,6 @@ def legacyIsAuthorized(request):
 
             # get the user model matching the email
             user = User.objects.get(email=user_details[0])
-            nonce = PasswordNonce.objects.get(user=user, valid=True, nonce=user_details[1])
 
             # get the matched user's password data
             db_pass = user.password.split('$', 1)
@@ -50,14 +49,16 @@ def legacyIsAuthorized(request):
             # if the db password hash and the one in the header match, display the user details
             if pass_data['password_hash'] == user_details[1]:
                 return True
-            elif (nonce.valid):
-                nonce.valid = False # invalidate the nonce so it can't be used again 
-                # WEIRDness... uncomment and the function returns 'None',
-                # comment it and it works...
-                # nonce.save()
-                return True
             else:
-                return False
+                passnonce = PasswordNonce.objects.get(user=user, valid=True, nonce=user_details[1])
+                if (passnonce.valid):
+                    passnonce.valid = False # invalidate the nonce so it can't be used again
+                    # WEIRDness... uncomment and the function returns 'None',
+                    # comment it and it works...
+                    #passnonce.save()
+                    return True
+
+            return False
 
     except:
         return False

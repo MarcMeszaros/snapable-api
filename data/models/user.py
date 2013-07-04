@@ -5,6 +5,10 @@ from django.contrib.auth.hashers import (check_password, make_password, is_passw
 
 class User(models.Model):
 
+    # Django 1.5+ needs this defined
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
     # required to make 'south' migrations work
     class Meta:
         app_label = 'data'

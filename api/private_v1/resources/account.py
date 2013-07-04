@@ -18,6 +18,6 @@ class AccountResource(api.base_v1.resources.AccountResource):
     class Meta(api.base_v1.resources.AccountResource.Meta): # set Meta to the public API Meta
         fields = api.base_v1.resources.AccountResource.Meta.fields + ['valid_until']
         list_allowed_methods = ['get']
-        detail_allowed_methods = ['get', 'put']
+        detail_allowed_methods = ['get', 'put', 'patch']
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()

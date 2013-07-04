@@ -109,6 +109,9 @@ MIDDLEWARE_CLASSES = (
     #'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # snapable
+    'api.utils.middleware.RequestLoggingMiddleware',
 )
 
 ROOT_URLCONF = 'api.urls'
@@ -144,6 +147,14 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s [%(process)d] [%(levelname)s] %(message)s'
+        },
+        'simple': {
+            'format': '[%(levelname)s] %(message)s'
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -155,12 +166,13 @@ LOGGING = {
             'class': 'django.utils.log.NullHandler',
         },
         'console':{
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
         'sentry': {
             'level': 'INFO',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'class': 'raven.contrib.django.handlers.SentryHandler',
         },
         'mail_admins': {
             'level': 'ERROR',
@@ -170,7 +182,17 @@ LOGGING = {
         'file.firehose': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join('logs', 'firehose.log'),
+            'filename': os.path.join(PROJECT_PATH, 'logs', 'firehose.log'),
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 14,
+            'utc': True,
+        },
+        'file.requests': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': os.path.join(PROJECT_PATH, 'logs', 'requests.log'),
             'when': 'D',
             'interval': 1,
             'backupCount': 14,
@@ -179,7 +201,7 @@ LOGGING = {
     },
     'loggers': {
         '': {
-            'handlers': ['console', 'file.firehose'],
+            'handlers': ['file.firehose'],
             'level': 'INFO',
             'propagate': True,
         },
@@ -189,19 +211,24 @@ LOGGING = {
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['file.firehose', 'sentry', 'mail_admins'],
-            'level': 'ERROR',
+            'handlers': ['console', 'file.firehose', 'sentry'],
+            'level': 'INFO',
             'propagate': True,
         },
         'django.db.backend': {
-            'handlers': ['file.firehose', 'sentry'],
+            'handlers': ['sentry'],
             'level': 'WARNING',
             'propagate': True,
         },
         'snapable': {
-            'handlers': ['console', 'file.firehose', 'sentry'],
+            'handlers': ['console', 'sentry'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        'snapable.request': {
+            'handlers': ['file.requests'],
+            'level': 'INFO',
+            'propagate': False,
         },
     }
 }
@@ -215,10 +242,15 @@ PASSWORD_HASHERS = (
 # email backend
 EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
 
+# Django 1.5+ requires this 
+AUTH_USER_MODEL = 'data.User'
+ALLOWED_HOSTS = ['.snapable.com']
+
 # RACKSPACE
-RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_photos_'
+RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_images_'
 RACKSPACE_CLOUDFILE_TIMEOUT = 120
 RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = 10000
+RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = True
 
 # tastypie settings
 API_LIMIT_PER_PAGE = 50
@@ -230,6 +262,12 @@ try:
     from settings_local import *
 except Exception as e:
     pass
+
+# set default pyrax settings
+import pyrax
+pyrax.set_setting('identity_type', 'rackspace')
+pyrax.set_credentials(RACKSPACE_USERNAME, RACKSPACE_APIKEY)
+pyrax.set_default_region('DFW')
 
 # set debug defaults
 if DEBUG:
