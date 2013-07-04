@@ -40,6 +40,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         serializer = PhotoSerializer(formats=['json', 'jpeg'])
         filtering = dict(api.base_v1.resources.PhotoResource.Meta.filtering, **{
             'event': ['exact'],
+            'streamable': ['exact'],
             'timestamp': ALL,
         })
 
