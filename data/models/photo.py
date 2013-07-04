@@ -44,7 +44,7 @@ class Photo(models.Model):
         cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
         # get all files related to this photo (original + resizes)
-        images = cont.list_objects(prefix='{0}/{1}_'.format(self.event.id, self.id))
+        images = cont.get_objects(prefix='{0}/{1}_'.format(self.event.id, self.id))
 
         # loop through the list and delete them
         for image in images:
