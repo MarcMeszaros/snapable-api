@@ -34,7 +34,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
     class Meta(api.base_v1.resources.PhotoResource.Meta): # set Meta to the public API Meta
         fields = api.base_v1.resources.PhotoResource.Meta.fields + ['metrics'];
         list_allowed_methods = ['get', 'post']
-        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()
         serializer = PhotoSerializer(formats=['json', 'jpeg'])

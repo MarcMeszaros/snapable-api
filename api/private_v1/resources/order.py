@@ -23,7 +23,7 @@ class OrderResource(ModelResource):
         queryset = Order.objects.all()
         fields = ['total_price', 'timestamp', 'payment_gateway_invoice_id', 'print_gateway_invoice_id', 'items', 'shipping', 'paid', 'coupon']
         list_allowed_methods = ['get', 'post']
-        detail_allowed_methods = ['get', 'post', 'put']
+        detail_allowed_methods = ['get', 'post', 'put', 'patch']
         always_return_data = True
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()

@@ -32,7 +32,7 @@ class UserResource(api.base_v1.resources.UserResource):
     class Meta(api.base_v1.resources.UserResource.Meta): # set Meta to the public API Meta
         fields = api.base_v1.resources.UserResource.Meta.fields + ['billing_zip', 'terms']
         list_allowed_methods = ['get', 'post']
-        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         passwordreset_allowed_methods = ['get', 'post']
         authentication = api.auth.ServerAuthentication()
         authorization = api.auth.ServerAuthorization()

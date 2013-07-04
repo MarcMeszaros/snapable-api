@@ -14,7 +14,7 @@ class UserResource(api.base_v1.resources.UserResource):
 
     class Meta(api.base_v1.resources.UserResource.Meta):
         list_allowed_methods = ['get', 'post']
-        detail_allowed_methods = ['get', 'post', 'put']
+        detail_allowed_methods = ['get', 'post', 'put', 'patch']
         authentication = api.auth.DatabaseAuthentication()
         authorization = api.auth.DatabaseAuthorization()
 

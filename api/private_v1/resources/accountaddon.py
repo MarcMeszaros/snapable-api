@@ -14,7 +14,7 @@ class AccountAddonResource(ModelResource):
         queryset = AccountAddon.objects.all()
         fields = ['quantity', 'paid']
         list_allowed_methods = ['get', 'post']
-        detail_allowed_methods = ['get', 'post', 'put', 'delete']
+        detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         always_return_data = True
         filtering = {
             'account': ALL,
