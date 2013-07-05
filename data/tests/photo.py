@@ -3,7 +3,6 @@ from django.test import TestCase
 from data.models import Account
 from data.models import Event
 from data.models import Photo
-from data.models import Type
 
 class PhotoTestCase(TestCase):
     fixtures = ['packages.json', 'accounts_and_users.json', 'events.json']
@@ -19,4 +18,4 @@ class PhotoTestCase(TestCase):
 
     def testCreatePhoto(self):
         """Test to make sure photo is properly created."""
-        self.photo1 = Photo.objects.create(event=self.event, type=Type.objects.get(pk=5))
+        self.photo1 = Photo.objects.create(event=self.event)

@@ -10,5 +10,4 @@ from guest import GuestResource
 from order import OrderResource
 from package import PackageResource
 from photo import PhotoResource
-from type import TypeResource
 from user import UserResource

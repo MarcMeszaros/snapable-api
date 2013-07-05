@@ -93,8 +93,7 @@
     "fields": {
         "event": 2,
         "name": "Bob Example2",
-        "email": "bob.example2@example.com",
-        "type": 1
+        "email": "bob.example2@example.com"
     }
 },
 
@@ -104,7 +103,6 @@
     "fields": {
         "event": 2,
         "guest": 2,
-        "type": 5,
         "caption": "My awesome photo!",
         "timestamp": "2012-10-09T06:34:12Z"
     }

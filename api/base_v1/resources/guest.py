@@ -3,12 +3,10 @@ from tastypie.resources import ALL, ModelResource
 from data.models import Guest
 
 from event import EventResource
-from type import TypeResource
 
 class GuestResource(ModelResource):
 
     event = fields.ForeignKey(EventResource, 'event')
-    type = fields.ForeignKey(TypeResource, 'type')
 
     class Meta:
         queryset = Guest.objects.all()

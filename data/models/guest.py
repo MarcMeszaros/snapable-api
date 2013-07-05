@@ -3,7 +3,6 @@ from django.db import models
 
 # snapable
 from data.models import Event
-from data.models import Type
 
 class Guest(models.Model):
 
@@ -12,7 +11,6 @@ class Guest(models.Model):
         app_label = 'data'
     
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    type = models.ForeignKey(Type, on_delete=models.CASCADE)
 
     name = models.CharField(max_length=255, help_text='The guest name.')
     email = models.CharField(max_length=255, help_text='The guest email address.')
@@ -34,5 +32,4 @@ class Guest(models.Model):
             'event': self.event,
             'name': self.name,
             'photo_count': self.photo_count,
-            'type': self.type,
         })

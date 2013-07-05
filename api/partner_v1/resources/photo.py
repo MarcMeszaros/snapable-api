@@ -18,7 +18,7 @@ import api.base_v1.resources
 
 from api.utils.serializers import PhotoSerializer
 from data.images import SnapImage
-from data.models import Guest, Type
+from data.models import Guest
 from event import EventResource
 from guest import GuestResource
 
@@ -60,11 +60,6 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
     def dehydrate(self, bundle):
         if 'image' in bundle.data:
             del bundle.data['image']
-        return bundle
-
-    def hydrate(self, bundle):
-        bundle.obj.type = Type.objects.get(pk=5)
-
         return bundle
 
     def obj_create(self, bundle, **kwargs):

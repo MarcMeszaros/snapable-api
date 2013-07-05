@@ -11,7 +11,7 @@ from PIL import Image
 # snapable
 from api.utils import Log
 from data.images import SnapImage
-from data.models import Event, Guest, Type
+from data.models import Event, Guest
 
 class Photo(models.Model):
 
@@ -22,7 +22,6 @@ class Photo(models.Model):
     # the model fields
     event = models.ForeignKey(Event)
     guest = models.ForeignKey(Guest, null=True, default=None, on_delete=models.SET_NULL)
-    type = models.ForeignKey(Type)
 
     caption = models.CharField(max_length=255, help_text='The photo caption.')
     streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
