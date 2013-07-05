@@ -2,10 +2,11 @@
 import time
 
 # django/tastypie/libs
-from tastypie.test import ResourceTestCase
+from tastypie.test import ResourceTestCase, TestApiClient
 
 # snapable
 from api.auth.server import ServerAuthentication
+from api.utils.serializers import EventSerializer
 from data.models import Event
 
 class Private_v1__EventResourceTest(ResourceTestCase):
@@ -13,6 +14,8 @@ class Private_v1__EventResourceTest(ResourceTestCase):
 
     def setUp(self):
         super(Private_v1__EventResourceTest, self).setUp()
+        # we need a custom serializer for multipart uploads
+        self.api_client = TestApiClient(serializer=EventSerializer())
         self.api_key = 'key123'
         self.api_secret = 'sec123'
 
@@ -62,6 +65,13 @@ class Private_v1__EventResourceTest(ResourceTestCase):
             'url',
             'user',
         ])
+
+    def test_get_event_cover(self):
+        # this event doesn't have any data in cloud files
+        uri = '/private_v1/event/{0}/'.format(self.event_1.pk)
+        resp = self.api_client.get(uri, format='jpeg', authentication=self.get_credentials('GET', uri))
+
+        self.assertHttpNotFound(resp)
 
     def test_get_events_search(self):
         uri_post = '/private_v1/event/'

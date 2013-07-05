@@ -63,14 +63,20 @@ class EventSerializer(Serializer):
         if (event.cover != 0):
             cover_photo = Photo.objects.get(pk=event.cover)
             snapimg = cover_photo.get_image(size)
-
-            return snapimg.img.tostring('jpeg', 'RGB')
+            
+            if snapimg is None:
+                raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
+            else:
+                return snapimg.img.tostring('jpeg', 'RGB')
         # there is no cover and at least one photo
         elif (event.cover == 0 and photos_count >= 1):
             first_photo = list(Photo.objects.filter(event_id=event.id).order_by('timestamp'))[0]
             snapimg = first_photo.get_image(size)
 
-            return snapimg.img.tostring('jpeg', 'RGB')
+            if snapimg is None:
+                raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
+            else:
+                return snapimg.img.tostring('jpeg', 'RGB')
         # no photo, no cover, return exception
         else:
             raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
