@@ -4,7 +4,7 @@ from tastypie.test import ResourceTestCase
 # snapable
 from api.auth.db_v1 import DatabaseAuthentication
 from api.models import ApiAccount
-from data.models import Address, Event
+from data.models import Event, Location
 
 class Partner_v1__LocationResourceTest(ResourceTestCase):
     fixtures = ['api_accounts_and_keys.json', 'packages.json', 'accounts_and_users.json', 'events.json', 'guests.json']
@@ -16,7 +16,7 @@ class Partner_v1__LocationResourceTest(ResourceTestCase):
 
         self.api_account_1 = ApiAccount.objects.all()[0]
         self.events = Event.objects.filter(account__api_account=self.api_account_1)
-        self.locations = Address.objects.filter(event__account__api_account=self.api_account_1)
+        self.locations = Location.objects.filter(event__account__api_account=self.api_account_1)
         self.location_1 = self.locations[0]
 
         self.post_data = {
@@ -37,7 +37,7 @@ class Partner_v1__LocationResourceTest(ResourceTestCase):
         self.assertValidJSONResponse(resp)
 
         # make sure we have the right number of objects
-        self.assertNotEqual(Address.objects.all().count(), self.locations.count())
+        self.assertNotEqual(Location.objects.all().count(), self.locations.count())
         self.assertEqual(self.deserialize(resp)['meta']['total_count'], self.locations.count())
 
     def test_get_location(self):
@@ -58,11 +58,11 @@ class Partner_v1__LocationResourceTest(ResourceTestCase):
 
     def test_post_location(self):
         uri = '/partner_v1/location/'
-        self.assertEqual(self.events[0].address_set.count(), 1)
+        self.assertEqual(self.events[0].location_set.count(), 1)
         resp = self.api_client.post(uri, data=self.post_data, format='json', authentication=self.get_credentials('POST', uri))
 
         # make sure the we can't add more than one location
         self.assertHttpBadRequest(resp)
-        self.assertEqual(self.events[0].address_set.count(), 1)
+        self.assertEqual(self.events[0].location_set.count(), 1)
 
-        self.assertNotEqual(Address.objects.all().count(), self.locations.count())
+        self.assertNotEqual(Location.objects.all().count(), self.locations.count())

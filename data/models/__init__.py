@@ -12,7 +12,7 @@ from data.models.accountuser import AccountUser # depends: Account, User
 from data.models.event import Event # depends: Account, Package
 
 # fourth level: depends on third level models or below
-from data.models.address import Address # depends: Event
+from data.models.location import Location # depends: Event
 from data.models.guest import Guest # depends: Event
 from data.models.photo import Photo # depends: Event, Guest
 from data.models.order import Order # depends: Account
