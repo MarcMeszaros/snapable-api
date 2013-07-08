@@ -6,7 +6,6 @@ from tastypie.authorization import Authorization
 import api.auth
 import api.base_v1.resources
 
-from data.models import Type
 from event import EventResource
 
 class GuestResource(api.base_v1.resources.GuestResource):
@@ -18,9 +17,3 @@ class GuestResource(api.base_v1.resources.GuestResource):
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         authentication = api.auth.DatabaseAuthentication()
         authorization = api.auth.DatabaseAuthorization()
-
-    def hydrate(self, bundle):
-        type = Type.objects.get(pk=5) # get 'Guest' type
-        bundle.obj.type = type # set the default type for the partner API
-
-        return bundle

@@ -13,7 +13,6 @@ from tastypie.utils.mime import determine_format, build_content_type
 
 from event import EventResource
 from guest import GuestResource
-from type import TypeResource
 
 from data.models import Guest
 
@@ -27,7 +26,6 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
 
     event = fields.ForeignKey(EventResource, 'event')
     guest = fields.ForeignKey(GuestResource, 'guest', null=True) # allow the foreign key to be null
-    type = fields.ForeignKey(TypeResource, 'type')
 
     timestamp = fields.DateTimeField(attribute='timestamp', readonly=True, help_text='The photo timestamp. (UTC)')
 
@@ -57,14 +55,15 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         except ObjectDoesNotExist:
             bundle.data['author_name'] = ''
 
+        ### DEPRECATED/COMPATIBILITY ###
+        bundle.data['type'] = '/private_v1/type/6/'
+
         return bundle
 
     def hydrate(self, bundle):
         # required
         if bundle.data.has_key('event'):
             bundle.obj.event_id = bundle.data['event']
-        if bundle.data.has_key('type'):
-            bundle.obj.type_id = bundle.data['type']
         if bundle.data.has_key('guest'):
             bundle.obj.guest_id = bundle.data['guest']
 

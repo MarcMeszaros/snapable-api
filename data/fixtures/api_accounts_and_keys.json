@@ -36,14 +36,12 @@
     "pk": 2, 
     "model": "data.user", 
     "fields": {
-        "billing_zip": "k1",
-        "creation_date": "2012-07-19T19:25:17+00:00", 
+        "created": "2012-07-19T19:25:17+00:00", 
         "email": "marc@snapable.com",
         "first_name": "Marc",
         "last_access": "2012-07-19T19:25:17+00:00",
         "last_name": "Meszaros",
-        "password": "pbkdf2_sha256$10000$u5Eu61BvBueU$Qx5gGz+FvdaKFxJRBJHmLOE05PkQ2eQ3DriOdhbeSlY=",
-        "terms": 1
+        "password": "pbkdf2_sha256$10000$u5Eu61BvBueU$Qx5gGz+FvdaKFxJRBJHmLOE05PkQ2eQ3DriOdhbeSlY="
     }
 },
 
@@ -93,8 +91,7 @@
     "fields": {
         "event": 2,
         "name": "Bob Example2",
-        "email": "bob.example2@example.com",
-        "type": 1
+        "email": "bob.example2@example.com"
     }
 },
 
@@ -104,7 +101,6 @@
     "fields": {
         "event": 2,
         "guest": 2,
-        "type": 5,
         "caption": "My awesome photo!",
         "timestamp": "2012-10-09T06:34:12Z"
     }

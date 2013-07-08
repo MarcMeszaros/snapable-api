@@ -11,7 +11,7 @@ from PIL import Image
 # snapable
 from api.utils import Log
 from data.images import SnapImage
-from data.models import Event, Guest, Type
+from data.models import Event, Guest
 
 class Photo(models.Model):
 
@@ -22,7 +22,6 @@ class Photo(models.Model):
     # the model fields
     event = models.ForeignKey(Event)
     guest = models.ForeignKey(Guest, null=True, default=None, on_delete=models.SET_NULL)
-    type = models.ForeignKey(Type)
 
     caption = models.CharField(max_length=255, help_text='The photo caption.')
     streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
@@ -44,7 +43,7 @@ class Photo(models.Model):
         cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
         # get all files related to this photo (original + resizes)
-        images = cont.list_objects(prefix='{0}/{1}_'.format(self.event.id, self.id))
+        images = cont.get_objects(prefix='{0}/{1}_'.format(self.event.id, self.id))
 
         # loop through the list and delete them
         for image in images:

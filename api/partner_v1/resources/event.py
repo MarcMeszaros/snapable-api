@@ -93,7 +93,7 @@ class EventResource(api.base_v1.resources.EventResource):
 
         # create a new guest
         user = bundle.obj.account.users.all()[0]
-        guest = Guest(event=bundle.obj, type_id=1, email=user.email, name=user.name)
+        guest = Guest(event=bundle.obj, email=user.email, name=user.name)
         guest.save()
 
         return bundle

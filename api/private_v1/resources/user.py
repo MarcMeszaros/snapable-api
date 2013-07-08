@@ -27,17 +27,17 @@ class UserResource(api.base_v1.resources.UserResource):
     # seems to break on post
     #accounts = fields.ToManyField('api.private_v1.resources.AccountResource', 'user', related_name='account', default=None, blank=True, null=True) #attribute=lambda bundle: Account.objects.filter(admin=bundle.obj))
 
-    creation_date = fields.DateTimeField(attribute='creation_date', readonly=True, help_text='When the user was created. (UTC)')
+    created = fields.DateTimeField(attribute='created', readonly=True, help_text='When the user was created. (UTC)')
 
     class Meta(api.base_v1.resources.UserResource.Meta): # set Meta to the public API Meta
-        fields = api.base_v1.resources.UserResource.Meta.fields + ['billing_zip', 'terms']
+        fields = api.base_v1.resources.UserResource.Meta.fields + []
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         passwordreset_allowed_methods = ['get', 'post']
         authentication = api.auth.ServerAuthentication()
         authorization = api.auth.ServerAuthorization()
         filtering = dict(api.base_v1.resources.UserResource.Meta.filtering, **{
-            'creation_date': ALL,
+            'created': ALL,
         })
 
     def dehydrate(self, bundle):
@@ -61,6 +61,11 @@ class UserResource(api.base_v1.resources.UserResource):
             json_accounts.append('/private_v1/account/'+str(account.id)+'/')
 
         bundle.data['accounts'] = json_accounts
+
+        ### DEPRECATED/COMPATIBILITY ###
+        bundle.data['billing_zip'] = '00000'
+        bundle.data['terms'] = True
+        bundle.data['creation_date'] = bundle.obj.created
 
         return bundle
 

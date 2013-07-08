@@ -42,7 +42,7 @@ class Private_v1__GuestResourceTest(ResourceTestCase):
             'type',
         ])
 
-        self.assertEqual(self.deserialize(resp)['type'], '/private_v1/type/1/')
+        self.assertEqual(self.deserialize(resp)['type'], '/private_v1/type/6/')
 
     def test_post_guest(self):
         uri = '/private_v1/guest/'

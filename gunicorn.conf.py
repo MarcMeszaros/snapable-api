@@ -14,5 +14,5 @@ if 'athena' in socket.gethostname():
 # the gunicorn parameters
 bind = cfg_eth1_address + ':' + cfg_port
 workers = multiprocessing.cpu_count() * 2 + 1
-worker_class = 'gevent' # default: sync; alternate: gevent
+worker_class = 'sync' # default: sync; alternate: gevent
 proc_name = 'snap_api'

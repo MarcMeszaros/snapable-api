@@ -68,6 +68,7 @@ class Private_v1__UserResourceTest(ResourceTestCase):
         self.assertKeys(self.deserialize(resp), [
             'accounts',
             'billing_zip',
+            'created',
             'creation_date',
             'email',
             'first_name',
@@ -90,6 +91,7 @@ class Private_v1__UserResourceTest(ResourceTestCase):
         self.assertKeys(self.deserialize(resp), [
             'accounts',
             'billing_zip',
+            'created',
             'creation_date',
             'email',
             'first_name',
