@@ -77,4 +77,9 @@ class Private_v1__PhotoResourceTest(ResourceTestCase):
 
         # test to make sure all the keys are in the response
         self.assertEqual(data['caption'], put_data['caption'])
-        
+
+    def test_delete_photo(self):
+        uri = '/private_v1/photo/1/'
+        resp = self.api_client.delete(uri, format='json', authentication=self.get_credentials('DELETE', uri))
+
+        self.assertHttpAccepted(resp)

@@ -31,6 +31,7 @@ class EventResource(api.base_v1.resources.EventResource):
     account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
     addons = fields.ManyToManyField('api.private_v1.resources.EventAddonResource', 'eventaddon_set', null=True, full=True)
     addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'address_set', null=True, full=True) 
+    cover = fields.ForeignKey('api.private_v1.resources.PhotoResource', 'cover', null=True)
 
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
@@ -149,11 +150,14 @@ class EventResource(api.base_v1.resources.EventResource):
     def hydrate(self, bundle):
         ### DEPRECATED/COMPATIBILITY ###
         # convert the old type values into "public" flag 
-        if bundle.data.has_key('type'):
+        if 'type' in bundle.data:
             if bundle.data['type'] == '/private_v1/type/6/':
                 bundle.obj.public = True
             else:
                 bundle.obj.public = False
+        # convert cover into a resource link
+        if 'cover' in bundle.data and type(bundle.data['cover']) == int:
+            bundle.obj.cover = Photo.objects.get(pk=bundle.data['cover'])
 
         return bundle
 

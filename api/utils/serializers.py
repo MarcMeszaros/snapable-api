@@ -60,7 +60,7 @@ class EventSerializer(Serializer):
             size = bundle.data['size']
 
         # event cover it is set
-        if (event.cover != 0):
+        if (event.cover != None):
             cover_photo = Photo.objects.get(pk=event.cover)
             snapimg = cover_photo.get_image(size)
             
@@ -69,7 +69,7 @@ class EventSerializer(Serializer):
             else:
                 return snapimg.img.tostring('jpeg', 'RGB')
         # there is no cover and at least one photo
-        elif (event.cover == 0 and photos_count >= 1):
+        elif (event.cover == None and photos_count >= 1):
             first_photo = list(Photo.objects.filter(event_id=event.id).order_by('timestamp'))[0]
             snapimg = first_photo.get_image(size)
 

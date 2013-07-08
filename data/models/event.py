@@ -16,8 +16,7 @@ class Event(models.Model):
 
     account = models.ForeignKey(Account)
     addons = models.ManyToManyField(Addon, through='EventAddon')
-
-    cover = models.IntegerField(default=0, help_text='Integer data. The photo ID of the image to use for the event cover.') # dirty hack... fix this...
+    cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, help_text='The image to use for the event cover.')
 
     start = models.DateTimeField(help_text='Event start time. (UTC)')
     end = models.DateTimeField(help_text='Event end time. (UTC)')
