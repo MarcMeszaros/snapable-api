@@ -21,7 +21,7 @@ class OrderResource(ModelResource):
 
     class Meta:
         queryset = Order.objects.all()
-        fields = ['total_price', 'timestamp', 'payment_gateway_invoice_id', 'print_gateway_invoice_id', 'items', 'shipping', 'paid', 'coupon']
+        fields = ['total_price', 'timestamp', 'payment_gateway_invoice_id', 'items', 'paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
         always_return_data = True
@@ -31,7 +31,6 @@ class OrderResource(ModelResource):
     def dehydrate(self, bundle):
         # small hack required to make the field return as json
         bundle.data['items'] = bundle.obj.items
-        bundle.data['shipping'] = bundle.obj.shipping
 
         return bundle
 
@@ -64,29 +63,6 @@ class OrderResource(ModelResource):
                 raise BadRequest('One or more account addon identifiers does not exist.')
             if type(items['event_addons']) is list and len(items['event_addons']) > 0 and not EventAddon.objects.filter(pk__in=items['event_addons']).exists():
                 raise BadRequest('One or more event addon identifiers does not exist.')
-
-        # check the shipping data if it's set
-        if bundle.data.has_key('shipping'):
-            # get a handle on the shipping details
-            shipping = bundle.data['shipping']
-
-            # make sure it is a JSONObject
-            if type(shipping) is not dict:
-                raise BadRequest('Must be a JSONObject.')
-
-            # make sure the different fields aren't missing
-            if not shipping.has_key('name'):
-                raise BadRequest('Missing "name" parameter.')
-            if not shipping.has_key('street_address'):
-                raise BadRequest('Missing "street_address" parameter.')
-            if not shipping.has_key('city'):
-                raise BadRequest('Missing "city" parameter.')
-            if not shipping.has_key('state'):
-                raise BadRequest('Missing "state" parameter.')
-            if not shipping.has_key('country'):
-                raise BadRequest('Missing "country" parameter.')
-            if not shipping.has_key('zip'):
-                raise BadRequest('Missing "zip" parameter.')
 
         return bundle
 

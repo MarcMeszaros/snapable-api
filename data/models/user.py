@@ -18,9 +18,7 @@ class User(models.Model):
     password = models.CharField(max_length=255, help_text="The user's password parts.")
     first_name = models.CharField(max_length=255, help_text="The user's first name.")
     last_name = models.CharField(max_length=255, help_text="The user's last name.")
-    billing_zip = models.CharField(max_length=11, help_text="The user's billing ZIP/Postal code.")
-    terms = models.BooleanField(default=False, help_text='If the user accespted the Terms Of Service.')
-    creation_date = models.DateTimeField(auto_now_add=True, help_text='When the user was created. (UTC)')
+    created = models.DateTimeField(auto_now_add=True, help_text='When the user was created. (UTC)')
     last_access = models.DateTimeField(auto_now_add=True, help_text='When the user last accessed the system. (UTC)')
     payment_gateway_user_id = models.CharField(max_length=255, null=True, default=None, help_text='The user ID on the payment gateway linked to this user.')
 
@@ -37,12 +35,11 @@ class User(models.Model):
 
     def __unicode__(self):
         return str({
+            'created': self.created,
             'email': self.email,
             'password': self.password,
             'first_name': self.first_name,
             'last_name': self.last_name,
-            'billing_zip': self.billing_zip,
-            'terms': self.terms,
         })
 
     def set_password(self, raw_password, hasher='pbkdf2_sha256'):
