@@ -75,13 +75,12 @@
 
 {
     "pk": 2, 
-    "model": "data.address", 
+    "model": "data.location", 
     "fields": {
         "event": 2,
         "address": "78 George Street, Ottawa, ON",
         "lat": "45.427372",
-        "lng": "-75.691411",
-        "creation_date": "2012-07-21T04:48:10Z"
+        "lng": "-75.691411"
     }
 },
 

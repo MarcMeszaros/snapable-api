@@ -3,7 +3,7 @@ from tastypie.test import ResourceTestCase
 
 # snapable
 from api.auth.server import ServerAuthentication
-from data.models import Address
+from data.models import Location
 
 class Private_v1__AddressResourceTest(ResourceTestCase):
     fixtures = ['packages.json', 'accounts_and_users.json', 'events.json', 'guests.json']
@@ -14,7 +14,7 @@ class Private_v1__AddressResourceTest(ResourceTestCase):
         self.api_key = 'key123'
         self.api_secret = 'sec123'
 
-        self.addresses = Address.objects.all()
+        self.addresses = Location.objects.all()
         self.address_1 = self.addresses[0]
 
         # The data we'll send on POST requests

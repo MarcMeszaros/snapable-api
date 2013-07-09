@@ -52,24 +52,20 @@ class EventSerializer(Serializer):
         event = bundle.obj
         size = 'crop'
 
-        # get the photo count
-        photos_count = Photo.objects.filter(event_id=event.id).count()
-
         # set the size variable
         if (bundle.data != None and 'size' in bundle.data):
             size = bundle.data['size']
 
         # event cover it is set
         if (event.cover != None):
-            cover_photo = Photo.objects.get(pk=event.cover)
-            snapimg = cover_photo.get_image(size)
+            snapimg = event.cover.get_image(size)
             
             if snapimg is None:
                 raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
             else:
                 return snapimg.img.tostring('jpeg', 'RGB')
         # there is no cover and at least one photo
-        elif (event.cover == None and photos_count >= 1):
+        elif (event.cover == None and event.photo_count >= 1):
             first_photo = list(Photo.objects.filter(event_id=event.id).order_by('timestamp'))[0]
             snapimg = first_photo.get_image(size)
 

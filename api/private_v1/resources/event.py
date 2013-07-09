@@ -23,14 +23,14 @@ import api.base_v1.resources
 
 from account import AccountResource
 from api.utils.serializers import EventSerializer
-from data.models import Address, Event, Photo, User
+from data.models import Event, Location, Photo, User
 
 class EventResource(api.base_v1.resources.EventResource):
 
     # relations
     account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
     addons = fields.ManyToManyField('api.private_v1.resources.EventAddonResource', 'eventaddon_set', null=True, full=True)
-    addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'address_set', null=True, full=True) 
+    addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'location_set', null=True, full=True) 
     cover = fields.ForeignKey('api.private_v1.resources.PhotoResource', 'cover', null=True)
 
     # virtual fields
@@ -183,7 +183,7 @@ class EventResource(api.base_v1.resources.EventResource):
             lng_upper = Decimal(request.GET['lng']) + delta_distance
 
             # get addresses
-            addresses = Address.objects.filter(lat__gte=lat_lower, lat__lte=lat_upper, lng__gte=lng_lower, lng__lte=lng_upper)
+            addresses = Location.objects.filter(lat__gte=lat_lower, lat__lte=lat_upper, lng__gte=lng_lower, lng__lte=lng_upper)
             values = addresses.values('event_id')
             values_list = []
             for value in values:

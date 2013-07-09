@@ -23,7 +23,7 @@ import api.base_v1.resources
 
 from account import AccountResource
 from api.utils.serializers import EventSerializer
-from data.models import Account, Address, Event, Guest, Photo, User
+from data.models import Account, Event, Guest, Location, Photo, User
 
 class EventValidation(Validation):
     def is_valid(self, bundle, request=None):
@@ -65,7 +65,7 @@ class EventResource(api.base_v1.resources.EventResource):
 
     # relations
     account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
-    locations = fields.ToManyField('api.partner_v1.resources.LocationResource', 'address_set', null=True, full=True) 
+    locations = fields.ToManyField('api.partner_v1.resources.LocationResource', 'location_set', null=True, full=True) 
 
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
