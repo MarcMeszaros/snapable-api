@@ -2,55 +2,24 @@
 This is the main API code used for Snapable.
 
 # REQUIREMENTS #
-Development is done on Ubuntu 12.04 LTS systems (http://www.ubuntu.com/).
+Development is done on [Ubuntu 12.04 LTS](http://www.ubuntu.com/).
 You can view the library versions developed against in the "requirements.txt" file.
-To install all the libraries at once using pip (http://www.pip-installer.org/).
+To install all the libraries at once using [pip](http://www.pip-installer.org/).
 
-The following are the minimum system requirements:
+System packages required are defined in ``script/dependencies.sh``
 
-* python 2.7+ (http://www.python.org/)
-* ntp 
-* git 
-* make
-* python-dev
-* python-pip
-* libjpeg-dev
-* libwebp-dev
-* libevent-dev
-* libmysqlclient-dev
-
-# INSTALLATION #
-
-## Production Install ##
-The installation assumes that the following steps are executed on a server that meets the requirements.
-The application is set to use the following MySQL credentials by default:
-
-    host: localhost
-    user: root
-    pass: snapable12345
-    db: snapabledb
-
-1. Get the source code.
-2. Setup the migration management via south/django and the "syncdb" command.
-3. Apply the database migrations.
-4. Simply run the application using wsgi. Using gunicorn (http://gunicorn.org/) is recommended.
-
-## Development Install ##
-
-1. Complete the "Production Install"
-2. Run `pip install -r requirements-dev.txt`
-
-## MANUAL INSTALLATION EXAMPLE: ##
+## MANUAL INSTALLATION EXAMPLE ##
 Run the following commands:
 
-    > sudo apt-get install build-essential python python-dev python-pip libmysqlclient-dev libjpeg-dev libevent-dev
+    > git clone git@bitbucket.org:snapable/api.git ~/snapable
+    > sudo bash ~/snapable/script/dependencies.sh
     > sudo pip install --upgrade
     > sudo pip install virtualenv
     > mkdir ~/environments/
     > virtualenv ~/environments/api/
     > cd ~/environments/api/
-    > git clone git@bitbucket.org:snapable/api.git snapable
     > source bin/activate
+    > mv ~/snapable ~/environments/api/
     > cd snapable
     > pip install -r requirements.txt
     > ./manage.py syncdb
@@ -60,19 +29,24 @@ Run the following commands:
 
 # DEVELOPMENT #
 
-## Unit Tests ##
-To run the unit tests, execute:
+## Development Install ##
 
+You need to have [VirtualBox](https://www.virtualbox.org/) installed and [Vagrant](http://www.vagrantup.com/).
+
+1. Run ``vagrant up`` in the root folder, then go have a coffee (this may take a while the first time).
+2. Run ``vagrant ssh`` to connect to the VM
+
+## Unit Tests ##
+To run the unit tests, you first need to log on to the VM using ``vagrant ssh``. Then execute the following commands:
+
+    cd ~/environments/api
+    source bin/activate
+    cd snapable
     ./manage.py test
 
 # CONFIGURATION #
 Below is a sample configuration for the local settings file. It should be placed 
 in the root API source code folder.
-
-    import os
-
-    # set some environment variables
-    os.environ['RACKSPACE_SERVICENET'] = '1' # makes 'python-cloudfiles' use ServiceNet which doesn't cost data transfer usage
 
     # database settings
     DATABASES = {
@@ -87,7 +61,7 @@ in the root API source code folder.
     }
 
     # sendgrid
-    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_HOST = 'smtp.mailgun.org'
     EMAIL_HOST_USER = 'my_user' # only save in local settings
     EMAIL_HOST_PASSWORD = 'my_pass' # only save in local settings
     EMAIL_PORT = 587
@@ -96,12 +70,12 @@ in the root API source code folder.
     # RACKSPACE
     RACKSPACE_USERNAME = 'my_user'
     RACKSPACE_APIKEY = 'my_api_key'
-    RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_images_'
+    RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'mydev_images_'
 
     # sentry/raven
     SENTRY_DSN = 'http://user:pass@host/2'
 
     # API keys
     APIKEY = {
-        'abc123': '123', # production testing key/secret pair
+        'key123': 'sec123', # production testing key/secret pair
     }
