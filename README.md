@@ -71,6 +71,7 @@ in the root API source code folder.
     RACKSPACE_USERNAME = 'my_user'
     RACKSPACE_APIKEY = 'my_api_key'
     RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'mydev_images_'
+    RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = True
 
     # sentry/raven
     SENTRY_DSN = 'http://user:pass@host/2'
