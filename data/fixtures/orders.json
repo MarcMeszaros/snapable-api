@@ -1,0 +1,14 @@
+[
+
+{"pk": 1, "model": "data.order", 
+    "fields": {
+        "account": 1,  
+        "amount": 7900,
+        "amount_refunded": 0,
+        "items": "{}",
+        "timestamp": "2012-07-21T05:05:10+00:00",
+        "user": 1
+    }
+}
+
+]

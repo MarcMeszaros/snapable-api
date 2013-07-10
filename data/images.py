@@ -1,6 +1,5 @@
 # django/tastypie/libs
 from PIL import Image
-from PIL.ExifTags import TAGS
 
 class SnapImage(object):
     """
@@ -12,8 +11,9 @@ class SnapImage(object):
         # read the opject into the wrapper
         if image != None :
             self._img = image
+            self._img.load()
         else:
-            self._img = Image
+            self._img = Image.new()
 
     def __getattr__(self, name):
         if name == 'img':
@@ -25,6 +25,9 @@ class SnapImage(object):
                 return {}
         else:
             return getattr(self._img, name)
+
+    def copy(self):
+        return SnapImage(self._img.copy())
 
     def crop(self, box):
         try:

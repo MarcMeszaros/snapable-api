@@ -1,7 +1,7 @@
 import api.auth
 
 from tastypie import fields
-from tastypie.resources import ModelResource
+from tastypie.resources import ALL, ModelResource
 from data.models import Order
 
 from tastypie.authorization import Authorization
@@ -21,12 +21,15 @@ class OrderResource(ModelResource):
 
     class Meta:
         queryset = Order.objects.all()
-        fields = ['total_price', 'timestamp', 'payment_gateway_invoice_id', 'items', 'paid', 'coupon']
+        fields = ['amount', 'amount_refunded', 'timestamp', 'payment_gateway_invoice_id', 'items', 'paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
         always_return_data = True
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()
+        filtering = {
+            'timestamp': ALL,
+        }
 
     def dehydrate(self, bundle):
         # small hack required to make the field return as json
@@ -34,10 +37,12 @@ class OrderResource(ModelResource):
 
         return bundle
 
-
     def hydrate(self, bundle):
+        if 'total_price' in bundle.data:
+            bundle.data['amount'] = bundle.data['total_price']
+
         # check the items data if it's set
-        if bundle.data.has_key('items'):
+        if 'items' in bundle.data:
             # get a handle on the items
             items = bundle.data['items']
 
@@ -46,11 +51,11 @@ class OrderResource(ModelResource):
                 raise BadRequest('Must be a JSONObject.')
 
             # make sure the 3 different fields aren't missing
-            if not items.has_key('package'):
+            if 'package' not in items:
                 raise BadRequest('Missing "package" identifier.')
-            if not items.has_key('account_addons') or type(items['account_addons']) is not list:
+            if 'account_addons' not in items or type(items['account_addons']) is not list:
                 raise BadRequest('Missing/improperly formated "account_addons" list.')
-            if not items.has_key('event_addons') or type(items['event_addons']) is not list:
+            if 'event_addons' not in items or type(items['event_addons']) is not list:
                 raise BadRequest('Missing/improperly formated "event_addons" list.')
 
             # tweak the data/sanitize it
