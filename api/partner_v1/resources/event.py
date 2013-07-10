@@ -22,7 +22,7 @@ import api.auth
 import api.base_v1.resources
 
 from account import AccountResource
-from api.utils.serializers import EventSerializer
+from api.utils.serializers import SnapSerializer
 from data.models import Account, Event, Guest, Location, Photo, User
 
 class EventValidation(Validation):
@@ -77,7 +77,7 @@ class EventResource(api.base_v1.resources.EventResource):
         authentication = api.auth.DatabaseAuthentication()
         authorization = api.auth.DatabaseAuthorization()
         validation = EventValidation()
-        serializer = EventSerializer(formats=['json', 'jpeg'])
+        serializer = SnapSerializer(formats=['json', 'jpeg'])
         filtering = dict(api.base_v1.resources.EventResource.Meta.filtering, **{
             'enabled': ['exact'],
             'account': ['exact'],

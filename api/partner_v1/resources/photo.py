@@ -16,7 +16,7 @@ import api.auth
 import api.utils
 import api.base_v1.resources
 
-from api.utils.serializers import PhotoSerializer
+from api.utils.serializers import SnapSerializer
 from data.images import SnapImage
 from data.models import Guest
 from event import EventResource
@@ -51,7 +51,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         authentication = api.auth.DatabaseAuthentication()
         authorization = api.auth.DatabaseAuthorization()
         validation = PhotoValidation()
-        serializer = PhotoSerializer(formats=['json', 'jpeg'])
+        serializer = SnapSerializer(formats=['json', 'jpeg'])
         filtering = dict(api.base_v1.resources.PhotoResource.Meta.filtering, **{
             'event': ['exact'],
             'timestamp': ALL,

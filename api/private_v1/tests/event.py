@@ -6,7 +6,7 @@ from tastypie.test import ResourceTestCase, TestApiClient
 
 # snapable
 from api.auth.server import ServerAuthentication
-from api.utils.serializers import EventSerializer
+from api.utils.serializers import SnapSerializer
 from data.models import Event
 
 class Private_v1__EventResourceTest(ResourceTestCase):
@@ -15,7 +15,7 @@ class Private_v1__EventResourceTest(ResourceTestCase):
     def setUp(self):
         super(Private_v1__EventResourceTest, self).setUp()
         # we need a custom serializer for multipart uploads
-        self.api_client = TestApiClient(serializer=EventSerializer())
+        self.api_client = TestApiClient(serializer=SnapSerializer())
         self.api_key = 'key123'
         self.api_secret = 'sec123'
 

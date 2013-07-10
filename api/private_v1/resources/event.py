@@ -22,7 +22,7 @@ import api.auth
 import api.base_v1.resources
 
 from account import AccountResource
-from api.utils.serializers import EventSerializer
+from api.utils.serializers import SnapSerializer
 from data.models import Event, Location, Photo, User
 
 class EventResource(api.base_v1.resources.EventResource):
@@ -43,7 +43,7 @@ class EventResource(api.base_v1.resources.EventResource):
         ordering = api.base_v1.resources.EventResource.Meta.ordering + ['start', 'end']
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()
-        serializer = EventSerializer(formats=['json', 'jpeg'])
+        serializer = SnapSerializer(formats=['json', 'jpeg'])
         filtering = dict(api.base_v1.resources.EventResource.Meta.filtering, **{
             'enabled': ['exact'],
             'account': ['exact'],

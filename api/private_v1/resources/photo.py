@@ -16,7 +16,7 @@ from guest import GuestResource
 
 from data.models import Guest
 
-from api.utils.serializers import PhotoSerializer
+from api.utils.serializers import SnapSerializer
 
 from data.images import SnapImage
 import StringIO
@@ -35,7 +35,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()
-        serializer = PhotoSerializer(formats=['json', 'jpeg'])
+        serializer = SnapSerializer(formats=['json', 'jpeg'])
         filtering = dict(api.base_v1.resources.PhotoResource.Meta.filtering, **{
             'event': ['exact'],
             'streamable': ['exact'],
