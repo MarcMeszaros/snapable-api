@@ -21,7 +21,7 @@ class OrderResource(ModelResource):
 
     class Meta:
         queryset = Order.objects.all()
-        fields = ['total_price', 'timestamp', 'payment_gateway_invoice_id', 'items', 'paid', 'coupon']
+        fields = ['amount', 'amount_refunded', 'timestamp', 'payment_gateway_invoice_id', 'items', 'paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
         always_return_data = True
@@ -34,8 +34,10 @@ class OrderResource(ModelResource):
 
         return bundle
 
-
     def hydrate(self, bundle):
+        if 'total_price' in bundle.data:
+            bundle.data['amount'] = bundle.data['total_price']
+
         # check the items data if it's set
         if 'items' in bundle.data:
             # get a handle on the items
