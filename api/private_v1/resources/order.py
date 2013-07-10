@@ -37,7 +37,7 @@ class OrderResource(ModelResource):
 
     def hydrate(self, bundle):
         # check the items data if it's set
-        if bundle.data.has_key('items'):
+        if 'items' in bundle.data:
             # get a handle on the items
             items = bundle.data['items']
 
@@ -46,11 +46,11 @@ class OrderResource(ModelResource):
                 raise BadRequest('Must be a JSONObject.')
 
             # make sure the 3 different fields aren't missing
-            if not items.has_key('package'):
+            if 'package' not in items:
                 raise BadRequest('Missing "package" identifier.')
-            if not items.has_key('account_addons') or type(items['account_addons']) is not list:
+            if 'account_addons' not in items or type(items['account_addons']) is not list:
                 raise BadRequest('Missing/improperly formated "account_addons" list.')
-            if not items.has_key('event_addons') or type(items['event_addons']) is not list:
+            if 'event_addons' not in items or type(items['event_addons']) is not list:
                 raise BadRequest('Missing/improperly formated "event_addons" list.')
 
             # tweak the data/sanitize it

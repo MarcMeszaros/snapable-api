@@ -137,7 +137,7 @@ class EventResource(api.base_v1.resources.EventResource):
         """
         Override the default create_response method.
         """
-        if (request.META['REQUEST_METHOD'] == 'GET' and request.GET.has_key('size')):
+        if (request.META['REQUEST_METHOD'] == 'GET' and 'size' in request.GET):
             bundle.data['size'] = request.GET['size']
 
         return super(EventResource, self).create_response(request, bundle, response_class=response_class, **response_kwargs)

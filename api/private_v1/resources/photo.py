@@ -50,9 +50,8 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         # try and add the guest name
         try:
             # add the guest name as the photo name
-            guest = Guest.objects.get(pk=bundle.obj.guest_id)
-            bundle.data['author_name'] = guest.name
-        except ObjectDoesNotExist:
+            bundle.data['author_name'] = bundle.obj.guest.name
+        except AttributeError:
             bundle.data['author_name'] = ''
 
         ### DEPRECATED/COMPATIBILITY ###
@@ -62,9 +61,9 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
 
     def hydrate(self, bundle):
         # required
-        if bundle.data.has_key('event'):
+        if 'event' in bundle.data:
             bundle.obj.event_id = bundle.data['event']
-        if bundle.data.has_key('guest'):
+        if 'guest' in bundle.data:
             bundle.obj.guest_id = bundle.data['guest']
 
         return bundle
@@ -85,7 +84,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         Override the default create_response method.
         """
 
-        if (request.META['REQUEST_METHOD'] == 'GET' and request.GET.has_key('size')):
+        if (request.META['REQUEST_METHOD'] == 'GET' and 'size' in request.GET):
             bundle.data['size'] = request.GET['size']
 
         return super(PhotoResource, self).create_response(request, bundle, response_class=response_class, **response_kwargs)

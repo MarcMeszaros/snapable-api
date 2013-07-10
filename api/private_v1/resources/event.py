@@ -164,7 +164,7 @@ class EventResource(api.base_v1.resources.EventResource):
     def get_object_list(self, request):
 
         # only do the lat/lng filtering on a list get request if both values are set
-        if (request.GET.has_key('lat') and request.GET.has_key('lng')):
+        if ('lat' in request.GET and 'lng' in request.GET):
 
             # [(distance(m) / 0.111) * 0.000001] = ratio delta
             # ie: [(25000 / 0.111) * 0.000001] = 0.225225 ~ 25km
@@ -239,7 +239,7 @@ class EventResource(api.base_v1.resources.EventResource):
         """
         Override the default create_response method.
         """
-        if (request.META['REQUEST_METHOD'] == 'GET' and request.GET.has_key('size')):
+        if (request.META['REQUEST_METHOD'] == 'GET' and 'size' in request.GET):
             bundle.data['size'] = request.GET['size']
 
         return super(EventResource, self).create_response(request, bundle, response_class=response_class, **response_kwargs)

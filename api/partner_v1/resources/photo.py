@@ -78,7 +78,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         Override the default create_response method.
         """
 
-        if (request.META['REQUEST_METHOD'] == 'GET' and request.GET.has_key('size')):
+        if (request.META['REQUEST_METHOD'] == 'GET' and 'size' in request.GET):
             bundle.data['size'] = request.GET['size']
 
         return super(PhotoResource, self).create_response(request, bundle, response_class=response_class, **response_kwargs)
