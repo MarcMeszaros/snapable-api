@@ -1,7 +1,7 @@
 import api.auth
 
 from tastypie import fields
-from tastypie.resources import ModelResource
+from tastypie.resources import ALL, ModelResource
 from data.models import Order
 
 from tastypie.authorization import Authorization
@@ -27,6 +27,9 @@ class OrderResource(ModelResource):
         always_return_data = True
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()
+        filtering = {
+            'timestamp': ALL,
+        }
 
     def dehydrate(self, bundle):
         # small hack required to make the field return as json
