@@ -10,9 +10,14 @@ elif ('athena' in socket.gethostname()):
 else:
     broker = 'amqp://192.168.56.102'
 
-celery = Celery('worker.celery',
-                broker=broker,
-                include=['worker.tasks'])
+celery = Celery(
+    'worker.celery',
+    broker=broker,
+    include=[
+        'worker.tasks',
+        'worker.passwordnonce',
+    ]
+)
 
 # Optional configuration, see the application user guide.
 celery.conf.update(

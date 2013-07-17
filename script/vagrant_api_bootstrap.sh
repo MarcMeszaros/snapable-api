@@ -43,8 +43,10 @@ if [ $INSTALLED != '0' ]; then
     debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password password snapable12345'
     debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password_again password snapable12345'
     apt-get -y install mysql-server
-    mysql -u root --password=snapable12345 -e 'CREATE DATABASE snapabledb;'
-    mysql -u root --password=snapable12345 -e 'GRANT ALL PRIVILEGES ON snapabledb.* to root@localhost;'
+    mysql -u root --password=snapable12345 -e "CREATE DATABASE snapabledb;"
+    mysql -u root --password=snapable12345 -e "GRANT ALL PRIVILEGES ON snapabledb.* to root@'192.168.56.%' IDENTIFIED BY 'snapable12345';"
+    sed -i 's/127\.0\.0\.1/0\.0\.0\.0/' /etc/mysql/my.cnf
+    service mysql restart
 fi
 
 # setup the snapable api code

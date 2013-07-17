@@ -6,6 +6,10 @@ import sys
 PROJECT_PATH_INNER = os.path.dirname(__file__)
 PROJECT_PATH = os.path.dirname(PROJECT_PATH_INNER)
 
+# custom imports
+import djcelery
+djcelery.setup_loader()
+
 # create the 'logs' folder(s) if it doesn't already exist
 if not os.path.exists(os.path.join(PROJECT_PATH, 'logs')):
     os.makedirs(os.path.join(PROJECT_PATH, 'logs'))
@@ -28,7 +32,7 @@ DATABASES = {
         'NAME': 'snapabledb',            # Or path to database file if using sqlite3.
         'USER': 'root',                  # Not used with sqlite3.
         'PASSWORD': 'snapable12345',     # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': '192.168.56.101',        # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
@@ -139,6 +143,7 @@ INSTALLED_APPS = (
     # third-party libraries/apps
     'raven.contrib.django',
     'tastypie',
+    'djcelery',
     'south',
 )
 
