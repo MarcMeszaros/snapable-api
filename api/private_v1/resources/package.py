@@ -14,3 +14,10 @@ class PackageResource(api.base_v1.resources.PackageResource):
             'short_name': ALL,
             'enabled': ['exact'],
         }
+
+    def dehydrate(self, bundle):
+
+        ### DEPRECATED/COMPATIBILITY ###
+        bundle.data['price'] = bundle.obj.amount
+
+        return bundle
