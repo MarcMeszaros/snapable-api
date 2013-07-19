@@ -1,6 +1,9 @@
 # django/tastypie/libs
 import stripe
 
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
 from tastypie import fields
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, ImmediateHttpResponse
@@ -127,5 +130,30 @@ class OrderResource(ModelResource):
             addon = EventAddon.objects.get(pk=event_addon)
             addon.paid = True
             addon.save()
+
+        # receipt items
+        receipt_items = {
+            'Snapable Event': 7900/100.0,
+        }
+        total = 7900/100.0
+
+        ## send the receipt ##
+        # load in the templates
+        plaintext = get_template('receipt.txt')
+        html = get_template('receipt.html')
+
+        # setup the template context variables
+        d = Context({
+            'items': receipt_items,
+            'total': total,
+        })
+
+        # build the email
+        subject, from_email, to = 'Your Snapable order has been processed', 'support@snapable.com', [bundle.obj.user.email]
+        text_content = plaintext.render(d)
+        html_content = html.render(d)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.attach_alternative(html_content, "text/html")
+        #msg.send()
 
         return bundle

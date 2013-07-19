@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <h2>Snapable Purchase Receipt</h2>
+    <table border="1" style="width:300px;">
+        <tr><th>Item(s)</th><th>Price</th></tr>
+        {% for name, value in items %}
+        <tr><td>{{ name }}</td><td>${{ value|floatformat:-2 }}</td></tr>
+        {% endfor %}
+    </table>
+    <p>
+        Total: ${{ total|floatformat:-2 }}
+    </p>
+
+    <p>&copy; {% now "Y" %} Snapable</p>
+
+</body>
+</html>
