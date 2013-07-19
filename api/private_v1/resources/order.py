@@ -35,11 +35,17 @@ class OrderResource(ModelResource):
         # small hack required to make the field return as json
         bundle.data['items'] = bundle.obj.items
 
+        ### DEPRECATED/COMPATIBILITY ###
+        bundle.data['price'] = bundle.obj.amount
+
         return bundle
 
     def hydrate(self, bundle):
         if 'total_price' in bundle.data:
             bundle.data['amount'] = bundle.data['total_price']
+
+        if 'payment_gateway_invoice_id' in bundle.data:
+            bundle.data['charge_id'] = bundle.data['payment_gateway_invoice_id']
 
         # check the items data if it's set
         if 'items' in bundle.data:
