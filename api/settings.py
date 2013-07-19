@@ -261,6 +261,9 @@ RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = True
 API_LIMIT_PER_PAGE = 50
 TASTYPIE_DEFAULT_FORMATS = ['json']
 
+# stripe
+STRIPE_KEY_SECRET = '***REMOVED***' # testing
+
 # import local settings
 try:
     os.path.isfile(os.path.join(PROJECT_PATH, 'settings_local.py'))
@@ -274,8 +277,18 @@ pyrax.set_setting('identity_type', 'rackspace')
 pyrax.set_credentials(RACKSPACE_USERNAME, RACKSPACE_APIKEY)
 pyrax.set_default_region('DFW')
 
+# setup stripe
+import stripe
+stripe.api_key = STRIPE_KEY_SECRET
+
 # set debug defaults
 if DEBUG:
+    STRIPE_KEY_SECRET = '***REMOVED***' # testing
+    STRIPE_KEY_PUBLIC = '***REMOVED***' # testing
+
+    # set the stripe key
+    stripe.api_key = STRIPE_KEY_SECRET
+
     # custom test runner
     TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
     # what modules to exclude from the test coverage

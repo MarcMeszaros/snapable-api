@@ -1,18 +1,31 @@
-import api.auth
+# django/tastypie/libs
+import stripe
 
 from tastypie import fields
-from tastypie.resources import ALL, ModelResource
-from data.models import Order
-
 from tastypie.authorization import Authorization
-from tastypie.exceptions import BadRequest
+from tastypie.exceptions import BadRequest, ImmediateHttpResponse
+from tastypie.resources import ALL, ModelResource
+from tastypie.validation import Validation
+
+# snapable
+import api.auth
 
 from account import AccountResource
+from data.models import Account, AccountAddon, EventAddon, Package, Order, User
 from user import UserResource
 
-from data.models import AccountAddon
-from data.models import EventAddon
-from data.models import Package
+class OrderValidation(Validation):
+    def is_valid(self, bundle, request=None):
+        errors = {}
+
+        required = ['account', 'user']
+        for key in required:
+            try:
+                bundle.data[key]
+            except KeyError:
+                errors[key] = 'Missing field'
+
+        return errors
 
 class OrderResource(ModelResource):
 
@@ -21,12 +34,13 @@ class OrderResource(ModelResource):
 
     class Meta:
         queryset = Order.objects.all()
-        fields = ['amount', 'amount_refunded', 'timestamp', 'payment_gateway_invoice_id', 'items', 'paid', 'coupon']
+        fields = ['amount', 'amount_refunded', 'timestamp', 'charge_id', 'items', 'paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
         always_return_data = True
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()
+        validation = OrderValidation()
         filtering = {
             'timestamp': ALL,
         }
@@ -77,8 +91,29 @@ class OrderResource(ModelResource):
 
         return bundle
 
+    def hydrate_stripeToken(self, bundle):
+        bundle.data['stripeToken'] = bundle.data['stripeToken'].strip()
+        return bundle
+
     def obj_create(self, bundle, **kwargs):
         bundle = super(OrderResource, self).obj_create(bundle, **kwargs)
+        
+        if 'stripeToken' in bundle.data and ('amount' in bundle.data and bundle.data['amount'] >= 50):         
+            # Create the charge on Stripe's servers - this will charge the user's card
+            try:
+                charge = stripe.Charge.create(
+                    amount=bundle.data['amount'], # amount in cents, again
+                    currency='usd',
+                    card=bundle.data['stripeToken'],
+                    description='charge to {0}'.format(bundle.obj.user.email)
+                )
+                bundle.obj.charge_id = charge.id
+                bundle.obj.paid = True
+                bundle.obj.save()
+            except stripe.CardError, e:
+                # The card has been declined
+                print e
+                raise ImmediateHttpResponse('Error processing Credit Card')
 
         # loop through account_addons & event_addons and mark as paid
         # mark all the account addons as paid for
