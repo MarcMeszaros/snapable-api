@@ -72,8 +72,8 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
         resp = self.api_client.post(uri, data=self.post_data, format='json', authentication=self.get_credentials('POST', uri))
 
         # make sure it was not created
-        self.assertHttpBadRequest(resp)
-        self.assertEqual(self.accounts[0].event_set.count(), 1)
+        self.assertHttpCreated(resp)
+        self.assertEqual(self.accounts[0].event_set.count(), 2)
 
     def test_post_event_invalid_url(self):
         uri = '/partner_v1/event/'

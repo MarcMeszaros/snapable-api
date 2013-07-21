@@ -21,13 +21,6 @@ class LocationValidation(Validation):
         #    except KeyError:
         #        errors[key] = 'Missing field'
 
-        # make sure there's only one account
-        event_str = bundle.data['event']
-        event_parts = event_str.strip('/').split('/')
-        event = Event.objects.get(pk=event_parts[-1])
-        if event.location_set.count() >= 1:
-            errors['event'] = 'Only one location per event allowed with the partner API.'
-
         return errors
 
 class LocationResource(api.base_v1.resources.AddressResource):
