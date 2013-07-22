@@ -25,7 +25,7 @@ class Event(models.Model):
     url = models.CharField(max_length=255, unique=True, help_text='A "short name" for the event.')
     public = models.BooleanField(default=True, help_text='Is the event considered "public".')
     pin = models.CharField(max_length=255, help_text='Pseudo-random PIN used for private events.')
-    created = models.DateTimeField(auto_now_add=True, help_text='When the event created. (UTC)')
+    created = models.DateTimeField(auto_now_add=True, help_text='When the event was created. (UTC)')
     last_access = models.DateTimeField(auto_now_add=True, help_text='When the event was last accessed. (UTC)')
     access_count = models.IntegerField(default=0)
     enabled = models.BooleanField(help_text='Is the event considered "active" in the system.')

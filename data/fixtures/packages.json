@@ -3,7 +3,7 @@
     "fields": {
         "name": "Free",
         "short_name": "free",
-        "price": 0,
+        "amount": 0,
         "enabled": true,
         "items": {
             "addons": [], 
@@ -19,14 +19,13 @@
     "fields": {
         "name": "Standard", 
         "short_name": "standard", 
-        "price": 7900, 
-        "enabled": true, 
+        "amount": 7900, 
+        "enabled": false, 
         "items": {
             "features": ["guest_reminders", "storage_12months", "table_cards"],
             "addons": [],
             "modifiers": {
-                "price_per_print": 100,
-                "table_cards": 150
+                "price_per_print": 100
             }
         },
         "interval": "year",
@@ -35,47 +34,19 @@
 },
 {"pk": 3, "model": "data.package", 
     "fields": {
-        "name": "Basic", 
-        "short_name": "basic", 
-        "price": 2900, 
+        "name": "Standard", 
+        "short_name": "standard", 
+        "amount": 4900, 
         "enabled": true, 
         "items": {
-            "features": ["guest_reminders", "table_cards"],
+            "features": ["guest_reminders", "storage_12months", "table_cards"],
             "addons": [],
             "modifiers": {
                 "price_per_print": 100
             }
-        }
-    }
-},
-{"pk": 4, "model": "data.package", 
-    "fields": {
-        "name": "Premium", 
-        "short_name": "premium", 
-        "price": 7900, 
-        "enabled": true, 
-        "items": {
-            "features": ["guest_reminders", "table_cards"],
-            "addons": [],
-            "modifiers": {
-                "price_per_print": 100
-            }
-        }
-    }
-},
-{"pk": 5, "model": "data.package", 
-    "fields": {
-        "name": "Professional", 
-        "short_name": "pro", 
-        "price": 12900, 
-        "enabled": true, 
-        "items": {
-            "features": ["guest_reminders", "table_cards"],
-            "addons": [],
-            "modifiers": {
-                "price_per_print": 100
-            }
-        }
+        },
+        "interval": "year",
+        "interval_count": 1
     }
 }
 ]

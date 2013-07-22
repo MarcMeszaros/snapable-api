@@ -1,18 +1,34 @@
+# django/tastypie/libs
+import stripe
+
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
+from tastypie import fields
+from tastypie.authorization import Authorization
+from tastypie.exceptions import BadRequest, ImmediateHttpResponse
+from tastypie.resources import ALL, ModelResource
+from tastypie.validation import Validation
+
+# snapable
 import api.auth
 
-from tastypie import fields
-from tastypie.resources import ALL, ModelResource
-from data.models import Order
-
-from tastypie.authorization import Authorization
-from tastypie.exceptions import BadRequest
-
 from account import AccountResource
+from data.models import Account, AccountAddon, EventAddon, Package, Order, User
 from user import UserResource
 
-from data.models import AccountAddon
-from data.models import EventAddon
-from data.models import Package
+class OrderValidation(Validation):
+    def is_valid(self, bundle, request=None):
+        errors = {}
+
+        required = ['account', 'user']
+        for key in required:
+            try:
+                bundle.data[key]
+            except KeyError:
+                errors[key] = 'Missing field'
+
+        return errors
 
 class OrderResource(ModelResource):
 
@@ -21,12 +37,13 @@ class OrderResource(ModelResource):
 
     class Meta:
         queryset = Order.objects.all()
-        fields = ['amount', 'amount_refunded', 'timestamp', 'payment_gateway_invoice_id', 'items', 'paid', 'coupon']
+        fields = ['amount', 'amount_refunded', 'timestamp', 'charge_id', 'items', 'paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
         always_return_data = True
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()
+        validation = OrderValidation()
         filtering = {
             'timestamp': ALL,
         }
@@ -35,11 +52,17 @@ class OrderResource(ModelResource):
         # small hack required to make the field return as json
         bundle.data['items'] = bundle.obj.items
 
+        ### DEPRECATED/COMPATIBILITY ###
+        bundle.data['price'] = bundle.obj.amount
+
         return bundle
 
     def hydrate(self, bundle):
         if 'total_price' in bundle.data:
             bundle.data['amount'] = bundle.data['total_price']
+
+        if 'payment_gateway_invoice_id' in bundle.data:
+            bundle.data['charge_id'] = bundle.data['payment_gateway_invoice_id']
 
         # check the items data if it's set
         if 'items' in bundle.data:
@@ -71,8 +94,29 @@ class OrderResource(ModelResource):
 
         return bundle
 
+    def hydrate_stripeToken(self, bundle):
+        bundle.data['stripeToken'] = bundle.data['stripeToken'].strip()
+        return bundle
+
     def obj_create(self, bundle, **kwargs):
         bundle = super(OrderResource, self).obj_create(bundle, **kwargs)
+        
+        if 'stripeToken' in bundle.data and ('amount' in bundle.data and bundle.data['amount'] >= 50):         
+            # Create the charge on Stripe's servers - this will charge the user's card
+            try:
+                charge = stripe.Charge.create(
+                    amount=bundle.data['amount'], # amount in cents, again
+                    currency='usd',
+                    card=bundle.data['stripeToken'],
+                    description='charge to {0}'.format(bundle.obj.user.email)
+                )
+                bundle.obj.charge_id = charge.id
+                bundle.obj.paid = True
+                bundle.obj.save()
+            except stripe.CardError, e:
+                # The card has been declined
+                print e
+                raise ImmediateHttpResponse('Error processing Credit Card')
 
         # loop through account_addons & event_addons and mark as paid
         # mark all the account addons as paid for
@@ -86,5 +130,30 @@ class OrderResource(ModelResource):
             addon = EventAddon.objects.get(pk=event_addon)
             addon.paid = True
             addon.save()
+
+        # receipt items
+        receipt_items = {
+            'Snapable Event': 7900/100.0,
+        }
+        total = 7900/100.0
+
+        ## send the receipt ##
+        # load in the templates
+        plaintext = get_template('receipt.txt')
+        html = get_template('receipt.html')
+
+        # setup the template context variables
+        d = Context({
+            'items': receipt_items,
+            'total': total,
+        })
+
+        # build the email
+        subject, from_email, to = 'Your Snapable order has been processed', 'support@snapable.com', [bundle.obj.user.email]
+        text_content = plaintext.render(d)
+        html_content = html.render(d)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.attach_alternative(html_content, "text/html")
+        #msg.send()
 
         return bundle

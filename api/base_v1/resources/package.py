@@ -7,7 +7,7 @@ class PackageResource(ModelResource):
         fields = [
             'short_name', 
             'name', 
-            'price', 
+            'amount', 
             'items',
             'interval',
             'interval_count',

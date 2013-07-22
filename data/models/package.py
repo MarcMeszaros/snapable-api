@@ -9,7 +9,7 @@ class Package(models.Model):
 
     short_name = models.CharField(max_length=255, help_text='The package short name.')
     name = models.CharField(max_length=255, help_text='The package long name.')
-    price = models.IntegerField(help_text='The package price. (CENTS)')
+    amount = models.IntegerField(help_text='The package price. (CENTS)')
     enabled = models.BooleanField(help_text='If the package is enabled.')
     items = JSONField(help_text='The items included in the package.')
     interval = models.CharField(max_length=5, null=True, default=None, help_text='The interval type for the package. (NULL/day/month/year)') # day, month, year
@@ -20,5 +20,5 @@ class Package(models.Model):
         return str({
             'enabled': self.enabled,
             'name': self.name,
-            'price': self.price,
+            'amount': self.amount,
         })

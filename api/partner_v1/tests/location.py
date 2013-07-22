@@ -62,7 +62,7 @@ class Partner_v1__LocationResourceTest(ResourceTestCase):
         resp = self.api_client.post(uri, data=self.post_data, format='json', authentication=self.get_credentials('POST', uri))
 
         # make sure the we can't add more than one location
-        self.assertHttpBadRequest(resp)
-        self.assertEqual(self.events[0].location_set.count(), 1)
+        self.assertHttpCreated(resp)
+        self.assertEqual(self.events[0].location_set.count(), 2)
 
         self.assertNotEqual(Location.objects.all().count(), self.locations.count())

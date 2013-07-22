@@ -18,7 +18,7 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
         self.api_key = 'key123'
         self.api_secret = 'sec123'
 
-        self.post_data = {
+        self.post_data_1 = {
             'total_price': 7900,
             'account': '/private_v1/account/1/',
             'user': '/private_v1/user/1/',
@@ -36,28 +36,31 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
 
     def test_post_order(self):
         uri = '/private_v1/order/'
-        resp = self.api_client.post(uri, data=self.post_data, format='json', authentication=self.get_credentials('POST', uri))
+        resp = self.api_client.post(uri, data=self.post_data_1, format='json', authentication=self.get_credentials('POST', uri))
         data = self.deserialize(resp)
 
         # make sure the resource was created
         self.assertHttpCreated(resp)
 
         # test to make sure all the keys are in the response
-        self.assertTrue(len(self.deserialize(resp)) >= len([
+        self.assertKeys(self.deserialize(resp), [
             'account',
             'amount',
             'amount_refunded',
+            'charge_id',
             'coupon',
             'items',
             'paid',
             'payment_gateway_invoice_id',
+            'price',
             'resource_uri',
             'timestamp',
+            'total_price',
             'user',
-        ]))
+        ])
 
         # make sure the ammount is correct
-        self.assertEqual(data['amount'], self.post_data['total_price'])
+        self.assertEqual(data['amount'], self.post_data_1['total_price'])
 
     def test_delete_order(self):
         uri = '/private_v1/order/1/'

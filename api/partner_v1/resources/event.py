@@ -36,13 +36,6 @@ class EventValidation(Validation):
             except KeyError:
                 errors[key] = 'Missing field'
 
-        # make sure there's only one account
-        acc_str = bundle.data['account']
-        acc_parts = acc_str.strip('/').split('/')
-        account = Account.objects.get(pk=acc_parts[-1])
-        if bundle.request.META['REQUEST_METHOD'] == 'POST' and account.event_set.count() >= 1:
-            errors['account'] = 'Only one event per account allowed with the partner API.'
-
         # check the url
         url_str = bundle.data['url']
         if len(url_str) < 6:

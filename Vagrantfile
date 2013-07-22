@@ -8,22 +8,30 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "precise64"
-  config.vm.provision :shell, :path => "script/dependencies.sh"
-  config.vm.provision :shell, :path => "script/vagrant_bootstrap.sh"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
   config.vm.box_url = "http://files.vagrantup.com/precise64.box"
-
-  # Create a private network, which allows host-only access to the machine
-  # using a specific IP.
-  config.vm.network :private_network, ip: "192.168.56.101"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   config.vm.provider :virtualbox do |vb|
     # Use VBoxManage to customize the VM. For example to change memory:
     vb.customize ["modifyvm", :id, "--memory", "512"]
+  end
+
+  config.vm.define :api do |api|
+    config.vm.hostname = 'api'
+    config.vm.network :private_network, ip: "192.168.56.101"
+    config.vm.provision :shell, :path => "script/api_dependencies.sh"
+    config.vm.provision :shell, :path => "script/vagrant_api_bootstrap.sh"
+  end
+
+  config.vm.define :worker do |worker|
+    config.vm.hostname = 'worker'
+    config.vm.network :private_network, ip: "192.168.56.102"
+    config.vm.provision :shell, :path => "script/worker_dependencies.sh"
+    config.vm.provision :shell, :path => "script/vagrant_worker_bootstrap.sh"
   end
 
 end
