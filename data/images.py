@@ -75,3 +75,14 @@ class SnapImage(object):
             return True
         except Exception as e:
             return False
+
+    def watermark(self, watermark):
+        try:
+            layer = Image.new("RGBA", self._img.size)
+            pos = (self._img.size[0]-watermark.size[0], self._img.size[1]-watermark.size[1])
+            layer.paste(watermark, pos)
+            self._img = Image.composite(layer, self._img, layer)
+          
+            return True
+        except Exception as e:
+            return False
