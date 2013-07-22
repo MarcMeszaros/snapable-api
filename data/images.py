@@ -1,5 +1,5 @@
 # django/tastypie/libs
-from PIL import Image
+from PIL import Image, ImageEnhance
 
 class SnapImage(object):
     """
@@ -76,13 +76,16 @@ class SnapImage(object):
         except Exception as e:
             return False
 
-    def watermark(self, watermark):
+    def watermark(self, watermark, opacity):
         try:
             layer = Image.new("RGBA", self._img.size)
             pos = (self._img.size[0]-watermark.size[0], self._img.size[1]-watermark.size[1])
+            alpha = watermark.split()[3]
+            alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
+            watermark.putalpha(alpha)
             layer.paste(watermark, pos)
             self._img = Image.composite(layer, self._img, layer)
-          
+     
             return True
         except Exception as e:
             return False
