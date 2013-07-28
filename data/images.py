@@ -76,10 +76,30 @@ class SnapImage(object):
         except Exception as e:
             return False
 
-    def watermark(self, watermark, opacity):
+    def watermark(self, watermark, opacity=0.75, corner=2):
+        # validate the input
+        if opacity < 0:
+            opacity = 0
+        if opacity > 1.0:
+            opacity = 1.0
+
         try:
             layer = Image.new("RGBA", self._img.size)
-            pos = (self._img.size[0]-watermark.size[0], self._img.size[1]-watermark.size[1])
+
+            # top right
+            if corner == 1:
+                pos = (self._img.size[0]-watermark.size[0], 0)
+            # bottom right
+            elif corner == 2:
+                pos = (self._img.size[0]-watermark.size[0], self._img.size[1]-watermark.size[1])
+            # bottom left
+            elif corner == 3:
+                pos = (0, self._img.size[1]-watermark.size[1])
+            # top left
+            else:
+                pos = (0, 0)
+
+            # set/get other properties
             alpha = watermark.split()[3]
             alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
             watermark.putalpha(alpha)
