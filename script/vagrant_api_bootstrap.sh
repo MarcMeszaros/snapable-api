@@ -7,7 +7,7 @@ if [ ! -f ~/vagrant_api_bootstrap ]; then
     echo "| Update the System |"
     echo "+-------------------+"
     echo ""
-    #apt-get -y upgrade
+    DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
     # include extra dependecies
     pip install supervisor virtualenv
 fi
@@ -70,7 +70,10 @@ su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manag
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py migrate data'
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py migrate api'
 
-if [ ! -f ~/vagrant_api_bootstrap ]; then
+if [ -f ~/vagrant_api_bootstrap ]; then
+    # restart supervisort
+    su - vagrant -c 'supervisorctl restart snap_api'
+else
     # setup supervisor
     su - vagrant -c 'cp -f /vagrant/script/vagrant_snap_api.conf ~/supervisor/snap_api.conf'
     su - vagrant -c 'supervisorctl update'
