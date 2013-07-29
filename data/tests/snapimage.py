@@ -171,7 +171,7 @@ class SnapImageTestCase(TestCase):
         snapimg_lenna = SnapImage(image=self.img_lenna)
 
         # add watermark
-        snapimg_lenna.watermark(self.img_logo, 0.9)
+        snapimg_lenna.watermark(self.img_logo, opacity=0.9, resize=0.075)
 
         # save image
         filepath_lenna = os.path.join(settings.PROJECT_PATH, 'api', 'assets', '%s_test_watermark.jpg' % self.file_basename_lenna)
