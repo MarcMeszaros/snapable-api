@@ -99,7 +99,7 @@ class Photo(models.Model):
         else:
             raise Exception('No Photo ID and/or Event ForeignKey specified.')
 
-    def save_image(self, image, orig=False):
+    def save_image(self, image, orig=False, watermark=False):
         """
         Save the SnapImage to CloudFiles.
         """
@@ -122,6 +122,12 @@ class Photo(models.Model):
             try:
                 obj = cont.store_object('{0}/{1}_orig.jpg'.format(self.event.id, self.id), image.img.tostring('jpeg', 'RGB'))
                 image.crop_square()
+
+                # add watermark as required to the crop version
+                if watermark is not None and watermark != False:
+                    image.watermark(watermark)
+
+                # save the image
                 obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.tostring('jpeg', 'RGB'))
             except pyrax.exceptions.NoSuchContainer as e:
                 return None

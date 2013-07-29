@@ -1,8 +1,13 @@
 # python
 import random
+import StringIO
 
 # django/tastypie/libs
+import pyrax
+
+from django.conf import settings
 from django.db import models
+from PIL import Image
 
 # snapable
 from data.models import Account
@@ -29,6 +34,7 @@ class Event(models.Model):
     last_access = models.DateTimeField(auto_now_add=True, help_text='When the event was last accessed. (UTC)')
     access_count = models.IntegerField(default=0)
     enabled = models.BooleanField(help_text='Is the event considered "active" in the system.')
+    watermark = models.BooleanField(default=False, help_text='Should a watermark be applied to non-original images.')
 
     # virtual properties #
     # return the number of photos related to this event
@@ -61,3 +67,35 @@ class Event(models.Model):
             self.pin = str(random.randint(1000, 9999)) # random int between 1000 and 9999 (inclusive)
 
         return super(Event, self).save(*args, **kwargs)
+
+        # helper functions for the image storage
+    def get_watermark(self):
+        """
+        Get the watermark from Cloud Files.
+        """
+        #connect to container
+        try:
+            conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
+            cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
+
+            # get the watermark image
+            obj = cont.get_object('{0}.png'.format(self.pk))
+            image = Image.open(StringIO.StringIO(obj.get()))
+            return image
+
+        except pyrax.exceptions.NoSuchObject as e:
+            return None
+        except pyrax.exceptions.NoSuchContainer as e:
+            return None
+
+    def save_watermark(self, image):
+        """
+        Save the SnapImage to CloudFiles.
+        """
+        conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
+        cont = None
+        try:
+            cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
+            obj = cont.store_object('{0}.png'.format(self.pk), image.img.tobytes('png'))
+        except:
+            return None
