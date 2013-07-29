@@ -76,23 +76,29 @@ class SnapImage(object):
         except Exception as e:
             return False
 
-    def watermark(self, watermark, opacity=0.75, resize=0.075, corner=2):
+    def watermark(self, watermark, opacity=0.75, resize=0.5, corner=2):
         # validate opacity
-        if opacity < 0:
-            opacity = 0
+        if opacity <= 0:
+            opacity = 0.1
         if opacity > 1.0:
             opacity = 1.0
         # validate resize
-        if resize < 0:
-            resize = 0
+        if resize <= 0:
+            resize = 0.1
         if resize > 1.0:
             resize = 1.0
 
         try:
-            #Resize relative to original photo (0-1)
-            ratio = (float)(self._img.size[0]*self._img.size[1])/(float)(watermark.size[0]*watermark.size[1])
-            resize_factor = ratio*resize
-            watermark = watermark.resize(((int)(resize_factor*watermark.size[0]),(int)(resize_factor*watermark.size[1])), Image.ANTIALIAS)
+            # get the target size (image * resize)
+            target_size = ((self._img.size[0] * resize), (self._img.size[1] * resize))
+
+            # get target scaling ratios
+            scale_x = float(target_size[0]) / float(watermark.size[0])
+            scale_y = float(target_size[1]) / float(watermark.size[1])
+            scale = min(scale_x, scale_y) # figure out the smallest scaling value (ie. fit inside target size)
+
+            # resize watermark image based on saling ration
+            watermark = watermark.resize((int(scale * watermark.size[0]), int(scale * watermark.size[1])), Image.ANTIALIAS)
 
             #Opacity
             layer = Image.new("RGBA", self._img.size)
