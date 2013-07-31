@@ -1,6 +1,7 @@
 # python
-import random
 import cStringIO
+import os
+import random
 
 # django/tastypie/libs
 import pyrax
@@ -73,14 +74,12 @@ class Event(models.Model):
         """
         Get the watermark from Cloud Files.
         """
-        #connect to container
         try:
-            conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
-            cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
-
-            # get the watermark image
             # check the partner API account first
-            if self.event.account.api_account is not None:
+            if self.account.api_account is not None:
+                conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
+                cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
+
                 # try and get watermark image
                 obj = cont.get_object('{0}.png'.format(self.account.api_account.pk))
                 watermark = Image.open(cStringIO.StringIO(obj.get()))
