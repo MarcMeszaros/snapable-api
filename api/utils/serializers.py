@@ -1,6 +1,5 @@
 # python
 import mimetypes
-import StringIO
 
 # django/tastypie/libs
 from django.conf import settings
@@ -33,7 +32,7 @@ class SnapSerializer(Serializer):
                 size = bundle.data['size']
             try:
                 snapimg = photo.get_image(size)
-                return snapimg.img.tostring('jpeg', 'RGB')
+                return snapimg.img.tobytes('jpeg', 'RGB')
             except Exception as e:
                 photo.delete() # is there really a point to keep metadata for something without a photo
                 raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
@@ -58,7 +57,7 @@ class SnapSerializer(Serializer):
                 if snapimg is None:
                     raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
                 else:
-                    return snapimg.img.tostring('jpeg', 'RGB')
+                    return snapimg.img.tobytes('jpeg', 'RGB')
             # no photo, no cover, return exception
             else:
                 raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())

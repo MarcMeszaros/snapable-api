@@ -1,6 +1,6 @@
 # python
 import random
-import StringIO
+import cStringIO
 
 # django/tastypie/libs
 import pyrax
@@ -80,7 +80,7 @@ class Event(models.Model):
 
             # get the watermark image
             obj = cont.get_object('{0}.png'.format(self.pk))
-            image = Image.open(StringIO.StringIO(obj.get()))
+            image = Image.open(cStringIO.StringIO(obj.get()))
             return image
 
         except pyrax.exceptions.NoSuchObject as e:
