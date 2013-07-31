@@ -20,7 +20,7 @@ from data.models import Guest
 from api.utils.serializers import SnapSerializer
 
 from data.images import SnapImage
-import StringIO
+import cStringIO
 from PIL import Image
 
 class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoResource):
@@ -73,19 +73,20 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         bundle = super(PhotoResource, self).obj_create(bundle, **kwargs)
         photo = bundle.obj
 
-        img = Image.open(StringIO.StringIO(bundle.data['image'].read()))
+        img = Image.open(cStringIO.StringIO(bundle.data['image'].read()))
         snapimg = SnapImage(img)
 
         # try and watermark
         if photo.event.watermark == True:
             try:
+                watermark = None
                 # check the partner API account first
-                if photo.event.account.api_account != None:
+                if photo.event.account.api_account is not None:
                     # try and get watermark image
                     watermark = photo.event.get_watermark()
 
                 # no partner account, use the built-in Snapable watermark
-                elif photo.event.account.api_account == None and photo.event.account.package == None: 
+                elif photo.event.account.api_account is None:
                     # fallback to the snapable one
                     filepath_logo = os.path.join(settings.PROJECT_PATH, 'api', 'assets', 'logo.png')
                     watermark = Image.open(filepath_logo)
@@ -93,7 +94,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
                 # save the image to cloudfiles
                 photo.save_image(snapimg, True, watermark=watermark)
 
-            except:
+            except Exception as e:
                 # save the image to cloudfiles
                 photo.save_image(snapimg, True)
 
