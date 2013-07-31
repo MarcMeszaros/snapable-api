@@ -115,12 +115,20 @@ class Photo(models.Model):
             width, height = image.img.size
             size = '{0}x{1}'.format(width, height)
             try:
-                obj = cont.store_object('{0}/{1}_{2}.jpeg'.format(self.event.id, self.id, size), image.img.tostring('jpeg', 'RGB'))
+                # check the image color mode (convert to RGB as required)
+                if image.mode == 'RGB':
+                    obj = cont.store_object('{0}/{1}_{2}.jpeg'.format(self.event.id, self.id, size), image.img.tostring('jpeg', 'RGB'))
+                else:
+                    obj = cont.store_object('{0}/{1}_{2}.jpeg'.format(self.event.id, self.id, size), image.img.convert('RGB').tostring('jpeg', 'RGB'))
             except pyrax.exceptions.NoSuchContainer as e:
                 return None
         else:
             try:
-                obj = cont.store_object('{0}/{1}_orig.jpg'.format(self.event.id, self.id), image.img.tostring('jpeg', 'RGB'))
+                # check the image color mode (convert to RGB as required)
+                if image.mode == 'RGB':
+                    obj = cont.store_object('{0}/{1}_orig.jpg'.format(self.event.id, self.id), image.img.tostring('jpeg', 'RGB'))
+                else:
+                    obj = cont.store_object('{0}/{1}_orig.jpg'.format(self.event.id, self.id), image.img.convert('RGB').tostring('jpeg', 'RGB'))
                 image.crop_square()
 
                 # add watermark as required to the crop version
@@ -128,6 +136,10 @@ class Photo(models.Model):
                     image.watermark(watermark)
 
                 # save the image
-                obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.tostring('jpeg', 'RGB'))
+                # check the image color mode (convert to RGB as required)
+                if image.mode == 'RGB':
+                    obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.tostring('jpeg', 'RGB'))
+                else:
+                    obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.convert('RGB').tostring('jpeg', 'RGB'))
             except pyrax.exceptions.NoSuchContainer as e:
                 return None
