@@ -79,19 +79,8 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         # try and watermark
         if photo.event.watermark == True:
             try:
-                watermark = None
-                # check the partner API account first
-                if photo.event.account.api_account is not None:
-                    # try and get watermark image
-                    watermark = photo.event.get_watermark()
-
-                # no partner account, use the built-in Snapable watermark
-                elif photo.event.account.api_account is None:
-                    # fallback to the snapable one
-                    filepath_logo = os.path.join(settings.PROJECT_PATH, 'api', 'assets', 'logo.png')
-                    watermark = Image.open(filepath_logo)
-
                 # save the image to cloudfiles
+                watermark = photo.event.get_watermark()
                 photo.save_image(snapimg, True, watermark=watermark)
 
             except Exception as e:

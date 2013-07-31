@@ -79,9 +79,18 @@ class Event(models.Model):
             cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
 
             # get the watermark image
-            obj = cont.get_object('{0}.png'.format(self.pk))
-            image = Image.open(cStringIO.StringIO(obj.get()))
-            return image
+            # check the partner API account first
+            if self.event.account.api_account is not None:
+                # try and get watermark image
+                obj = cont.get_object('{0}.png'.format(self.account.api_account.pk))
+                watermark = Image.open(cStringIO.StringIO(obj.get()))
+                return watermark
+
+            # no partner account, use the built-in Snapable watermark
+            else:
+                filepath_logo = os.path.join(settings.PROJECT_PATH, 'api', 'assets', 'logo.png')
+                snap_watermark = Image.open(filepath_logo)
+                return snap_watermark
 
         except pyrax.exceptions.NoSuchObject as e:
             return None
@@ -89,13 +98,4 @@ class Event(models.Model):
             return None
 
     def save_watermark(self, image):
-        """
-        Save the SnapImage to CloudFiles.
-        """
-        conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
-        cont = None
-        try:
-            cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
-            obj = cont.store_object('{0}.png'.format(self.pk), image.img.tobytes('png'))
-        except:
-            return None
+        pass
