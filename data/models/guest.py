@@ -14,6 +14,7 @@ class Guest(models.Model):
 
     name = models.CharField(max_length=255, help_text='The guest name.')
     email = models.CharField(max_length=255, help_text='The guest email address.')
+    invited = models.BooleanField(default=False, help_text='If the guest has been invited.')
 
     # virtual properties #
     # return the number of photos related to this event
@@ -30,6 +31,7 @@ class Guest(models.Model):
         return str({
             'email': self.email,
             'event': self.event,
+            'invited': self.invited,
             'name': self.name,
             'photo_count': self.photo_count,
         })
