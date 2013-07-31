@@ -1,6 +1,7 @@
 import api.auth
 import api.utils
 import api.base_v1.resources
+import os
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -19,7 +20,7 @@ from data.models import Guest
 from api.utils.serializers import SnapSerializer
 
 from data.images import SnapImage
-import StringIO
+import cStringIO
 from PIL import Image
 
 class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoResource):
@@ -70,11 +71,25 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
 
     def obj_create(self, bundle, **kwargs):
         bundle = super(PhotoResource, self).obj_create(bundle, **kwargs)
+        photo = bundle.obj
 
-        # save the image to the database
-        img = Image.open(StringIO.StringIO(bundle.data['image'].read()))
+        img = Image.open(cStringIO.StringIO(bundle.data['image'].read()))
         snapimg = SnapImage(img)
-        bundle.obj.save_image(snapimg, True)
+
+        # try and watermark
+        if photo.event.watermark == True:
+            try:
+                # save the image to cloudfiles
+                watermark = photo.event.get_watermark()
+                photo.save_image(snapimg, True, watermark=watermark)
+
+            except Exception as e:
+                # save the image to cloudfiles
+                photo.save_image(snapimg, True)
+
+        else:
+            # save the image to cloudfiles
+            photo.save_image(snapimg, True)
 
         return bundle
 

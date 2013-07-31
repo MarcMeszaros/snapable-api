@@ -1,8 +1,14 @@
 # python
+import cStringIO
+import os
 import random
 
 # django/tastypie/libs
+import pyrax
+
+from django.conf import settings
 from django.db import models
+from PIL import Image
 
 # snapable
 from data.models import Account
@@ -29,6 +35,7 @@ class Event(models.Model):
     last_access = models.DateTimeField(auto_now_add=True, help_text='When the event was last accessed. (UTC)')
     access_count = models.IntegerField(default=0)
     enabled = models.BooleanField(help_text='Is the event considered "active" in the system.')
+    watermark = models.BooleanField(default=False, help_text='Should a watermark be applied to non-original images.')
 
     # virtual properties #
     # return the number of photos related to this event
@@ -61,3 +68,33 @@ class Event(models.Model):
             self.pin = str(random.randint(1000, 9999)) # random int between 1000 and 9999 (inclusive)
 
         return super(Event, self).save(*args, **kwargs)
+
+        # helper functions for the image storage
+    def get_watermark(self):
+        """
+        Get the watermark from Cloud Files.
+        """
+        try:
+            # check the partner API account first
+            if self.account.api_account is not None:
+                conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
+                cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
+
+                # try and get watermark image
+                obj = cont.get_object('{0}.png'.format(self.account.api_account.pk))
+                watermark = Image.open(cStringIO.StringIO(obj.get()))
+                return watermark
+
+            # no partner account, use the built-in Snapable watermark
+            else:
+                filepath_logo = os.path.join(settings.PROJECT_PATH, 'api', 'assets', 'logo.png')
+                snap_watermark = Image.open(filepath_logo)
+                return snap_watermark
+
+        except pyrax.exceptions.NoSuchObject as e:
+            return None
+        except pyrax.exceptions.NoSuchContainer as e:
+            return None
+
+    def save_watermark(self, image):
+        pass

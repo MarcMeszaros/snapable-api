@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
 # update the vm
-echo ""
-echo "+-------------------+"
-echo "| Update the System |"
-echo "+-------------------+"
-echo ""
-#apt-get -y upgrade
-# include extra dependecies
-pip install supervisor virtualenv
+if [ ! -f ~/vagrant_api_bootstrap ]; then
+    echo ""
+    echo "+-------------------+"
+    echo "| Update the System |"
+    echo "+-------------------+"
+    echo ""
+    DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+    # include extra dependecies
+    pip install supervisor virtualenv
+fi
 
 # setup the supervisor configs
 if [ ! -f /etc/supervisord.conf ]; then
@@ -67,6 +69,15 @@ su - vagrant -c '~/environments/api/bin/pip install -v -r /vagrant/requirements-
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py syncdb'
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py migrate data'
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py migrate api'
-# setup supervisor
-su - vagrant -c 'cp -f /vagrant/script/vagrant_snap_api.conf ~/supervisor/snap_api.conf'
-su - vagrant -c 'supervisorctl update'
+
+if [ -f ~/vagrant_api_bootstrap ]; then
+    # restart supervisort
+    su - vagrant -c 'supervisorctl restart snap_api'
+else
+    # setup supervisor
+    su - vagrant -c 'cp -f /vagrant/script/vagrant_snap_api.conf ~/supervisor/snap_api.conf'
+    su - vagrant -c 'supervisorctl update'
+fi
+
+# touch a file to know that the setup is done
+touch ~/vagrant_api_bootstrap

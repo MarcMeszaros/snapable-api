@@ -27,7 +27,8 @@ docs/build/*
 # Testing #
 ###########
 .coverage
-trashcat_*_test*
+trashcat_*test*
+lenna_*test*
 
 # Vagrant #
 ###########

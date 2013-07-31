@@ -18,6 +18,7 @@ class SnapImageTestCase(TestCase):
         self.file_basename_3 = 'trashcat_3'
         self.file_basename_6 = 'trashcat_6'
         self.file_basename_8 = 'trashcat_8'
+        self.file_basename_lenna = 'lenna'
 
         # generate filename
         filename_1 = '%s.jpg' % self.file_basename_1
@@ -25,6 +26,8 @@ class SnapImageTestCase(TestCase):
         filename_6 = '%s.jpg' % self.file_basename_6
         filename_8 = '%s.jpg' % self.file_basename_8
         filename_normalized = 'trashcat_normalized.jpg'
+        filename_logo = 'logo.png'
+        filename_lenna = 'lenna.png'
 
         # get the filepath
         filepath_1 = os.path.join(settings.PROJECT_PATH, 'api', 'assets', filename_1)
@@ -32,6 +35,8 @@ class SnapImageTestCase(TestCase):
         filepath_6 = os.path.join(settings.PROJECT_PATH, 'api', 'assets', filename_6)
         filepath_8 = os.path.join(settings.PROJECT_PATH, 'api', 'assets', filename_8)
         filepath_normalized = os.path.join(settings.PROJECT_PATH, 'api', 'assets', filename_normalized)
+        filepath_logo = os.path.join(settings.PROJECT_PATH, 'api', 'assets', filename_logo)
+        filepath_lenna = os.path.join(settings.PROJECT_PATH, 'api', 'assets', filename_lenna)
 
         # get the image
         self.img_1 = Image.open(filepath_1)
@@ -39,6 +44,8 @@ class SnapImageTestCase(TestCase):
         self.img_6 = Image.open(filepath_6)
         self.img_8 = Image.open(filepath_8)
         self.img_normalized = Image.open(filepath_normalized)
+        self.img_logo = Image.open(filepath_logo)
+        self.img_lenna = Image.open(filepath_lenna)
 
     def test_image_exists(self):
         # make sure it's not null
@@ -159,4 +166,13 @@ class SnapImageTestCase(TestCase):
         snapimg_3.img.save(filepath_3, 'JPEG')
         snapimg_6.img.save(filepath_6, 'JPEG')
         snapimg_8.img.save(filepath_8, 'JPEG')
-        
+
+    def test_image_watermark(self):
+        snapimg_lenna = SnapImage(image=self.img_lenna)
+
+        # add watermark
+        snapimg_lenna.watermark(self.img_logo, opacity=0.9, resize=0.75)
+
+        # save image
+        filepath_lenna = os.path.join(settings.PROJECT_PATH, 'api', 'assets', '%s_test_watermark.jpg' % self.file_basename_lenna)
+        snapimg_lenna.img.save(filepath_lenna, 'JPEG')

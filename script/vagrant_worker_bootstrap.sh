@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
-# update the vm
-echo ""
-echo "+-------------------+"
-echo "| Update the System |"
-echo "+-------------------+"
-echo ""
-#apt-get -y upgrade
-# include extra dependecies
-pip install supervisor virtualenv
+# update the vm (first run only)
+if [ ! -f ~/vagrant_worker_bootstrap ]; then
+    echo ""
+    echo "+-------------------+"
+    echo "| Update the System |"
+    echo "+-------------------+"
+    echo ""
+    DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+    # include extra dependecies
+    pip install supervisor virtualenv
+fi
 
 # setup the supervisor configs
 if [ ! -f /etc/supervisord.conf ]; then
@@ -43,9 +45,21 @@ if [ ! -d /home/vagrant/environments ]; then
     su - vagrant -c 'virtualenv -q ~/environments/api'
     su - vagrant -c 'ln -s /vagrant ~/environments/api/snapable'
 fi
+
 # run the setup instruction commands for the api
 su - vagrant -c '~/environments/api/bin/pip install -v -r /vagrant/requirements.txt'
 su - vagrant -c '~/environments/api/bin/pip install -v -r /vagrant/requirements-dev.txt'
-# setup supervisor
-su - vagrant -c 'cp -f /vagrant/script/vagrant_snap_worker.conf ~/supervisor/snap_worker.conf'
-su - vagrant -c 'supervisorctl update'
+
+if [ -f ~/vagrant_worker_bootstrap ]; then
+    # restart supervisort
+    su - vagrant -c 'supervisorctl restart snap_worker'
+    rabbitmq-plugins enable rabbitmq_management
+    service rabbitmq-server restart
+else
+    # setup supervisor
+    su - vagrant -c 'cp -f /vagrant/script/vagrant_snap_worker.conf ~/supervisor/snap_worker.conf'
+    su - vagrant -c 'supervisorctl update'
+fi
+
+# touch a file to know that the setup is done
+touch ~/vagrant_worker_bootstrap
