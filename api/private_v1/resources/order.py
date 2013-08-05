@@ -1,6 +1,7 @@
 # django/tastypie/libs
 import stripe
 
+from django.conf import settings
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
@@ -100,6 +101,7 @@ class OrderResource(ModelResource):
 
     def obj_create(self, bundle, **kwargs):
         bundle = super(OrderResource, self).obj_create(bundle, **kwargs)
+        amount = 0
         
         if 'stripeToken' in bundle.data and ('amount' in bundle.data and bundle.data['amount'] >= 50):         
             # Create the charge on Stripe's servers - this will charge the user's card
@@ -132,10 +134,18 @@ class OrderResource(ModelResource):
             addon.save()
 
         # receipt items
-        receipt_items = {
-            'Snapable Event': 7900/100.0,
-        }
-        total = 7900/100.0
+        receipt_items = list()
+
+        # get the package
+        if 'package' in bundle.obj.items:
+            package = Package.objects.get(pk=bundle.obj.items['package'])
+            item = {'name': 'Snapable Event Package ({0})'.format(package.name), 'amount': package.amount}
+            receipt_items.append(item)
+
+        # calculate the total
+        total = 0
+        for item in receipt_items:
+            total += item['amount'] 
 
         ## send the receipt ##
         # load in the templates
@@ -154,6 +164,7 @@ class OrderResource(ModelResource):
         html_content = html.render(d)
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.attach_alternative(html_content, "text/html")
-        #msg.send()
+        if settings.DEBUG == False:
+            msg.send()
 
         return bundle
