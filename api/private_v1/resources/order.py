@@ -36,9 +36,11 @@ class OrderResource(ModelResource):
     account = fields.ForeignKey(AccountResource, 'account')
     user = fields.ForeignKey(UserResource, 'user', null=True)
 
+    amount = fields.IntegerField(attribute='amount', readonly=True, help_text='The amount of the order.')
+
     class Meta:
         queryset = Order.objects.all()
-        fields = ['amount', 'amount_refunded', 'timestamp', 'charge_id', 'items', 'paid', 'coupon']
+        fields = ['amount_refunded', 'timestamp', 'charge_id', 'items', 'paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
         always_return_data = True
@@ -101,13 +103,46 @@ class OrderResource(ModelResource):
 
     def obj_create(self, bundle, **kwargs):
         bundle = super(OrderResource, self).obj_create(bundle, **kwargs)
-        amount = 0
-        
-        if 'stripeToken' in bundle.data and ('amount' in bundle.data and bundle.data['amount'] >= 50):         
+
+        # receipt items
+        receipt_items = list()
+
+        # get the package
+        if 'package' in bundle.obj.items:
+            package = Package.objects.get(pk=bundle.obj.items['package'])
+            item = {'name': 'Snapable Event Package ({0})'.format(package.name), 'amount': package.amount}
+            receipt_items.append(item)
+
+        # add discount
+        if 'discount' in bundle.data and bundle.data['discount'] >= 0:
+            discount = bundle.data['discount']
+            # if there is a coupon code
+            if 'coupon' in bundle.data:
+                item = {'name': 'Discount (coupon: "{0}")'.format(bundle.data['coupon']), 'amount': -discount}
+            # no coupon code, just add generic discount line
+            else:
+                item = {'name': 'Discount', 'amount': -discount}
+
+            receipt_items.append(item)
+
+        # calculate the total
+        total = 0
+        for item in receipt_items:
+            total += item['amount']
+
+        # make sure the total is non-negative
+        if total < 0:
+            total = 0
+
+        # set the actual total
+        bundle.obj.amount = total
+        bundle.obj.save()
+
+        if 'stripeToken' in bundle.data and bundle.obj.amount >= 50:         
             # Create the charge on Stripe's servers - this will charge the user's card
             try:
                 charge = stripe.Charge.create(
-                    amount=bundle.data['amount'], # amount in cents, again
+                    amount=bundle.obj.amount, # amount in cents, again
                     currency='usd',
                     card=bundle.data['stripeToken'],
                     description='charge to {0}'.format(bundle.obj.user.email)
@@ -132,20 +167,6 @@ class OrderResource(ModelResource):
             addon = EventAddon.objects.get(pk=event_addon)
             addon.paid = True
             addon.save()
-
-        # receipt items
-        receipt_items = list()
-
-        # get the package
-        if 'package' in bundle.obj.items:
-            package = Package.objects.get(pk=bundle.obj.items['package'])
-            item = {'name': 'Snapable Event Package ({0})'.format(package.name), 'amount': package.amount}
-            receipt_items.append(item)
-
-        # calculate the total
-        total = 0
-        for item in receipt_items:
-            total += item['amount'] 
 
         ## send the receipt ##
         # load in the templates
