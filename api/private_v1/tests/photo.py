@@ -64,6 +64,15 @@ class Private_v1__PhotoResourceTest(ResourceTestCase):
         # expected format: 2013-01-21T18:12:45
         self.assertTrue(re.search('^\d{4}-(\d{2}-?){2}T(\d{2}:?){3}$', data['timestamp']))
 
+    def test_post_photo_noimage(self):
+        uri = '/private_v1/photo/'
+        del(self.post_data['image'])
+        resp = self.api_client.post(uri, data=self.post_data, format='multipart', authentication=self.get_credentials('POST', uri))
+        data = self.deserialize(resp)
+
+        # make sure the resource was created
+        self.assertHttpBadRequest(resp)
+
     def test_put_photo(self):
         uri = '/private_v1/photo/1/'
         put_data = {
