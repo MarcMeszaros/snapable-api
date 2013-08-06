@@ -37,6 +37,7 @@ class Private_v1__GuestResourceTest(ResourceTestCase):
         self.assertKeys(self.deserialize(resp), [
             'email',
             'event',
+            'invited',
             'name',
             'resource_uri',
             'type',
@@ -56,6 +57,7 @@ class Private_v1__GuestResourceTest(ResourceTestCase):
         self.assertKeys(self.deserialize(resp), [
             'email',
             'event',
+            'invited',
             'name',
             'resource_uri',
             'type',

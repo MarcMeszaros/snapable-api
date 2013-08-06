@@ -1,20 +1,23 @@
+{% load currency %}
 <!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
 </head>
 <body>
     <h2>Snapable Purchase Receipt</h2>
-    <table border="1" style="width:300px;">
-        <tr><th>Item(s)</th><th>Price</th></tr>
-        {% for name, value in items %}
-        <tr><td>{{ name }}</td><td>${{ value|floatformat:-2 }}</td></tr>
+    <hr />
+    <table style="width:100%; border-collapse:collapse; border-spacing:0;" >
+        <tr><th style="vertical-align: bottom; border-top:0;">Item(s)</th><th style="vertical-align: bottom; border-top:0;">Price</th></tr>
+        {% for item in items %}
+        <tr><td style="padding: 8px; vertical-align: top; border-top: 1px solid #dddddd;">{{ item.name }}</td><td style="padding: 8px; vertical-align: top; border-top: 1px solid #dddddd; text-align:center;">${{ item.amount|cents_to_dollars }}</td></tr>
         {% endfor %}
+        <tr><td style="padding: 8px; vertical-align: top; border-top: 1px solid #dddddd;"></td><td style="padding: 8px; vertical-align: top; border-top: 1px solid #dddddd; text-align:center;">----------</td></tr>
+        <tr><td style="padding: 8px; vertical-align: top; border-top: 1px solid #dddddd; text-align:right;"><b>TOTAL</b></td><td style="padding: 8px; vertical-align: top; border-top: 1px solid #dddddd; text-align:center;">${{ total|cents_to_dollars }}</td></tr>
     </table>
-    <p>
-        Total: ${{ total|floatformat:-2 }}
-    </p>
 
+    <hr />
     <p>&copy; {% now "Y" %} Snapable</p>
 
 </body>

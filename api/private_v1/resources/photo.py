@@ -9,6 +9,7 @@ from django.http import HttpResponse
 
 from tastypie import fields
 from tastypie.authorization import Authorization
+from tastypie.exceptions import BadRequest
 from tastypie.resources import ALL
 from tastypie.utils.mime import determine_format, build_content_type
 
@@ -70,11 +71,15 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         return bundle
 
     def obj_create(self, bundle, **kwargs):
+        try:
+            # make sure the image is in the request
+            img = Image.open(cStringIO.StringIO(bundle.data['image'].read()))
+            snapimg = SnapImage(img)
+        except KeyError as key:
+            raise BadRequest('Missing field: ' + str(key))
+
         bundle = super(PhotoResource, self).obj_create(bundle, **kwargs)
         photo = bundle.obj
-
-        img = Image.open(cStringIO.StringIO(bundle.data['image'].read()))
-        snapimg = SnapImage(img)
 
         # try and watermark
         if photo.event.watermark == True:
