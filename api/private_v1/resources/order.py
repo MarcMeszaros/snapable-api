@@ -1,14 +1,22 @@
+# python
+from datetime import datetime, timedelta
+
 # django/tastypie/libs
+import django
+import pytz
 import stripe
 
 from django.conf import settings
+from django.conf.urls import url
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
-from tastypie import fields
+from monthdelta import MonthDelta
+from tastypie import fields, http
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, ImmediateHttpResponse
 from tastypie.resources import ALL, ModelResource
+from tastypie.utils import dict_strip_unicode_keys
 from tastypie.validation import Validation
 
 # snapable
@@ -43,6 +51,7 @@ class OrderResource(ModelResource):
         fields = ['amount_refunded', 'timestamp', 'charge_id', 'items', 'paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
+        account_allowed_methods = ['post']
         always_return_data = True
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()
@@ -101,6 +110,65 @@ class OrderResource(ModelResource):
         bundle.data['stripeToken'] = bundle.data['stripeToken'].strip()
         return bundle
 
+    def prepend_urls(self):
+        """
+        Using override_url
+        """
+        return [
+            url(r'^(?P<resource_name>%s)/account/$' % self._meta.resource_name, self.wrap_view('dispatch_account'), name="api_dispatch_account"),
+        ]
+
+    def dispatch_account(self, request, **kwargs):
+        """
+        A view for handling the various HTTP methods (GET/POST/PUT/DELETE) on
+        a single resource.
+
+        Relies on ``Resource.dispatch`` for the heavy-lifting.
+        """
+        return self.dispatch('account', request, **kwargs)
+
+    def post_account(self, request, **kwargs):
+        """
+        Creates a new resource/object with the provided data.
+
+        Calls ``obj_create`` with the provided data and returns a response
+        with the new resource's location.
+
+        If a new resource is created, return ``HttpCreated`` (201 Created).
+        If ``Meta.always_return_data = True``, there will be a populated body
+        of serialized data.
+        """
+        ### start copied from tasytpie ###
+        if django.VERSION >= (1, 4):
+            body = request.body
+        else:
+            body = request.raw_post_data
+        deserialized = self.deserialize(request, body, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        deserialized = self.alter_deserialized_detail_data(request, deserialized)
+        bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized), request=request)
+        ## start custom code ##
+        user_bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized), request=request)
+        # create user and account
+        account_resource = AccountResource()
+        user_resource = UserResource()
+        updated_user_bundle = user_resource.obj_create(user_bundle, **kwargs)
+
+        # update the bundle with the user and account, then call the regular order code
+        bundle.data['user'] = user_resource.get_resource_uri(updated_user_bundle.obj)
+        bundle.data['account'] = account_resource.get_resource_uri(updated_user_bundle.obj.account_set.all()[0])
+
+        ## end custom code ##
+        updated_bundle = self.obj_create(bundle, **self.remove_api_resource_names(kwargs))
+        location = self.get_resource_uri(updated_bundle)
+
+        if not self._meta.always_return_data:
+            return http.HttpCreated(location=location)
+        else:
+            updated_bundle = self.full_dehydrate(updated_bundle)
+            updated_bundle = self.alter_detail_data_to_serialize(request, updated_bundle)
+            return self.create_response(request, updated_bundle, response_class=http.HttpCreated, location=location)
+        ### end copied from tasytpie ###
+
     def obj_create(self, bundle, **kwargs):
         bundle = super(OrderResource, self).obj_create(bundle, **kwargs)
 
@@ -108,6 +176,7 @@ class OrderResource(ModelResource):
         receipt_items = list()
 
         # get the package
+        package = None
         if 'package' in bundle.obj.items:
             package = Package.objects.get(pk=bundle.obj.items['package'])
             item = {'name': 'Snapable Event Package ({0})'.format(package.name), 'amount': package.amount}
@@ -139,14 +208,35 @@ class OrderResource(ModelResource):
         bundle.obj.save()
 
         if 'stripeToken' in bundle.data and bundle.obj.amount >= 50:         
+            user = bundle.obj.user
             # Create the charge on Stripe's servers - this will charge the user's card
             try:
-                charge = stripe.Charge.create(
-                    amount=bundle.obj.amount, # amount in cents, again
-                    currency='usd',
-                    card=bundle.data['stripeToken'],
-                    description='charge to {0}'.format(bundle.obj.user.email)
-                )
+                charge = None
+                if user is not None:
+                    # if there is no customer on stripe, create them
+                    if user.stripe_customer_id is None:
+                        customer = stripe.Customer.create(
+                            card=bundle.data['stripeToken'],
+                            email=user.email
+                        )
+                        # save the id for later
+                        user.stripe_customer_id = customer.id
+                        user.save()
+
+                    # charge the card
+                    charge = stripe.Charge.create(
+                        amount=bundle.obj.amount, # in cents
+                        currency=settings.STRIPE_CURRENCY,
+                        customer=user.stripe_customer_id
+                    )
+
+                else:
+                    charge = stripe.Charge.create(
+                        amount=bundle.obj.amount, # amount in cents, again
+                        currency=settings.STRIPE_CURRENCY,
+                        card=bundle.data['stripeToken'],
+                        description='Charge to {0}'.format(bundle.obj.user.email)
+                    )
                 bundle.obj.charge_id = charge.id
                 bundle.obj.paid = True
                 bundle.obj.save()
@@ -167,6 +257,27 @@ class OrderResource(ModelResource):
             addon = EventAddon.objects.get(pk=event_addon)
             addon.paid = True
             addon.save()
+
+        # update the account
+        if package is not None and package.interval is not None:
+            # calculate the valid until date
+            expire = None
+            now = datetime.now(tz=pytz.UTC)
+            trialdays = timedelta(package.trial_period_days)
+            if package.interval == Package.INTERVAL_YEAR:
+                expire = now + MonthDelta(12 * int(package.interval_count)) + trialdays
+            elif package.interval == Package.INTERVAL_MONTH:
+                expire = now + MonthDelta(int(package.interval_count)) + trialdays
+            elif package.interval == Package.INTERVAL_WEEK:
+                expire = now + timedelta(7 * int(package.interval_count)) + trialdays
+            else:
+                expire = now + trialdays
+
+            # modify the account
+            account = bundle.obj.account
+            account.package = package
+            account.valid_until = expire
+            account.save()
 
         ## send the receipt ##
         # load in the templates
