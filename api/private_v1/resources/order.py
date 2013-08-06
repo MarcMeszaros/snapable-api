@@ -1,5 +1,9 @@
+# python
+from datetime import datetime, timedelta
+
 # django/tastypie/libs
 import django
+import pytz
 import stripe
 
 from django.conf import settings
@@ -7,6 +11,7 @@ from django.conf.urls import url
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
+from monthdelta import MonthDelta
 from tastypie import fields, http
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, ImmediateHttpResponse
@@ -171,6 +176,7 @@ class OrderResource(ModelResource):
         receipt_items = list()
 
         # get the package
+        package = None
         if 'package' in bundle.obj.items:
             package = Package.objects.get(pk=bundle.obj.items['package'])
             item = {'name': 'Snapable Event Package ({0})'.format(package.name), 'amount': package.amount}
@@ -251,6 +257,27 @@ class OrderResource(ModelResource):
             addon = EventAddon.objects.get(pk=event_addon)
             addon.paid = True
             addon.save()
+
+        # update the account
+        if package is not None and package.interval is not None:
+            # calculate the valid until date
+            expire = None
+            now = datetime.now(tz=pytz.UTC)
+            trialdays = timedelta(package.trial_period_days)
+            if package.interval == Package.INTERVAL_YEAR:
+                expire = now + MonthDelta(12 * int(package.interval_count)) + trialdays
+            elif package.interval == Package.INTERVAL_MONTH:
+                expire = now + MonthDelta(int(package.interval_count)) + trialdays
+            elif package.interval == Package.INTERVAL_WEEK:
+                expire = now + timedelta(7 * int(package.interval_count)) + trialdays
+            else:
+                expire = now + trialdays
+
+            # modify the account
+            account = bundle.obj.account
+            account.package = package
+            account.valid_until = expire
+            account.save()
 
         ## send the receipt ##
         # load in the templates
