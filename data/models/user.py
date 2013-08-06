@@ -30,8 +30,16 @@ class User(models.Model):
     def _set_name(self, value):
         pass
 
+    # return the stripe credentials
+    def _get_stripe_customer_id(self):
+        return self.payment_gateway_user_id
+
+    def _set_stripe_customer_id(self, value):
+        self.payment_gateway_user_id = value
+
     # add the virtual properties
     name = property(_get_name, _set_name)
+    stripe_customer_id = property(_get_stripe_customer_id, _set_stripe_customer_id)
 
     def __unicode__(self):
         return str({
