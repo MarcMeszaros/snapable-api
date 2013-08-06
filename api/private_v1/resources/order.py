@@ -205,12 +205,13 @@ class OrderResource(ModelResource):
             user = bundle.obj.user
             # Create the charge on Stripe's servers - this will charge the user's card
             try:
+                charge = None
                 if user is not None:
                     # if there is no customer on stripe, create them
                     if user.stripe_customer_id is None:
                         customer = stripe.Customer.create(
-                            card=token,
-                            description=user.email
+                            card=bundle.data['stripeToken'],
+                            email=user.email
                         )
                         # save the id for later
                         user.stripe_customer_id = customer.id
@@ -219,16 +220,16 @@ class OrderResource(ModelResource):
                     # charge the card
                     charge = stripe.Charge.create(
                         amount=bundle.obj.amount, # in cents
-                        currency='usd',
+                        currency=settings.STRIPE_CURRENCY,
                         customer=user.stripe_customer_id
                     )
 
                 else:
                     charge = stripe.Charge.create(
                         amount=bundle.obj.amount, # amount in cents, again
-                        currency='usd',
+                        currency=settings.STRIPE_CURRENCY,
                         card=bundle.data['stripeToken'],
-                        description='charge to {0}'.format(bundle.obj.user.email)
+                        description='Charge to {0}'.format(bundle.obj.user.email)
                     )
                 bundle.obj.charge_id = charge.id
                 bundle.obj.paid = True

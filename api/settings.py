@@ -264,6 +264,8 @@ TASTYPIE_DEFAULT_FORMATS = ['json']
 
 # stripe
 STRIPE_KEY_SECRET = '***REMOVED***' # testing
+STRIPE_KEY_PUBLIC = '***REMOVED***' # testing
+STRIPE_CURRENCY = 'usd'
 
 # import local settings
 try:
