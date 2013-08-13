@@ -124,13 +124,3 @@ class EventResource(api.base_v1.resources.EventResource):
             semi_filtered = semi_filtered.filter(custom_filter)
         
         return semi_filtered
-
-    # override the response
-    def create_response(self, request, bundle, response_class=HttpResponse, **response_kwargs):
-        """
-        Override the default create_response method.
-        """
-        if (request.META['REQUEST_METHOD'] == 'GET' and 'size' in request.GET):
-            bundle.data['size'] = request.GET['size']
-
-        return super(EventResource, self).create_response(request, bundle, response_class=response_class, **response_kwargs)
