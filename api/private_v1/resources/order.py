@@ -23,7 +23,9 @@ from tastypie.validation import Validation
 import api.auth
 
 from account import AccountResource
-from data.models import Account, AccountAddon, EventAddon, Package, Order, User
+from address import AddressResource
+from data.models import Account, AccountAddon, Event, EventAddon, Package, Order, User
+from event import EventResource
 from user import UserResource
 
 class OrderValidation(Validation):
@@ -150,12 +152,26 @@ class OrderResource(ModelResource):
         user_bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized), request=request)
         # create user and account
         account_resource = AccountResource()
+        address_resource = AddressResource()
+        event_resource = EventResource()
         user_resource = UserResource()
         updated_user_bundle = user_resource.obj_create(user_bundle, **kwargs)
 
         # update the bundle with the user and account, then call the regular order code
         bundle.data['user'] = user_resource.get_resource_uri(updated_user_bundle.obj)
         bundle.data['account'] = account_resource.get_resource_uri(updated_user_bundle.obj.account_set.all()[0])
+        updated_user_bundle.data['account'] = bundle.data['account']
+
+        try:
+            # create the event
+            updated_event_bundle = event_resource.obj_create(updated_user_bundle, **kwargs)
+            bundle.data['event'] = event_resource.get_resource_uri(updated_event_bundle.obj)
+            updated_event_bundle.data['event'] = bundle.data['event']
+
+            # create the location
+            updated_location_bundle = address_resource.obj_create(updated_event_bundle, **kwargs)
+        except:
+            pass
 
         ## end custom code ##
         updated_bundle = self.obj_create(bundle, **self.remove_api_resource_names(kwargs))
@@ -244,6 +260,12 @@ class OrderResource(ModelResource):
                 # The card has been declined
                 print e
                 raise ImmediateHttpResponse('Error processing Credit Card')
+
+        if 'event' in bundle.data:
+            event_resource = EventResource()
+            event = event_resource.get_via_uri(bundle.data['event'])
+            event.enabled = True
+            event.save()
 
         # loop through account_addons & event_addons and mark as paid
         # mark all the account addons as paid for
