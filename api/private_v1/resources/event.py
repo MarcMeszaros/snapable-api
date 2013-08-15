@@ -233,13 +233,3 @@ class EventResource(api.base_v1.resources.EventResource):
             return events.filter(pk__in=values_list)
         else:
             return super(EventResource, self).get_object_list(request)
-
-    # override the response
-    def create_response(self, request, bundle, response_class=HttpResponse, **response_kwargs):
-        """
-        Override the default create_response method.
-        """
-        if (request.META['REQUEST_METHOD'] == 'GET' and 'size' in request.GET):
-            bundle.data['size'] = request.GET['size']
-
-        return super(EventResource, self).create_response(request, bundle, response_class=response_class, **response_kwargs)

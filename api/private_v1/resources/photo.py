@@ -97,14 +97,3 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
             photo.save_image(snapimg, True)
 
         return bundle
-
-    # override the response
-    def create_response(self, request, bundle, response_class=HttpResponse, **response_kwargs):
-        """
-        Override the default create_response method.
-        """
-
-        if (request.META['REQUEST_METHOD'] == 'GET' and 'size' in request.GET):
-            bundle.data['size'] = request.GET['size']
-
-        return super(PhotoResource, self).create_response(request, bundle, response_class=response_class, **response_kwargs)

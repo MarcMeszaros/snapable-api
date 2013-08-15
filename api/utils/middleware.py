@@ -10,8 +10,8 @@ class RequestLoggingMiddleware(object):
 
         logger = logging.getLogger('snapable.request')
         if 'HTTP_AUTHORIZATION' in request.META:
-            logger.info('{0} {1} {2} - {3}'.format(request.META['REQUEST_METHOD'], response.status_code, request.path, request.META['HTTP_AUTHORIZATION']))
+            logger.info('{0} {1} {2} - {3}'.format(request.META['REQUEST_METHOD'], response.status_code, request.META['RAW_URI'], request.META['HTTP_AUTHORIZATION']))
         else:
-            logger.info('{0} {1} {2}'.format(request.META['REQUEST_METHOD'], response.status_code, request.path))
+            logger.info('{0} {1} {2}'.format(request.META['REQUEST_METHOD'], response.status_code, request.META['RAW_URI']))
 
         return response

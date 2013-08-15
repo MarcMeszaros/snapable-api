@@ -28,8 +28,8 @@ class SnapSerializer(Serializer):
             photo = bundle.obj
 
             # set the size variable
-            if (bundle.data != None and 'size' in bundle.data):
-                size = bundle.data['size']
+            if ('size' in bundle.request.GET):
+                size = bundle.request.GET['size']
             try:
                 snapimg = photo.get_image(size)
                 return snapimg.img.tobytes('jpeg', 'RGB')
@@ -38,8 +38,8 @@ class SnapSerializer(Serializer):
                 raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
         elif isinstance(bundle.obj, Event):
             # set the size variable
-            if (bundle.data != None and 'size' in bundle.data):
-                size = bundle.data['size']
+            if ('size' in bundle.request.GET):
+                size = bundle.request.GET['size']
 
             # event cover it is set
             if (bundle.obj.cover != None):
