@@ -15,6 +15,7 @@ class Guest(models.Model):
     name = models.CharField(max_length=255, help_text='The guest name.')
     email = models.CharField(max_length=255, help_text='The guest email address.')
     invited = models.BooleanField(default=False, help_text='If the guest has been invited.')
+    created_at = models.DateTimeField(auto_now_add=True, help_text='The guest timestamp.')
 
     # virtual properties #
     # return the number of photos related to this event
@@ -29,6 +30,7 @@ class Guest(models.Model):
 
     def __unicode__(self):
         return str({
+            'created_at': self.created_at,
             'email': self.email,
             'event': self.event,
             'invited': self.invited,

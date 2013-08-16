@@ -23,7 +23,7 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
             'account': '/private_v1/account/1/',
             'user': '/private_v1/user/1/',
             'items': {
-                'package': 1,
+                'package': 2,
                 'account_addons': [],
                 'event_addons': [],
             },
