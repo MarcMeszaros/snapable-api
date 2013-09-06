@@ -71,6 +71,7 @@ su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manag
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py migrate api'
 
 if [ -f ~/vagrant_api_bootstrap ]; then
+    su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py loaddata data/fixtures/packages.json'
     # restart supervisort
     su - vagrant -c 'supervisorctl restart snap_api'
 else
