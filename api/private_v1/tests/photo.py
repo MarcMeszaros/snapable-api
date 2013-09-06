@@ -83,7 +83,7 @@ class Private_v1__PhotoResourceTest(ResourceTestCase):
         data = self.deserialize(resp)
 
         # make sure the resource has a valid response
-        self.assertHttpAccepted(resp)
+        self.assertHttpOK(resp)
 
         # test to make sure all the keys are in the response
         self.assertEqual(data['caption'], put_data['caption'])

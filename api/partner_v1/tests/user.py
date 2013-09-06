@@ -61,7 +61,7 @@ class Partner_v1__UserResourceTest(ResourceTestCase):
         resp = self.api_client.put(uri, data=update_data, format='json', authentication=self.get_credentials('PUT', uri))
 
         # make sure it was updated
-        self.assertHttpAccepted(resp)
+        self.assertHttpOK(resp)
 
         # check the email value
         self.assertEqual(self.deserialize(resp)['email'], 'bob.test@example.com')
