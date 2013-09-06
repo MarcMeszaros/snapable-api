@@ -27,7 +27,7 @@ class UserResource(api.base_v1.resources.UserResource):
     # seems to break on post
     #accounts = fields.ToManyField('api.private_v1.resources.AccountResource', 'user', related_name='account', default=None, blank=True, null=True) #attribute=lambda bundle: Account.objects.filter(admin=bundle.obj))
 
-    created = fields.DateTimeField(attribute='created', readonly=True, help_text='When the user was created. (UTC)')
+    created_at = fields.DateTimeField(attribute='created_at', readonly=True, help_text='When the user was created. (UTC)')
 
     class Meta(api.base_v1.resources.UserResource.Meta): # set Meta to the public API Meta
         fields = api.base_v1.resources.UserResource.Meta.fields + []
@@ -37,7 +37,7 @@ class UserResource(api.base_v1.resources.UserResource):
         authentication = api.auth.ServerAuthentication()
         authorization = api.auth.ServerAuthorization()
         filtering = dict(api.base_v1.resources.UserResource.Meta.filtering, **{
-            'created': ALL,
+            'created_at': ALL,
         })
 
     def dehydrate(self, bundle):
@@ -65,7 +65,8 @@ class UserResource(api.base_v1.resources.UserResource):
         ### DEPRECATED/COMPATIBILITY ###
         bundle.data['billing_zip'] = '00000'
         bundle.data['terms'] = True
-        bundle.data['creation_date'] = bundle.obj.created
+        bundle.data['creation_date'] = bundle.obj.created_at
+        bundle.data['created'] = bundle.obj.created_at
 
         return bundle
 
@@ -251,7 +252,7 @@ class UserResource(api.base_v1.resources.UserResource):
         for bundle in bundles:
             nonces += [{
                 'nonce': bundle.obj.nonce,
-                'timestamp': bundle.obj.timestamp,
+                'created_at': bundle.obj.created_at,
             }]
 
         to_be_serialized['objects'] = nonces

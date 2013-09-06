@@ -36,7 +36,7 @@
     "pk": 2, 
     "model": "data.user", 
     "fields": {
-        "created": "2012-07-19T19:25:17+00:00", 
+        "created_at": "2012-07-19T19:25:17+00:00", 
         "email": "marc@snapable.com",
         "first_name": "Marc",
         "last_access": "2012-07-19T19:25:17+00:00",
@@ -61,7 +61,7 @@
     "model": "data.event", 
     "fields": {
         "account": 2,
-        "created": "2012-07-21T04:48:10+00:00",
+        "created_at": "2012-07-21T04:48:10+00:00",
         "enabled": 1,
         "end": "2012-10-09T12:00:00+00:00",
         "last_access": "2012-07-21T04:48:10+00:00",
@@ -102,7 +102,7 @@
         "event": 2,
         "guest": 2,
         "caption": "My awesome photo!",
-        "timestamp": "2012-10-09T06:34:12Z"
+        "created_at": "2012-10-09T06:34:12Z"
     }
 }
 

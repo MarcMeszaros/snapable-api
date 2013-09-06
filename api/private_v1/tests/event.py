@@ -50,6 +50,7 @@ class Private_v1__EventResourceTest(ResourceTestCase):
             'addresses',
             'cover',
             'created',
+            'created_at',
             'creation_date',
             'enabled',
             'end',

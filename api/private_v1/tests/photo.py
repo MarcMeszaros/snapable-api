@@ -50,6 +50,7 @@ class Private_v1__PhotoResourceTest(ResourceTestCase):
         self.assertKeys(self.deserialize(resp), [
             'author_name',
             'caption',
+            'created_at',
             'event',
             'guest',
             'image',
