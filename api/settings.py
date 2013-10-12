@@ -17,11 +17,11 @@ if not os.path.exists(os.path.join(PROJECT_PATH, 'logs')):
 # start newrelic if on athena (staging)
 if ('athena' in socket.gethostname()):
     import newrelic.agent
-    newrelic.agent.initialize('newrelic.ini', 'staging')
+    newrelic.agent.initialize(os.path.join(PROJECT_PATH, 'newrelic.ini'), 'staging')
 # start newrelic if on ares (production)
 elif ('ares' in socket.gethostname()):
     import newrelic.agent
-    newrelic.agent.initialize('newrelic.ini', 'production')
+    newrelic.agent.initialize(os.path.join(PROJECT_PATH, 'newrelic.ini'), 'production')
 
 # Django settings for api project.
 DEBUG = False
