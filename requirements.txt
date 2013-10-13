@@ -1,7 +1,8 @@
 ## CORE (REQUIRED to be stable packages) ##
 gunicorn>=18.0,<19.0                                        # python 3
 Django>=1.5.4,<1.6                                          # python 3
-django-tastypie==0.10.0                                     # python 3
+#django-tastypie==0.10.0                                     # python 3
+git+git://github.com/toastdriven/django-tastypie@f0222eae2c16548bc7122b9dcffd54160d79426e#egg=django-tastypie
 MySQL-python>=1.2.4,<1.3.0                                  # python 2 x
 pyrax>=1.5.0,<1.6                                           # python 2 x
 South>=0.8.2,<1.0                                           # python 3
@@ -14,7 +15,7 @@ jsonfield>=0.9.19,<0.10                                     # python 3
 setproctitle>=1.1.7,<2.0                                    # python 3
 gevent>=0.13.8,<1.0                                         # python 2 x
 #netifaces-py3>=0.8                                          # python 3
--e git://github.com/kelleyk/py3k-netifaces#egg=netifaces-py3
+git+git://github.com/kelleyk/py3k-netifaces#egg=netifaces-py3
 stripe>=1.9.5,<2.0                                          # python 2 x
 pytz>=2013.7                                                # python 3
 MonthDelta>=1.0b,<2.0                                       # python 3
