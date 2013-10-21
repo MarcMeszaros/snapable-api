@@ -29,7 +29,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
     event = fields.ForeignKey(EventResource, 'event')
     guest = fields.ForeignKey(GuestResource, 'guest', null=True) # allow the foreign key to be null
 
-    timestamp = fields.DateTimeField(attribute='timestamp', readonly=True, help_text='The photo timestamp. (UTC)')
+    created_at = fields.DateTimeField(attribute='created_at', readonly=True, help_text='The photo timestamp. (UTC)')
 
     class Meta(api.base_v1.resources.PhotoResource.Meta): # set Meta to the public API Meta
         fields = api.base_v1.resources.PhotoResource.Meta.fields + ['metrics'];
@@ -41,11 +41,8 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         filtering = dict(api.base_v1.resources.PhotoResource.Meta.filtering, **{
             'event': ['exact'],
             'streamable': ['exact'],
-            'timestamp': ALL,
+            'created_at': ALL,
         })
-
-    def dehydrate_timestamp(self, bundle):
-        return bundle.data['timestamp'].strftime('%Y-%m-%dT%H:%M:%S')
 
     def dehydrate(self, bundle):
 
@@ -58,6 +55,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
 
         ### DEPRECATED/COMPATIBILITY ###
         bundle.data['type'] = '/private_v1/type/6/'
+        bundle.data['timestamp'] = bundle.data['created_at'].strftime('%Y-%m-%dT%H:%M:%S')
 
         return bundle
 

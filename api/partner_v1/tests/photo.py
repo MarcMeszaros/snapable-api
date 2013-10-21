@@ -64,10 +64,10 @@ class Partner_v1__PhotoResourceTest(ResourceTestCase):
         # test to make sure all the keys are in the response
         self.assertKeys(self.deserialize(resp), [
             'caption',
+            'created_at',
             'event',
             'guest',
             'resource_uri',
-            'timestamp',
         ])
 
     def test_post_photo(self):
@@ -80,8 +80,8 @@ class Partner_v1__PhotoResourceTest(ResourceTestCase):
         # test to make sure all the keys are in the response
         self.assertKeys(self.deserialize(resp), [
             'caption',
+            'created_at',
             'event',
             'guest',
             'resource_uri',
-            'timestamp',
         ])

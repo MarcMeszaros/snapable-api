@@ -42,10 +42,10 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
     guest = fields.ForeignKey(GuestResource, 'guest', null=True) # allow the foreign key to be null
 
     # virtual fields
-    timestamp = fields.DateTimeField(attribute='timestamp', readonly=True, help_text='The photo timestamp. (UTC)')
+    created_at = fields.DateTimeField(attribute='created_at', readonly=True, help_text='The photo timestamp. (UTC)')
 
     class Meta(api.base_v1.resources.PhotoResource.Meta): # set Meta to the public API Meta
-        fields = ['caption', 'timestamp'];
+        fields = ['caption', 'created_at'];
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         authentication = api.auth.DatabaseAuthentication()
@@ -54,7 +54,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         serializer = SnapSerializer(formats=['json', 'jpeg'])
         filtering = dict(api.base_v1.resources.PhotoResource.Meta.filtering, **{
             'event': ['exact'],
-            'timestamp': ALL,
+            'created_at': ALL,
         })
 
     def dehydrate(self, bundle):

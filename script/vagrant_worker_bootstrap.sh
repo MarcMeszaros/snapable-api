@@ -53,12 +53,13 @@ su - vagrant -c '~/environments/api/bin/pip install -v -r /vagrant/requirements-
 if [ -f ~/vagrant_worker_bootstrap ]; then
     # restart supervisort
     su - vagrant -c 'supervisorctl restart snap_worker'
-    rabbitmq-plugins enable rabbitmq_management
-    service rabbitmq-server restart
 else
     # setup supervisor
     su - vagrant -c 'cp -f /vagrant/script/vagrant_snap_worker.conf ~/supervisor/snap_worker.conf'
     su - vagrant -c 'supervisorctl update'
+    # enable rabbitmq web management interface
+    rabbitmq-plugins enable rabbitmq_management
+    service rabbitmq-server restart
 fi
 
 # touch a file to know that the setup is done

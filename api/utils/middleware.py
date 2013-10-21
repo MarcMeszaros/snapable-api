@@ -15,8 +15,8 @@ class RequestLoggingMiddleware(object):
 
         # log the request
         if 'HTTP_AUTHORIZATION' in request.META:
-            logger.info('{0} {1} {2} - {3}'.format(request.META['REQUEST_METHOD'], response.status_code, url, request.META['HTTP_AUTHORIZATION']))
+            logger.info('{0} {1} ({2}) {3} - {4}'.format(request.META['REQUEST_METHOD'], response.status_code, request.META['HTTP_ACCEPT'], url, request.META['HTTP_AUTHORIZATION']))
         else:
-            logger.info('{0} {1} {2}'.format(request.META['REQUEST_METHOD'], response.status_code, url))
+            logger.info('{0} {1} ({2}) {3}'.format(request.META['REQUEST_METHOD'], response.status_code, request.META['HTTP_ACCEPT'], url))
 
         return response

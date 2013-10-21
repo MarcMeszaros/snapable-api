@@ -25,16 +25,27 @@ class Photo(models.Model):
 
     caption = models.CharField(max_length=255, help_text='The photo caption.')
     streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
-    timestamp = models.DateTimeField(auto_now_add=True, help_text='The photo timestamp.')
+    created_at = models.DateTimeField(auto_now_add=True, help_text='The photo timestamp.')
     metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics
+
+    ## virtual properties getters/setters ##
+    # return the created at timestamp
+    def _get_timestamp(self):
+        return self.created_at
+
+    def _set_timestamp(self, value):
+        self.created_at = value
+
+    # add the virtual properties
+    timestamp = property(_get_timestamp, _set_timestamp)
 
     def __unicode__(self):
         return str({
             'caption': self.caption,
+            'created_at': self.created_at,
             'event': self.event,
             'metrics': self.metrics,
             'streamable': self.streamable,
-            'timestamp': self.timestamp,
         })
 
     # override built-in delete function

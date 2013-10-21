@@ -15,6 +15,7 @@ celery = Celery(
     broker=broker,
     include=[
         'worker.tasks',
+        'worker.event',
         'worker.passwordnonce',
     ]
 )

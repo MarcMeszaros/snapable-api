@@ -49,12 +49,12 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
             'amount_refunded',
             'charge_id',
             'coupon',
+            'created_at',
             'items',
             'paid',
             'payment_gateway_invoice_id',
             'price',
             'resource_uri',
-            'timestamp',
             'total_price',
             'user',
         ])

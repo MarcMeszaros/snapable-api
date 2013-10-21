@@ -50,7 +50,7 @@ class OrderResource(ModelResource):
 
     class Meta:
         queryset = Order.objects.all()
-        fields = ['amount_refunded', 'timestamp', 'charge_id', 'items', 'paid', 'coupon']
+        fields = ['amount_refunded', 'created_at', 'charge_id', 'items', 'paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
         account_allowed_methods = ['post']
@@ -59,7 +59,7 @@ class OrderResource(ModelResource):
         authorization = Authorization()
         validation = OrderValidation()
         filtering = {
-            'timestamp': ALL,
+            'created_at': ALL,
         }
 
     def dehydrate(self, bundle):

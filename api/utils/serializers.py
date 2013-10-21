@@ -51,7 +51,7 @@ class SnapSerializer(Serializer):
                     return snapimg.img.tostring('jpeg', 'RGB')
             # there is no cover and at least one photo
             elif (bundle.obj.cover == None and bundle.obj.photo_count >= 1):
-                first_photo = list(Photo.objects.filter(event_id=bundle.obj.pk).order_by('timestamp'))[0]
+                first_photo = list(Photo.objects.filter(event_id=bundle.obj.pk).order_by('created_at'))[0]
                 snapimg = first_photo.get_image(size)
 
                 if snapimg is None:

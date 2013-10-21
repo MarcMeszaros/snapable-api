@@ -17,11 +17,11 @@ if not os.path.exists(os.path.join(PROJECT_PATH, 'logs')):
 # start newrelic if on athena (staging)
 if ('athena' in socket.gethostname()):
     import newrelic.agent
-    newrelic.agent.initialize('newrelic.ini', 'staging')
+    newrelic.agent.initialize(os.path.join(PROJECT_PATH, 'newrelic.ini'), 'staging')
 # start newrelic if on ares (production)
 elif ('ares' in socket.gethostname()):
     import newrelic.agent
-    newrelic.agent.initialize('newrelic.ini', 'production')
+    newrelic.agent.initialize(os.path.join(PROJECT_PATH, 'newrelic.ini'), 'production')
 
 # Django settings for api project.
 DEBUG = False
@@ -106,6 +106,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
     #'django.contrib.sessions.middleware.SessionMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
@@ -113,6 +114,7 @@ MIDDLEWARE_CLASSES = (
     #'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware', # Adds 'Content-Length' header
 
     # snapable
     'api.utils.middleware.RequestLoggingMiddleware',
@@ -253,6 +255,7 @@ ALLOWED_HOSTS = ['.snapable.com']
 
 # RACKSPACE
 RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_images_'
+RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX = 'dev_downloads_'
 RACKSPACE_CLOUDFILE_WATERMARK = 'dev_watermark'
 RACKSPACE_CLOUDFILE_TIMEOUT = 120
 RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = 10000

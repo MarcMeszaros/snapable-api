@@ -69,6 +69,7 @@ class Private_v1__UserResourceTest(ResourceTestCase):
             'accounts',
             'billing_zip',
             'created',
+            'created_at',
             'creation_date',
             'email',
             'first_name',
@@ -92,6 +93,7 @@ class Private_v1__UserResourceTest(ResourceTestCase):
             'accounts',
             'billing_zip',
             'created',
+            'created_at',
             'creation_date',
             'email',
             'first_name',
@@ -117,7 +119,7 @@ class Private_v1__UserResourceTest(ResourceTestCase):
 
         #print user_before
         put_resp = self.api_client.put(put_uri, data=put_data, format='json', authentication=self.get_credentials('PUT', put_uri), **extra)
-        self.assertHttpAccepted(put_resp)
+        self.assertHttpOK(put_resp)
         user_after = User.objects.get(pk=1)
 
         password_after = user_after.password
