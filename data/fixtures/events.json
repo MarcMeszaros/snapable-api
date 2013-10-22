@@ -5,6 +5,8 @@
     "model": "data.event", 
     "fields": {
         "account": 1,
+        "are_photos_streamable": 1,
+        "are_photos_watermarked": 0,
         "created_at": "2012-07-21T04:48:10Z",
         "enabled": 1,
         "end": "2012-10-09T12:00:00Z",

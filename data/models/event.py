@@ -35,7 +35,8 @@ class Event(models.Model):
     last_access = models.DateTimeField(auto_now_add=True, help_text='When the event was last accessed. (UTC)')
     access_count = models.IntegerField(default=0)
     enabled = models.BooleanField(help_text='Is the event considered "active" in the system.')
-    watermark = models.BooleanField(default=False, help_text='Should a watermark be applied to non-original images.')
+    are_photos_streamable = models.BooleanField(default=True, help_text='Should the images be streamable by default when created.')
+    are_photos_watermarked = models.BooleanField(default=False, help_text='Should a watermark be applied to non-original images.')
 
     # virtual properties #
     # return the number of photos related to this event
@@ -51,6 +52,8 @@ class Event(models.Model):
     def __unicode__(self):
         return str({
             'account': self.account,
+            'are_photos_streamable': self.are_photos_streamable,
+            'are_photos_watermarked': self.are_photos_watermarked,
             'created_at': self.created_at,
             'enabled': self.enabled,
             'end': self.end,

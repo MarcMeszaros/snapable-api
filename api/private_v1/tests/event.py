@@ -48,6 +48,7 @@ class Private_v1__EventResourceTest(ResourceTestCase):
             'account',
             'addons',
             'addresses',
+            'are_photos_streamable',
             'cover',
             'created',
             'created_at',

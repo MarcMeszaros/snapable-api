@@ -79,8 +79,12 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
         bundle = super(PhotoResource, self).obj_create(bundle, **kwargs)
         photo = bundle.obj
 
+        # set the value of the event streamable value
+        photo.streamable = photo.event.are_photos_streamable
+        photo.save()
+
         # try and watermark
-        if photo.event.watermark == True:
+        if photo.event.are_photos_watermarked == True:
             try:
                 # save the image to cloudfiles
                 watermark = photo.event.get_watermark()
