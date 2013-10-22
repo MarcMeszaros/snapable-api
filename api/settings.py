@@ -10,10 +10,6 @@ PROJECT_PATH = os.path.dirname(PROJECT_PATH_INNER)
 import djcelery
 djcelery.setup_loader()
 
-# create the 'logs' folder(s) if it doesn't already exist
-if not os.path.exists(os.path.join(PROJECT_PATH, 'logs')):
-    os.makedirs(os.path.join(PROJECT_PATH, 'logs'))
-
 # start newrelic if on athena (staging)
 if ('athena' in socket.gethostname()):
     import newrelic.agent
@@ -153,7 +149,7 @@ INSTALLED_APPS = (
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
             'format': '%(asctime)s [%(process)d] [%(levelname)s] %(message)s'
@@ -181,11 +177,6 @@ LOGGING = {
             'level': 'INFO',
             'class': 'raven.contrib.django.handlers.SentryHandler',
         },
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
         'file.firehose': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
@@ -207,13 +198,8 @@ LOGGING = {
         },
     },
     'loggers': {
-        '': {
-            'handlers': ['file.firehose'],
-            'level': 'INFO',
-            'propagate': True,
-        },
         'django': {
-            'handlers': ['file.firehose', 'sentry', 'mail_admins'],
+            'handlers': ['file.firehose', 'sentry'],
             'level': 'WARNING',
             'propagate': True,
         },
@@ -300,7 +286,7 @@ if DEBUG:
     # what modules to exclude from the test coverage
     COVERAGE_MODULE_EXCLUDES = [
         # custom
-        'raven', 'south', 'tastypie', 'api.wsgi',
+        'raven', 'south', 'tastypie', 'api.wsgi', 'djcelery',
         # default
         'tests$', 'settings$', 'urls$', 'locale$', 'common.views.test', '__init__', 'django', 'migrations'
     ]
