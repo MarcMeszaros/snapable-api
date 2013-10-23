@@ -24,8 +24,8 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
 
         self.post_data = {
             'account': '/partner_v1/account/{0}/'.format(self.accounts[0].pk),
-            'end': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(time.time() + 60*60)),
-            'start': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            'end_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(time.time() + 60*60)),
+            'start_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
             'title': 'Super Awesome Title',
             'url': 'super-awesome-title',
         }
@@ -53,14 +53,14 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
         # test to make sure all the keys are in the response
         self.assertKeys(self.deserialize(resp), [
             'account',
-            'enabled',
-            'end',
+            'end_at',
             'locations',
             'photo_count',
             'pin',
-            'public',
+            'is_enabled',
+            'is_public',
             'resource_uri',
-            'start',
+            'start_at',
             'title',
             'tz_offset',
             'url',

@@ -36,22 +36,31 @@ class EventResource(api.base_v1.resources.EventResource):
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
 
+    # DEPRECATED
+    enabled = fields.BooleanField(attribute='is_enabled')
+    start = fields.DateTimeField(attribute='start_at')
+    end = fields.DateTimeField(attribute='end_at')
+
     class Meta(api.base_v1.resources.EventResource.Meta): # set Meta to the public API Meta
-        fields = api.base_v1.resources.EventResource.Meta.fields + ['created_at', 'cover', 'photo_count', 'are_photos_streamable']
+        fields = api.base_v1.resources.EventResource.Meta.fields + ['created_at', 'cover', 'photo_count', 'are_photos_streamable', 'enabled', 'start', 'end'] # DEPRECATED: enabled, start, end
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
-        ordering = api.base_v1.resources.EventResource.Meta.ordering + ['start', 'end']
+        ordering = api.base_v1.resources.EventResource.Meta.ordering + ['start_at', 'end_at', 'start', 'end'] # DEPRECATED: start, end
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()
         serializer = SnapSerializer(formats=['json', 'jpeg'])
         filtering = dict(api.base_v1.resources.EventResource.Meta.filtering, **{
-            'enabled': ['exact'],
+            'is_enabled': ['exact'],
             'account': ['exact'],
-            'start': ALL,
-            'end': ALL,
+            'start_at': ALL,
+            'end_at': ALL,
             'photo_count': ['gte'],
             'title': ALL,
             'url': ALL,
+            # deprecated (2013-10-22)
+            'enabled': ['exact'],
+            'start': ALL,
+            'end': ALL,
         })
 
     def prepend_urls(self):
@@ -71,11 +80,11 @@ class EventResource(api.base_v1.resources.EventResource):
         post_now_datetime = now_datetime + timedelta(0, 0, 0, 0, delta_minutes) # delta minutes in the future
         # query set with only events that aren't finished
         sqs = Event.objects.filter(
-            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end__gte=pre_now_datetime)
+            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end_at__gte=pre_now_datetime)
         )
         # second query set without events that have finished
         sqs2 = Event.objects.filter(
-            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end__lt=pre_now_datetime)
+            (Q(title__icontains=request.GET.get('q', '')) | Q(url__icontains=request.GET.get('q', ''))) & Q(end_at__lt=pre_now_datetime)
         )
 
         # get the union
@@ -110,16 +119,19 @@ class EventResource(api.base_v1.resources.EventResource):
 
         return semi_filtered
 
-
-    def dehydrate_end(self, bundle):
-        return bundle.data['end'].strftime('%Y-%m-%dT%H:%M:%S')
-
-    def dehydrate_start(self, bundle):
-        return bundle.data['start'].strftime('%Y-%m-%dT%H:%M:%S')
-
     def dehydrate(self, bundle):
         try:
             ### DEPRECATED/COMPATIBILITY ###
+            # old start/end date (2013-10-22)
+            bundle.data['start'] = bundle.obj.start_at.strftime('%Y-%m-%dT%H:%M:%S')
+            bundle.data['end'] = bundle.obj.end_at.strftime('%Y-%m-%dT%H:%M:%S')
+
+            # convert the "enabled" flag (2013-10-22)
+            bundle.data['enabled'] = bundle.obj.is_enabled
+
+            # convert the "public" flag (2013-10-22)
+            bundle.data['public'] = bundle.obj.is_public
+
             # add the old user field
             users = User.objects.filter(account=bundle.obj.account, accountuser__admin=True)
             if users.count() > 0:
@@ -134,7 +146,7 @@ class EventResource(api.base_v1.resources.EventResource):
                 bundle.data['package'] = '/private_v1/package/1/'
 
             # convert the "public" flag into the old type values
-            if bundle.obj.public == True:
+            if bundle.obj.is_public == True:
                 bundle.data['type'] = '/private_v1/type/6/'
             else:
                 bundle.data['type'] = '/private_v1/type/5/'
@@ -150,12 +162,26 @@ class EventResource(api.base_v1.resources.EventResource):
 
     def hydrate(self, bundle):
         ### DEPRECATED/COMPATIBILITY ###
+        # old start/end date (2013-10-22)
+        if 'start' in bundle.data:
+            bundle.data['start_at'] = bundle.data['start']
+        if 'end' in bundle.data:
+            bundle.data['end_at'] = bundle.data['end']
+
+        # convert the "enabled" flag (2013-10-22)
+        if 'enabled' in bundle.data:
+            bundle.obj.is_enabled = bundle.data['is_enabled']
+
+        # convert the old type "public" flag (2013-10-22)
+        if 'public' in bundle.data:
+            bundle.obj.is_public = bundle.data['public']
+
         # convert the old type values into "public" flag 
         if 'type' in bundle.data:
             if bundle.data['type'] == '/private_v1/type/6/':
-                bundle.obj.public = True
+                bundle.obj.is_public = True
             else:
-                bundle.obj.public = False
+                bundle.obj.is_public = False
         # convert cover into a resource link
         if 'cover' in bundle.data and type(bundle.data['cover']) == int:
             bundle.obj.cover = Photo.objects.get(pk=bundle.data['cover'])
@@ -195,8 +221,8 @@ class EventResource(api.base_v1.resources.EventResource):
 
             # the possible time GET params to filter on events
             possible_time_params = [
-                'start', 'start__gt', 'start__gte', 'start__lt', 'start__lte',
-                'end', 'end__gt', 'end__gte', 'end__lt', 'end__lte',
+                'start_at', 'start_at__gt', 'start_at__gte', 'start_at__lt', 'start_at__lte',
+                'end_at', 'end_at__gt', 'end_at__gte', 'end_at__lt', 'end_at__lte',
             ]
 
             # fancy algorithm to detect if there are none of the time filtering GET params
@@ -228,7 +254,7 @@ class EventResource(api.base_v1.resources.EventResource):
                 # 3 = (end < now && end >= (now - delta))
                 #
                 events = events.filter(
-                    (Q(start__gt=now_datetime) & Q(start__lte=post_now_datetime)) | (Q(start__lte=now_datetime) & Q(end__gte=now_datetime)) | (Q(end__lt=now_datetime) & Q(end__gte=pre_now_datetime))
+                    (Q(start_at__gt=now_datetime) & Q(start_at__lte=post_now_datetime)) | (Q(start_at__lte=now_datetime) & Q(end_at__gte=now_datetime)) | (Q(end_at__lt=now_datetime) & Q(end_at__gte=pre_now_datetime))
                 )
 
             return events.filter(pk__in=values_list)

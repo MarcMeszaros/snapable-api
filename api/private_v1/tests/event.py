@@ -55,18 +55,34 @@ class Private_v1__EventResourceTest(ResourceTestCase):
             'creation_date',
             'enabled',
             'end',
+            'end_at',
+            'is_enabled',
+            'is_public',
             'package',
             'photo_count',
             'pin',
             'public',
             'resource_uri',
             'start',
+            'start_at',
             'title',
             'type',
             'tz_offset',
             'url',
             'user',
         ])
+
+    def test_get_events(self):
+        uri = '/private_v1/event/'
+        data_get = {'start_at__gte': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(time.time() - 60))}
+        resp = self.api_client.get(uri, data=data_get, format='json', authentication=self.get_credentials('GET', uri))
+
+        # make sure the resource was created
+        self.assertValidJSONResponse(resp)
+
+        count = self.deserialize(resp)['meta']['total_count']
+        self.assertTrue(count >= 0)
+        self.assertTrue(count < Event.objects.count())
 
     def test_get_event_cover(self):
         # this event doesn't have any data in cloud files
