@@ -29,7 +29,7 @@ class EventValidation(Validation):
     def is_valid(self, bundle, request=None):
         errors = {}
 
-        required = ['account', 'end', 'start', 'title', 'url']
+        required = ['account', 'end_at', 'start_at', 'title', 'url']
         for key in required:
             try:
                 bundle.data[key]

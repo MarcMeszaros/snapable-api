@@ -24,18 +24,19 @@ class Event(models.Model):
     addons = models.ManyToManyField(Addon, through='EventAddon')
     cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, on_delete=models.SET_NULL, help_text='The image to use for the event cover.')
 
-    start = models.DateTimeField(help_text='Event start time. (UTC)')
-    end = models.DateTimeField(help_text='Event end time. (UTC)')
+    start_at = models.DateTimeField(help_text='Event start time. (UTC)')
+    end_at = models.DateTimeField(help_text='Event end time. (UTC)')
     tz_offset = models.IntegerField(default=0, help_text='The timezone offset (in minutes) from UTC.')
     title = models.CharField(max_length=255, help_text='Event title.')
     url = models.CharField(max_length=255, unique=True, help_text='A "short name" for the event.')
-    public = models.BooleanField(default=True, help_text='Is the event considered "public".')
+    is_public = models.BooleanField(default=True, help_text='Is the event considered "public".')
     pin = models.CharField(max_length=255, help_text='Pseudo-random PIN used for private events.')
     created_at = models.DateTimeField(auto_now_add=True, help_text='When the event was created. (UTC)')
     last_access = models.DateTimeField(auto_now_add=True, help_text='When the event was last accessed. (UTC)')
     access_count = models.IntegerField(default=0)
-    enabled = models.BooleanField(help_text='Is the event considered "active" in the system.')
-    watermark = models.BooleanField(default=False, help_text='Should a watermark be applied to non-original images.')
+    is_enabled = models.BooleanField(default=True, help_text='Is the event considered "active" in the system.')
+    are_photos_streamable = models.BooleanField(default=True, help_text='Should the images be streamable by default when created.')
+    are_photos_watermarked = models.BooleanField(default=False, help_text='Should a watermark be applied to non-original images.')
 
     # virtual properties #
     # return the number of photos related to this event
@@ -51,12 +52,14 @@ class Event(models.Model):
     def __unicode__(self):
         return str({
             'account': self.account,
+            'are_photos_streamable': self.are_photos_streamable,
+            'are_photos_watermarked': self.are_photos_watermarked,
             'created_at': self.created_at,
-            'enabled': self.enabled,
-            'end': self.end,
+            'end_at': self.end_at,
+            'is_enabled': self.is_enabled,
             'pin': self.pin,
             'public': self.public,
-            'start': self.start,
+            'start_at': self.start_at,
             'title': self.title,
             'url': self.url,
             'tz_offset': self.tz_offset,
