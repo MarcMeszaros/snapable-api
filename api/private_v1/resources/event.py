@@ -170,7 +170,7 @@ class EventResource(api.base_v1.resources.EventResource):
 
         # convert the "enabled" flag (2013-10-22)
         if 'enabled' in bundle.data:
-            bundle.obj.is_enabled = bundle.data['is_enabled']
+            bundle.obj.is_enabled = bundle.data['enabled']
 
         # convert the old type "public" flag (2013-10-22)
         if 'public' in bundle.data:
