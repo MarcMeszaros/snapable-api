@@ -61,6 +61,9 @@ class User(models.Model):
     def set_password(self, raw_password, hasher='pbkdf2_sha256'):
         self.password = User.generate_password(raw_password, hasher)
 
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
+
     @staticmethod
     def generate_password(raw_password, hasher='pbkdf2_sha256'):
         #if hasher == 'bcrypt':

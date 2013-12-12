@@ -29,6 +29,12 @@ class UserResource(api.base_v1.resources.UserResource):
 
         return bundle
 
+    def hydrate(self, bundle):
+        if 'password' in bundle.data.keys():
+            bundle.obj.set_password(bundle.data['password'])
+
+        return bundle
+
     def obj_create(self, bundle, **kwargs):
         # get the API key associated with the request
         apikey = api.auth.DatabaseAuthentication().get_identifier(bundle.request)

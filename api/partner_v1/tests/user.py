@@ -84,3 +84,14 @@ class Partner_v1__UserResourceTest(ResourceTestCase):
 
         # check the email value
         self.assertEqual(self.deserialize(resp)['email'], 'bob+testexample3@example.com')
+
+        # test password creation
+        post_data = self.post_data.copy()
+        post_data['email'] = 'bob+testexample4@example.com'
+        post_data['password'] = 'newpass'
+        resp_pass = self.api_client.post(uri, data=post_data, format='json', authentication=self.get_credentials('POST', uri))
+
+        # make sure the password we used to create it is the one in the DB
+        resource_uri = self.deserialize(resp_pass)['resource_uri']
+        user_pk = resource_uri.strip('/').split('/')[-1]
+        self.assertTrue(User.objects.get(pk=user_pk).check_password(post_data['password']))
