@@ -8,7 +8,7 @@ from decimal import Decimal
 # django/tastypie/libs
 import pytz
 
-from django.conf.urls.defaults import *
+from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.paginator import Paginator, InvalidPage
 from django.db.models import Q
