@@ -263,12 +263,6 @@ try:
 except Exception as e:
     pass
 
-# set default pyrax settings
-import pyrax
-pyrax.set_setting('identity_type', 'rackspace')
-pyrax.set_credentials(RACKSPACE_USERNAME, RACKSPACE_APIKEY)
-pyrax.set_default_region('DFW')
-
 # setup stripe
 import stripe
 stripe.api_key = STRIPE_KEY_SECRET
@@ -280,17 +274,6 @@ if DEBUG:
 
     # set the stripe key
     stripe.api_key = STRIPE_KEY_SECRET
-
-    # custom test runner
-    TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
-    # what modules to exclude from the test coverage
-    COVERAGE_MODULE_EXCLUDES = [
-        # custom
-        'raven', 'south', 'tastypie', 'api.wsgi', 'djcelery',
-        # default
-        'tests$', 'settings$', 'urls$', 'locale$', 'common.views.test', '__init__', 'django', 'migrations'
-    ]
-    COVERAGE_REPORT_HTML_OUTPUT_DIR = 'build/reports'
 
     APIKEY = {
         'key123': 'sec123',
