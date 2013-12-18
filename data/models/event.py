@@ -14,6 +14,12 @@ from PIL import Image
 from data.models import Account
 from data.models import Addon
 
+# pyrax connection
+pyrax.set_setting('identity_type', 'rackspace')
+pyrax.set_credentials(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY)
+pyrax.set_default_region('DFW')
+cf = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
+
 class Event(models.Model):
 
     # required to make 'south' migrations work
@@ -80,8 +86,7 @@ class Event(models.Model):
         try:
             # check the partner API account first
             if self.account.api_account is not None:
-                conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
-                cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
+                cont = cf.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
 
                 # try and get watermark image
                 obj = cont.get_object('{0}.png'.format(self.account.api_account.pk))
