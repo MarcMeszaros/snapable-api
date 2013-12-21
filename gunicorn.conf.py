@@ -26,5 +26,14 @@ worker_class = 'sync' # default: sync; alternate: gevent
 proc_name = 'snap_api'
 
 # logging
-accesslog = '-'
+#accesslog = '-'
 errorlog = '-'
+
+# start newrelic if on athena (staging)
+if ('athena' in socket.gethostname()):
+    import newrelic.agent
+    newrelic.agent.initialize(os.path.join(PROJECT_PATH, 'newrelic.ini'), 'staging')
+# start newrelic if on ares (production)
+elif ('ares' in socket.gethostname()):
+    import newrelic.agent
+    newrelic.agent.initialize(os.path.join(PROJECT_PATH, 'newrelic.ini'), 'production')

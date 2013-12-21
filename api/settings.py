@@ -1,5 +1,4 @@
 import os
-import socket
 import sys
 
 # get the project path
@@ -9,15 +8,6 @@ PROJECT_PATH = os.path.dirname(PROJECT_PATH_INNER)
 # custom imports
 import djcelery
 djcelery.setup_loader()
-
-# start newrelic if on athena (staging)
-if ('athena' in socket.gethostname()):
-    import newrelic.agent
-    newrelic.agent.initialize(os.path.join(PROJECT_PATH, 'newrelic.ini'), 'staging')
-# start newrelic if on ares (production)
-elif ('ares' in socket.gethostname()):
-    import newrelic.agent
-    newrelic.agent.initialize(os.path.join(PROJECT_PATH, 'newrelic.ini'), 'production')
 
 # Django settings for api project.
 DEBUG = False
@@ -157,11 +147,9 @@ LOGGING = {
         'simple': {
             'format': '[%(levelname)s] %(message)s'
         },
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
+        'requests': {
+            'format': '%(asctime)s %(message)s'
+        },
     },
     'handlers': {
         'null': {
@@ -173,18 +161,14 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
+        'console.requests':{
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'requests',
+        },
         'sentry': {
             'level': 'INFO',
             'class': 'raven.contrib.django.handlers.SentryHandler',
-        },
-        'file.firehose': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(PROJECT_PATH, 'logs', 'firehose.log'),
-            'when': 'D',
-            'interval': 1,
-            'backupCount': 14,
-            'utc': True,
         },
         'file.requests': {
             'level': 'INFO',
@@ -199,13 +183,13 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file.firehose', 'sentry'],
+            'handlers': ['sentry'],
             'level': 'WARNING',
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['console', 'file.firehose', 'sentry'],
-            'level': 'INFO',
+            'handlers': ['sentry'],
+            'level': 'WARNING',
             'propagate': True,
         },
         'django.db.backend': {
@@ -219,7 +203,7 @@ LOGGING = {
             'propagate': True,
         },
         'snapable.request': {
-            'handlers': ['file.requests'],
+            'handlers': ['console.requests', 'file.requests'],
             'level': 'INFO',
             'propagate': False,
         },

@@ -12,7 +12,7 @@ class RequestLoggingMiddleware(object):
         return None
 
     def process_response(self, request, response):
-        duration = time() - request.timer # seconds
+        duration = (time() - request.timer) * 1000 # milliseconds
 
         # log the response
         logger = logging.getLogger('snapable.request')
