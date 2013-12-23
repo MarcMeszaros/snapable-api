@@ -36,6 +36,14 @@ You need to have [VirtualBox](https://www.virtualbox.org/) installed and [Vagran
 1. Run ``vagrant up`` in the root folder, then go have a coffee (this may take a while the first time).
 2. Run ``vagrant ssh`` to connect to the VM
 
+### Disable Authentication Check ###
+It can be annoying to develop on the API and have to build a client that conforms to the request
+signing requirements of the API. Thankfully, you can disable the authentication checks by starting up
+the server with the ``SNAP_AUTHENTICATION`` environment variable set to ``False``. Gunicorn has a special
+option to pass in environment variables to your application.
+
+``gunicorn -e SNAP_AUTHENTICATION=False api.wsgi:application``
+
 ## Unit Tests ##
 To run the unit tests, you first need to log on to the VM using ``vagrant ssh``. Then execute the following commands:
 
@@ -64,8 +72,6 @@ in the root API source code folder.
     EMAIL_HOST = 'smtp.mailgun.org'
     EMAIL_HOST_USER = 'my_user' # only save in local settings
     EMAIL_HOST_PASSWORD = 'my_pass' # only save in local settings
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
 
     # RACKSPACE
     RACKSPACE_USERNAME = 'my_user'
@@ -74,7 +80,9 @@ in the root API source code folder.
     RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = True
 
     # sentry/raven
-    SENTRY_DSN = 'http://user:pass@host/2'
+    RAVEN_CONFIG = {
+        'dsn': 'http://user:pass@host/2',
+    }
 
     # API keys
     APIKEY = {
