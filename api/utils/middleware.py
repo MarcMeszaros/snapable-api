@@ -16,15 +16,11 @@ class RequestLoggingMiddleware(object):
 
         # log the response
         logger = logging.getLogger('snapable.request')
-        if 'RAW_URI' in request.META:
-            url = request.META['RAW_URI']
-        else:
-            url = request.path
 
         # log the request
         if 'HTTP_AUTHORIZATION' in request.META and 'HTTP_ACCEPT' in request.META:
-            logger.info('{0} {1} [{2}] ({3}) {4}'.format(request.META['REQUEST_METHOD'], response.status_code, duration, request.META['HTTP_ACCEPT'], url))
+            logger.info('{0} {1} [{2}] ({3}) {4}'.format(request.method, response.status_code, duration, request.META['HTTP_ACCEPT'], request.path))
         else:
-            logger.info('{0} {1} {2}'.format(request.META['REQUEST_METHOD'], response.status_code, url))
+            logger.info('{0} {1} {2}'.format(request.method, response.status_code, request.path))
 
         return response
