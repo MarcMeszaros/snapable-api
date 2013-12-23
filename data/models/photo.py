@@ -1,5 +1,6 @@
 # python
 import cStringIO
+import warnings
 
 # django/tastypie/libs
 import pyrax
