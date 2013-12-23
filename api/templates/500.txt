@@ -1,6 +1,7 @@
 ++ 500 - INTERNAL SERVER ERROR ++
 
-Our team of trained ostriches encountered a problem they are unable to solve.
+Our team of trained ostriches encountered a problem 
+they are unable to solve.
             __
            (oo)
             \/
