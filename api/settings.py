@@ -131,7 +131,6 @@ INSTALLED_APPS = (
     # third-party libraries/apps
     'raven.contrib.django',
     'tastypie',
-    'djcelery',
     'south',
 )
 
