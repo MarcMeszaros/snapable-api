@@ -65,7 +65,6 @@ if [ ! -d /home/vagrant/environments ]; then
 fi
 # run the setup instruction commands for the api
 su - vagrant -c '~/environments/api/bin/pip install -v -r /vagrant/requirements.txt'
-su - vagrant -c '~/environments/api/bin/pip install -v -r /vagrant/requirements-dev.txt'
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py syncdb'
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py migrate data'
 su - vagrant -c '~/environments/api/bin/python ~/environments/api/snapable/manage.py migrate api'
