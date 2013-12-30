@@ -5,10 +5,6 @@ import sys
 PROJECT_PATH_INNER = os.path.dirname(__file__)
 PROJECT_PATH = os.path.dirname(PROJECT_PATH_INNER)
 
-# custom imports
-import djcelery
-djcelery.setup_loader()
-
 # Django settings for api project.
 DEBUG = False
 
