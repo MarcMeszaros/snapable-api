@@ -109,19 +109,20 @@ class Private_v1__UserResourceTest(ResourceTestCase):
         password_before = user_before.password
 
         # update the password
-        put_uri = '/private_v1/user/{0}/'.format(user_before.pk)
+        put_uri = '/private_v1/user/{0}/passwordreset/'.format(user_before.pk)
         put_data = {
+            'nonce' : nonce.nonce,
             'password': 'my1337password',
         }
-        extra = {
-            'HTTP_X_SNAP_USER': '{0}:{1}'.format(user_before.email, nonce.nonce),
-        }
 
-        #print user_before
-        put_resp = self.api_client.put(put_uri, data=put_data, format='json', authentication=self.get_credentials('PUT', put_uri), **extra)
-        self.assertHttpOK(put_resp)
+        # test nonce response
+        put_resp = self.api_client.patch(put_uri, data=put_data, format='json', authentication=self.get_credentials('PATCH', put_uri))
+        self.assertHttpAccepted(put_resp)
+
+        put_resp = self.api_client.patch(put_uri, data=put_data, format='json', authentication=self.get_credentials('PATCH', put_uri))
+        self.assertHttpNotFound(put_resp)
+
+        # test password
         user_after = User.objects.get(pk=1)
-
         password_after = user_after.password
-
         self.assertNotEqual(password_after, password_before)

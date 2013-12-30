@@ -9,7 +9,7 @@ from django.template.loader import get_template
 from django.template import Context
 
 from tastypie.authorization import Authorization
-from tastypie.exceptions import BadRequest
+from tastypie.exceptions import BadRequest, NotFound
 from tastypie import fields, utils
 from tastypie.resources import ALL
 from tastypie.utils import dict_strip_unicode_keys
@@ -33,7 +33,7 @@ class UserResource(api.base_v1.resources.UserResource):
         fields = api.base_v1.resources.UserResource.Meta.fields + []
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
-        passwordreset_allowed_methods = ['get', 'post']
+        passwordreset_allowed_methods = ['get', 'post', 'patch']
         authentication = api.auth.ServerAuthentication()
         authorization = api.auth.ServerAuthorization()
         filtering = dict(api.base_v1.resources.UserResource.Meta.filtering, **{
@@ -259,3 +259,52 @@ class UserResource(api.base_v1.resources.UserResource):
 
         #to_be_serialized['objects'] = [self.full_dehydrate(bundle) for bundle in bundles]
         return self.create_response(request, to_be_serialized)
+
+
+    def patch_passwordreset(self, request, **kwargs):
+
+        Log.i("passwordreset endpoint")
+
+        basic_bundle = self.build_bundle(request=request)
+
+        # We want to be able to validate the update, but we can't just pass
+        # the partial data into the validator since all data needs to be
+        # present. Instead, we basically simulate a PUT by pulling out the
+        # original data and updating it in-place.
+        # So first pull out the original object. This is essentially
+        # ``get_detail``.
+        try:
+            obj = User.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return http.HttpNotFound()
+        except MultipleObjectsReturned:
+            return http.HttpMultipleChoices("More than one resource is found at this URI.")
+
+        bundle = self.build_bundle(obj=obj, request=request)
+        bundle = self.full_dehydrate(bundle)
+        bundle = self.alter_detail_data_to_serialize(request, bundle)
+
+        # Now update the bundle in-place.
+        deserialized = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
+
+        if deserialized['nonce'] is not None and deserialized['password'] is not None:
+        
+            try:
+                passnonce = PasswordNonce.objects.get(user=bundle.obj, valid=True, nonce=deserialized['nonce'])
+                passnonce.valid = False # invalidate the nonce so it can't be used again
+                passnonce.save()
+
+                bundle.obj.set_password(deserialized['password'])
+                bundle.obj.save()
+            except ObjectDoesNotExist:
+                return http.HttpNotFound()
+
+            if not self._meta.always_return_data:
+                return http.HttpAccepted()
+            else:
+                bundle = self.full_dehydrate(bundle)
+                bundle = self.alter_detail_data_to_serialize(request, bundle)
+                return self.create_response(request, bundle, response_class=http.HttpAccepted)
+
+        else:
+            return self.create_response(request, bundle, response_class=http.HttpBadRequest)
