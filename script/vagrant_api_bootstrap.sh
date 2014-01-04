@@ -7,7 +7,6 @@ echo "| Setup Snapable |"
 echo "+----------------+"
 echo ""
 # run the setup instruction commands for the api
-su - vagrant -c '~/api/bin/pip install -v -r ~/api/snapable/requirements.txt'
 su - vagrant -c '~/api/bin/python ~/api/snapable/manage.py syncdb'
 su - vagrant -c '~/api/bin/python ~/api/snapable/manage.py migrate data'
 su - vagrant -c '~/api/bin/python ~/api/snapable/manage.py migrate api'
