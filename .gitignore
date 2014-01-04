@@ -11,12 +11,13 @@ logs/*
 ehthumbs.db
 Thumbs.db# ignore OS X files
 
-# IDE stuff #
+# IDE/Editor stuff #
 #############
 nbproject/*
 .project
 .buildpath
 .settings/*
+.swp
 
 # Build Directory/File #
 ########################
