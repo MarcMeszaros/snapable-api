@@ -23,7 +23,7 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--memory", "512"]
   end
 
-  config.vm.define :api, primary: true do |api|
+  config.vm.define :api do |api|
     config.vm.hostname = "api"
     config.vm.network :private_network, ip: "192.168.56.101"
 
