@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% set title = _('Overview') %}
+{% block body %}
+  <h1>{{ docstitle|e }}</h1>
+  <p>
+    Welcome! This is
+    {% block description %}the documentation for {{ project|e }}
+    {{ release|e }}{% if last_updated %}, last updated {{ last_updated|e }}{% endif %}{% endblock %}.
+  </p>
+  {% block tables %}
+    <p><strong>Parts of the documentation:</strong></p>
+    <table class="contentstable" align="center"><tr>
+      <td width="50%">
+        <p class="biglink"><a class="biglink" href="{{ pathto("introduction") }}">Introduction</a><br/>
+           <span class="linkdescr">start here</span>
+           <!--<span class="linkdescr">or <a href="{{ pathto("whatsnew/index") }}">all "What's new" documents</a></span>--></p>
+        <p class="biglink"><a class="biglink" href="{{ pathto("tutorials/index") }}">Tutorials</a><br/>
+           <span class="linkdescr">code samples and snippets</span></p>
+        <p class="biglink"><a class="biglink" href="/console/">API Console</a><br/>
+           <span class="linkdescr">try out the API</span></p>
+      </td><td width="50%">
+        <p class="biglink"><a class="biglink" href="{{ pathto("resources/index") }}">API Resources</a><br/>
+           <span class="linkdescr">API endpoints overview</span></p>
+        <p class="biglink"><a class="biglink" href="{{ pathto("authentication/index") }}">API Authentication</a><br/>
+           <span class="linkdescr">who are you?</span></p>
+      </td></tr>
+    </table>
+
+    <p><strong>Indices and tables:</strong></p>
+    <table class="contentstable" align="center"><tr>
+      <td width="50%">
+        <p class="biglink"><a class="biglink" href="{{ pathto("glossary") }}">Glossary</a><br/>
+           <span class="linkdescr">the most important terms explained</span></p>
+      </td><td width="50%">
+        <p class="biglink"><a class="biglink" href="{{ pathto("search") }}">Search page</a><br/>
+           <span class="linkdescr">search this documentation</span></p>
+        <p class="biglink"><a class="biglink" href="{{ pathto("contents") }}">Table of Contents</a><br/>
+           <span class="linkdescr">lists all sections and subsections</span></p>
+      </td></tr>
+    </table>
+  {% endblock %}
+{% endblock %}

@@ -1,5 +1,6 @@
 # python
 import cStringIO
+import warnings
 
 # django/tastypie/libs
 import pyrax
@@ -37,9 +38,11 @@ class Photo(models.Model):
     ## virtual properties getters/setters ##
     # return the created at timestamp
     def _get_timestamp(self):
+        warnings.warn('Photo.timestamp is deprecated. Use Photo.created_at', DeprecationWarning)
         return self.created_at
 
     def _set_timestamp(self, value):
+        warnings.warn('Photo.timestamp is deprecated. Use Photo.created_at', DeprecationWarning)
         self.created_at = value
 
     # add the virtual properties

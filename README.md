@@ -6,26 +6,36 @@ Development is done on [Ubuntu 12.04 LTS](http://www.ubuntu.com/).
 You can view the library versions developed against in the "requirements.txt" file.
 To install all the libraries at once using [pip](http://www.pip-installer.org/).
 
-System packages required are defined in ``script/dependencies.sh``
+## System Requirements ##
+System packages required are for the pip installer to work:
+
+* git (generic)
+* make (generic)
+* python-dev (generic)
+* libffi-dev (bcrypt)
+* libmysqlclient-dev (mysql) 
+* libtiff4-dev  (pillow)
+* libjpeg8-dev (pillow)
+* zlib1g-dev (pillow)
+* libfreetype6-dev (pillow)
+* liblcms1-dev (pillow)
+* libwebp-dev (pillow)
 
 ## MANUAL INSTALLATION EXAMPLE ##
 Run the following commands:
 
-    > git clone git@bitbucket.org:snapable/api.git ~/snapable
-    > sudo bash ~/snapable/script/dependencies.sh
     > sudo pip install --upgrade
     > sudo pip install virtualenv
-    > mkdir ~/environments/
-    > virtualenv ~/environments/api/
-    > cd ~/environments/api/
+    > virtualenv ~/api/
+    > cd ~/api/
     > source bin/activate
-    > mv ~/snapable ~/environments/api/
+    > git clone git@bitbucket.org:snapable/api.git snapable
     > cd snapable
     > pip install -r requirements.txt
     > ./manage.py syncdb
     > ./manage.py migrate data
     > ./manage.py migrate api
-    > gunicorn api.wsgi:application -c gunicorn.conf.py
+    > gunicorn api.wsgi:application
 
 # DEVELOPMENT #
 
@@ -36,10 +46,18 @@ You need to have [VirtualBox](https://www.virtualbox.org/) installed and [Vagran
 1. Run ``vagrant up`` in the root folder, then go have a coffee (this may take a while the first time).
 2. Run ``vagrant ssh`` to connect to the VM
 
+### Disable Authentication Check ###
+It can be annoying to develop on the API and have to build a client that conforms to the request
+signing requirements of the API. Thankfully, you can disable the authentication checks by starting up
+the server with the ``SNAP_AUTHENTICATION`` environment variable set to ``False``. Gunicorn has a special
+option to pass in environment variables to your application.
+
+``gunicorn -e SNAP_AUTHENTICATION=False api.wsgi:application``
+
 ## Unit Tests ##
 To run the unit tests, you first need to log on to the VM using ``vagrant ssh``. Then execute the following commands:
 
-    cd ~/environments/api
+    cd ~/api
     source bin/activate
     cd snapable
     ./manage.py test
@@ -64,8 +82,6 @@ in the root API source code folder.
     EMAIL_HOST = 'smtp.mailgun.org'
     EMAIL_HOST_USER = 'my_user' # only save in local settings
     EMAIL_HOST_PASSWORD = 'my_pass' # only save in local settings
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
 
     # RACKSPACE
     RACKSPACE_USERNAME = 'my_user'
@@ -74,7 +90,9 @@ in the root API source code folder.
     RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = True
 
     # sentry/raven
-    SENTRY_DSN = 'http://user:pass@host/2'
+    RAVEN_CONFIG = {
+        'dsn': 'http://user:pass@host/2',
+    }
 
     # API keys
     APIKEY = {

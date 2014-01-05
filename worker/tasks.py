@@ -1,18 +1,16 @@
 from __future__ import absolute_import
 
-from worker import celery
+from worker import app
+from data.models import PasswordNonce
+from datetime import datetime, timedelta
 
-
-@celery.task
+@app.task
 def add(x, y):
     return x + y
 
-
-@celery.task
-def mul(x, y):
-    return x * y
-
-
-@celery.task(ignore_result=True)
-def xsum(numbers):
-    return sum(numbers)
+@app.task
+# Invalidate nonces older than X minutes.
+# Defaults to 1440 minutes (24 hours).
+def nonce_expiry(minutes=1440):
+    date = datetime.utcnow() - timedelta(0,minutes)
+    return PasswordNonce.objects.filter(created_at__lt=date).update(valid=False)

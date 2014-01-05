@@ -1,23 +1,9 @@
 import os
-import socket
 import sys
 
 # get the project path
 PROJECT_PATH_INNER = os.path.dirname(__file__)
 PROJECT_PATH = os.path.dirname(PROJECT_PATH_INNER)
-
-# custom imports
-import djcelery
-djcelery.setup_loader()
-
-# start newrelic if on athena (staging)
-if ('athena' in socket.gethostname()):
-    import newrelic.agent
-    newrelic.agent.initialize(os.path.join(PROJECT_PATH, 'newrelic.ini'), 'staging')
-# start newrelic if on ares (production)
-elif ('ares' in socket.gethostname()):
-    import newrelic.agent
-    newrelic.agent.initialize(os.path.join(PROJECT_PATH, 'newrelic.ini'), 'production')
 
 # Django settings for api project.
 DEBUG = False
@@ -26,7 +12,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'snapabledb',            # Or path to database file if using sqlite3.
-        'USER': 'root',                  # Not used with sqlite3.
+        'USER': 'snapableusr',           # Not used with sqlite3.
         'PASSWORD': 'snapable12345',     # Not used with sqlite3.
         'HOST': '192.168.56.101',        # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
@@ -141,7 +127,6 @@ INSTALLED_APPS = (
     # third-party libraries/apps
     'raven.contrib.django',
     'tastypie',
-    'djcelery',
     'south',
 )
 
@@ -157,11 +142,9 @@ LOGGING = {
         'simple': {
             'format': '[%(levelname)s] %(message)s'
         },
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
+        'requests': {
+            'format': '%(asctime)s %(message)s'
+        },
     },
     'handlers': {
         'null': {
@@ -169,22 +152,18 @@ LOGGING = {
             'class': 'django.utils.log.NullHandler',
         },
         'console':{
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
+        },
+        'console.requests':{
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'requests',
         },
         'sentry': {
             'level': 'INFO',
             'class': 'raven.contrib.django.handlers.SentryHandler',
-        },
-        'file.firehose': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(PROJECT_PATH, 'logs', 'firehose.log'),
-            'when': 'D',
-            'interval': 1,
-            'backupCount': 14,
-            'utc': True,
         },
         'file.requests': {
             'level': 'INFO',
@@ -199,13 +178,13 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file.firehose', 'sentry'],
+            'handlers': ['sentry'],
             'level': 'WARNING',
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['console', 'file.firehose', 'sentry'],
-            'level': 'INFO',
+            'handlers': ['sentry'],
+            'level': 'WARNING',
             'propagate': True,
         },
         'django.db.backend': {
@@ -219,7 +198,7 @@ LOGGING = {
             'propagate': True,
         },
         'snapable.request': {
-            'handlers': ['file.requests'],
+            'handlers': ['console.requests', 'file.requests'],
             'level': 'INFO',
             'propagate': False,
         },

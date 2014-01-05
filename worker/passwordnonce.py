@@ -1,6 +1,6 @@
 # worker import
 from __future__ import absolute_import
-from worker import celery
+from worker import app
 
 # python
 from datetime import datetime, timedelta
@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 # snapable
 from data.models import PasswordNonce
 
-@celery.task
+@app.task
 def expire():
     delta = datetime.now() - timedelta(hours=24)
     nonces = PasswordNonce.objects.filter(valid=True, timestamp__lte=delta)

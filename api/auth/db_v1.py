@@ -2,6 +2,7 @@
 import dateutil.parser
 import hashlib
 import hmac
+import os
 import random
 import time
 
@@ -50,6 +51,10 @@ class DatabaseAuthentication(Authentication):
         return 'SNAP key="'+api_key+'",signature="'+signature+'",nonce="'+snap_nonce+'",timestamp="'+snap_timestamp+'"'
 
     def is_authenticated(self, request, **kwargs):
+        # check for the environment variable to skip auth
+        if os.environ.get('SNAP_AUTHENTICATION', 'True') in ['False', 'false']:
+            return True
+
         try:
             # get the Authorization header
             auth = request.META['HTTP_AUTHORIZATION'].strip().split(' ')

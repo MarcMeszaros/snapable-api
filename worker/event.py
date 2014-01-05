@@ -1,6 +1,6 @@
 # worker import
 from __future__ import absolute_import
-from worker import celery
+from worker import app
 
 # python
 import os
@@ -15,7 +15,7 @@ import pyrax
 # snapable
 from data.models import Event, Photo
 
-@celery.task
+@app.task
 def create_images_zip(event_id):
     try:
         # create tempdir and get the event

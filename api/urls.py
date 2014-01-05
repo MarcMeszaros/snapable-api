@@ -13,7 +13,8 @@ urlpatterns = patterns('',
     # redirect the root API to prevent error pages
     url(r'^$', lambda x: HttpResponseRedirect('http://snapable.com/')),
     # tell bots not to try and crawl the API
-    url(r'^robots\.txt$', lambda r: HttpResponse("User-agent: *\nDisallow: /*", mimetype="text/plain")),
+    url(r'^robots\.txt$', lambda r: render(r, 'robots.txt', content_type='text/plain')),
+    url(r'^humans\.txt$', lambda r: render(r, 'humans.txt', content_type='text/plain')),
 
     ## define all the API versions here ##
     # public APIs
