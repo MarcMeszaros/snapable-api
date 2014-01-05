@@ -52,7 +52,7 @@ signing requirements of the API. Thankfully, you can disable the authentication 
 the server with the ``SNAP_AUTHENTICATION`` environment variable set to ``False``. Gunicorn has a special
 option to pass in environment variables to your application.
 
-``gunicorn -e SNAP_AUTHENTICATION=False api.wsgi:application``
+``gunicorn -e SNAP_AUTHENTICATION=False wsgi:application``
 
 ## Unit Tests ##
 To run the unit tests, you first need to log on to the VM using ``vagrant ssh``. Then execute the following commands:
