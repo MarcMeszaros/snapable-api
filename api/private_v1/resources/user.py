@@ -262,9 +262,6 @@ class UserResource(api.base_v1.resources.UserResource):
 
 
     def patch_passwordreset(self, request, **kwargs):
-
-        Log.i("passwordreset endpoint")
-
         basic_bundle = self.build_bundle(request=request)
 
         # We want to be able to validate the update, but we can't just pass
