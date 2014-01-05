@@ -84,7 +84,7 @@ Vagrant.configure("2") do |config|
       salt.install_master = true
       salt.master_config = "salt/master"
       salt.minion_config = "salt/minion-worker"
-      salt.install_type = "git"
+      salt.install_type = "git" # required until 'Hydrogen' is released
       salt.verbose = true
 
       salt.master_key = "salt/key/master.pem"
@@ -100,7 +100,7 @@ Vagrant.configure("2") do |config|
     config.vm.provision :shell, inline: "salt-run fileserver.update" # force refresh the gitfs states
     config.vm.provision :shell, inline: "echo 'Running salt.highstate... (may take several minutes)'; salt '*' state.highstate"
     config.vm.provision :shell, inline: "rabbitmq-plugins enable rabbitmq_management && service rabbitmq-server restart"
-    config.vm.provision :shell, inline: "su - vagrant -c '~/api/bin/pip install -v flower'"
+    config.vm.provision :shell, inline: "su - vagrant -c '~/snap_api/bin/pip install -v flower'"
   end
 
 end
