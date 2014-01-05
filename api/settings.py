@@ -178,17 +178,17 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['sentry'],
+            'handlers': ['console', 'sentry'],
             'level': 'WARNING',
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['sentry'],
+            'handlers': ['console', 'sentry'],
             'level': 'WARNING',
             'propagate': True,
         },
         'django.db.backend': {
-            'handlers': ['sentry'],
+            'handlers': ['console', 'sentry'],
             'level': 'WARNING',
             'propagate': True,
         },
