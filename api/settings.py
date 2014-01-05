@@ -183,7 +183,7 @@ LOGGING = {
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['sentry'],
+            'handlers': ['console', 'sentry'],
             'level': 'WARNING',
             'propagate': True,
         },
