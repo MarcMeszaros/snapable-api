@@ -17,7 +17,7 @@ nbproject/*
 .project
 .buildpath
 .settings/*
-.swp
+*.swp
 
 # Build Directory/File #
 ########################
