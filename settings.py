@@ -2,8 +2,8 @@ import os
 import sys
 
 # get the project path
-PROJECT_PATH_INNER = os.path.dirname(__file__)
-PROJECT_PATH = os.path.dirname(PROJECT_PATH_INNER)
+PROJECT_PATH = os.path.dirname(__file__)
+#PROJECT_PATH = os.path.dirname(PROJECT_PATH_INNER)
 
 # Django settings for api project.
 DEBUG = False
@@ -102,10 +102,10 @@ MIDDLEWARE_CLASSES = (
     'api.utils.middleware.RequestLoggingMiddleware',
 )
 
-ROOT_URLCONF = 'api.urls'
+ROOT_URLCONF = 'urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'api.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
