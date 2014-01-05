@@ -1,12 +1,7 @@
 import os
-import sys
 
 # get the project path
 PROJECT_PATH = os.path.dirname(__file__)
-#PROJECT_PATH = os.path.dirname(PROJECT_PATH_INNER)
-
-# Django settings for api project.
-DEBUG = False
 
 DATABASES = {
     'default': {
@@ -211,14 +206,17 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
 
-# email backend
-EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
-
-# Django 1.5+ requires this 
+##### Django 1.5+ requires this #####
 AUTH_USER_MODEL = 'data.User'
 ALLOWED_HOSTS = ['.snapable.com']
 
-# RACKSPACE
+##### Email #####
+EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+##### RACKSPACE #####
 RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_images_'
 RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX = 'dev_downloads_'
 RACKSPACE_CLOUDFILE_WATERMARK = 'dev_watermark'
@@ -226,16 +224,36 @@ RACKSPACE_CLOUDFILE_TIMEOUT = 120
 RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = 10000
 RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = True
 
-# tastypie settings
+##### Tastypie #####
 API_LIMIT_PER_PAGE = 50
 TASTYPIE_DEFAULT_FORMATS = ['json']
 
-# stripe
+##### Stripe #####
 STRIPE_KEY_SECRET = '***REMOVED***' # testing
 STRIPE_KEY_PUBLIC = '***REMOVED***' # testing
 STRIPE_CURRENCY = 'usd'
 
-# import local settings
+##### Celery #####
+# Broker settings.
+BROKER_URL = 'amqp://snap_api:snapable12345@localhost:5672/snap_api'
+
+# Results backend.
+CELERY_RESULT_BACKEND = 'amqp://snap_api:snapable12345@localhost:5672/snap_api'
+
+# List of modules to import when celery starts.
+CELERY_IMPORTS = (
+    'worker.tasks',
+    'worker.event',
+    'worker.passwordnonce',
+)
+
+# Expire tasks after a set time
+CELERY_TASK_RESULT_EXPIRES = 3600 # 1h
+
+#CELERY_ANNOTATIONS = {'tasks.add': {'rate_limit': '10/s'}}
+
+
+#### Import Local Settings #####
 try:
     os.path.isfile(os.path.join(PROJECT_PATH, 'settings_local.py'))
     from settings_local import *
@@ -248,12 +266,6 @@ stripe.api_key = STRIPE_KEY_SECRET
 
 # set debug defaults
 if DEBUG:
-    STRIPE_KEY_SECRET = '***REMOVED***' # testing
-    STRIPE_KEY_PUBLIC = '***REMOVED***' # testing
-
-    # set the stripe key
-    stripe.api_key = STRIPE_KEY_SECRET
-
     APIKEY = {
         'key123': 'sec123',
     }
