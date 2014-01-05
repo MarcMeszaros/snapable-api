@@ -32,6 +32,7 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", inline: "cat /vagrant/salt/key/known_hosts >> /root/.ssh/known_hosts"
     config.vm.provision "shell", inline: "cp /vagrant/salt/key/id_deployment /root/.ssh/id_rsa"
     config.vm.provision "shell", inline: "cp /vagrant/salt/key/id_deployment.pub /root/.ssh/id_rsa.pub"
+    config.vm.provision "shell", inline: "chmod 0600 /root/.ssh/id_rsa"
 
     # install python-git (required for saltstack gitfs)
     config.vm.provision "shell", inline: "apt-get update"
@@ -70,6 +71,7 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", inline: "cat /vagrant/salt/key/known_hosts >> /root/.ssh/known_hosts"
     config.vm.provision "shell", inline: "cp /vagrant/salt/key/id_deployment /root/.ssh/id_rsa"
     config.vm.provision "shell", inline: "cp /vagrant/salt/key/id_deployment.pub /root/.ssh/id_rsa.pub"
+    config.vm.provision "shell", inline: "chmod 0600 /root/.ssh/id_rsa"
 
     # install python-git (required for saltstack gitfs)
     config.vm.provision "shell", inline: "apt-get update"
