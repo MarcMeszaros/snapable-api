@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 # get the project path
 PROJECT_PATH = os.path.dirname(__file__)
@@ -240,18 +241,24 @@ BROKER_URL = 'amqp://snap_api:snapable12345@localhost:5672/snap_api'
 # Results backend.
 CELERY_RESULT_BACKEND = 'amqp://snap_api:snapable12345@localhost:5672/snap_api'
 
+# Expire tasks after a set time
+CELERY_TASK_RESULT_EXPIRES = 3600 # 1h
+#CELERY_ANNOTATIONS = {'tasks.add': {'rate_limit': '10/s'}}
+
 # List of modules to import when celery starts.
 CELERY_IMPORTS = (
-    'worker.tasks',
     'worker.event',
     'worker.passwordnonce',
 )
 
-# Expire tasks after a set time
-CELERY_TASK_RESULT_EXPIRES = 3600 # 1h
-
-#CELERY_ANNOTATIONS = {'tasks.add': {'rate_limit': '10/s'}}
-
+# tasks to run on a schedule
+CELERYBEAT_SCHEDULE = {
+    'expire-every-5-seconds': {
+        'task': 'worker.passwordnonce.expire',
+        'schedule': timedelta(seconds=5),
+        #'args': (1440)
+    },
+}
 
 #### Import Local Settings #####
 try:
