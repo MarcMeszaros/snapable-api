@@ -100,7 +100,6 @@ Vagrant.configure("2") do |config|
     config.vm.provision :shell, inline: "salt-run fileserver.update" # force refresh the gitfs states
     config.vm.provision :shell, inline: "echo 'Running salt.highstate... (may take several minutes)'; salt '*' state.highstate"
     config.vm.provision :shell, inline: "rabbitmq-plugins enable rabbitmq_management && service rabbitmq-server restart"
-    config.vm.provision :shell, inline: "su - vagrant -c '~/snap_api/bin/pip install -v flower'"
   end
 
 end
