@@ -14,7 +14,10 @@ from datetime import datetime, timedelta
 import pyrax
 
 # snapable
+import settings
+
 from data.models import Event, Photo
+from api.utils.loggers import Log
 
 @app.task
 def create_images_zip(event_id):
@@ -29,7 +32,7 @@ def create_images_zip(event_id):
             photo.get_image().img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
 
         # create the zip file [PS: awesome new python 2.7+ function! :-) ]
-        zip_path = shutil.make_archive(photo.pk, 'zip', event.url)
+        zip_path = shutil.make_archive(tempfile.tempdir+"/"+event.title,'zip', tempdir)
 
         # upload the zip to the CDN
         conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
@@ -39,8 +42,8 @@ def create_images_zip(event_id):
         except pyrax.exceptions.NoSuchContainer as e:
             cont = conn.create_container(settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
             conn.make_container_public(cont.name)
-            Log.i('created a new CDN container: ' + settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(self.event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
-    
+            Log.i('created a new CDN container: ' + settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+
         cont.upload_file(zip_path)
 
         # delete local zip
