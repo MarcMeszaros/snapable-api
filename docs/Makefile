@@ -41,7 +41,10 @@ html:
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 html-code:
-	$(SPHINXAPIDOC) -o $(CODESOURCE)/api ../api utils templatetags
+	$(SPHINXAPIDOC) -f -e -E -d 3 -o $(CODESOURCE)/api $(abspath ../api) migrations templatetags partner_v1/tests private_v1/tests
+	$(SPHINXAPIDOC) -f -e -E -d 3 -o $(CODESOURCE)/data $(abspath ../data) migrations tests
+	$(SPHINXAPIDOC) -f -e -E -d 3 -o $(CODESOURCE)/utils $(abspath ../utils)
+	$(SPHINXAPIDOC) -f -e -E -d 3 -o $(CODESOURCE)/worker $(abspath ../worker)
 	$(SPHINXBUILD) -b html -t code $(ALLSPHINXOPTS) $(BUILDDIR)/html-code
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html-code."

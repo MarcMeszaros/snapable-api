@@ -45,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Snapable'
+project = u'Snapable API'
 copyright = u'%s, Snapable' % time.strftime('%Y')
 
 # The version info for the project you're documenting, acts as replacement for
@@ -79,6 +79,7 @@ if not tags.has('code'):
   exclude_patterns.append('code')
 else:
   sys.path.append(os.pardir)
+  os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
