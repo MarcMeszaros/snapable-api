@@ -27,7 +27,10 @@ import time
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinxcontrib.httpdomain']
+extensions = [
+  'sphinx.ext.autodoc',
+  'sphinxcontrib.httpdomain',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -42,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Snapable'
+project = u'Snapable API'
 copyright = u'%s, Snapable' % time.strftime('%Y')
 
 # The version info for the project you're documenting, acts as replacement for
@@ -67,9 +70,16 @@ copyright = u'%s, Snapable' % time.strftime('%Y')
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns = [
-    '_extensions',
-    '_themes',
+  '_extensions',
+  '_themes',
 ]
+
+# ignore the code folder unless the tag is explicitly specified
+if not tags.has('code'):
+  exclude_patterns.append('code')
+else:
+  sys.path.append(os.pardir)
+  os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -238,40 +248,3 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_domain_indices = True
-
-
-# -- Options for manual page output ---------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    ('index', 'snapable', u'Snapable Documentation',
-     [u'Marc Meszaros'], 1)
-]
-
-# If true, show URL addresses after external links.
-#man_show_urls = False
-
-
-# -- Options for Texinfo output -------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-  ('index', 'Snapable', u'Snapable Documentation',
-   u'Marc Meszaros', 'Snapable', 'One line description of project.',
-   'Miscellaneous'),
-]
-
-# Documents to append as an appendix to all manuals.
-#texinfo_appendices = []
-
-# If false, no module index is generated.
-#texinfo_domain_indices = True
-
-# How to display URL addresses: 'footnote', 'no', or 'inline'.
-#texinfo_show_urls = 'footnote'
-
-# If true, do not generate a @detailmenu in the "Top" node's menu.
-#texinfo_no_detailmenu = False

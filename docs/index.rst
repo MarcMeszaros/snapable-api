@@ -8,3 +8,4 @@ Welcome
     resources/index
     authentication/index
     tutorials/index
+ 

@@ -12,6 +12,17 @@ Table of Contents
     authentication/index
     tutorials/index
 
+.. only:: code
+
+Internal Documentation
+======================
+
+.. toctree::
+    :numbered:
+    :maxdepth: 2
+
+    code/index
+
 Indices and tables
 ==================
 
@@ -19,3 +30,5 @@ Indices and tables
 .. * :ref:`modindex`
 * :ref:`search`
 * :ref:`glossary`
+
+
