@@ -11,9 +11,15 @@ from datetime import datetime, timedelta
 
 # django/tastypie/libs
 import pyrax
+from django.conf import settings
 
 # snapable
 from data.models import Event, Photo
+
+# pyrax connection
+pyrax.set_setting('identity_type', 'rackspace')
+pyrax.set_credentials(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY)
+pyrax.set_default_region('DFW')
 
 @app.task
 def create_images_zip(event_id):
