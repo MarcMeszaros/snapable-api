@@ -4,6 +4,10 @@ from datetime import timedelta
 # get the project path
 PROJECT_PATH = os.path.dirname(__file__)
 
+# custom import for mysql
+import pymysql
+pymysql.install_as_MySQLdb()
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.

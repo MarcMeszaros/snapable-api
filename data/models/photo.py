@@ -10,9 +10,9 @@ from django.db import models
 from PIL import Image
 
 # snapable
-from api.utils import Log
 from data.images import SnapImage
 from data.models import Event, Guest
+from utils.loggers import Log
 
 # pyrax connection
 pyrax.set_setting('identity_type', 'rackspace')
