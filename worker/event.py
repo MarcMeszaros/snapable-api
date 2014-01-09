@@ -13,11 +13,15 @@ from datetime import datetime, timedelta
 # django/tastypie/libs
 import pyrax
 from django.conf import settings
+from django.template import Context
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import get_template
 
 # snapable
 import settings
 
-from data.models import Event, Photo
+from data.models import Event, Photo, AccountUser
+
 from api.utils.loggers import Log
 
 # pyrax connection
@@ -31,6 +35,7 @@ def create_images_zip(event_id):
         # create tempdir and get the event
         tempdir = tempfile.mkdtemp(prefix='snap_api_event_{0}_'.format(event_id))
         event = Event.objects.get(pk=event_id)
+        email = AccountUser.objects.get(account_id=event.account_id).user.email
         photos = event.photo_set.all()
 
         # loop through all the photos, and save to disk on the worker server
@@ -50,7 +55,29 @@ def create_images_zip(event_id):
             conn.make_container_public(cont.name)
             Log.i('created a new CDN container: ' + settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
-        cont.upload_file(zip_path)
+        zip_obj = cont.upload_file(zip_path)
+
+        # URL valid for 24h (86400 seconds)
+        zip_temp_url = zip_obj.get_temp_url(86400)
+
+
+        # mail zip url
+        # load in the templates
+        plaintext = get_template('passwordreset_email.txt')
+        html = get_template('passwordreset_email.html')
+
+        # setup the template context variables
+        d = Context({ 'reset_url': zip_temp_url,
+            })
+
+        # build the email
+        subject, from_email, to = 'Your Snapable album is ready for download', 'support@snapable.com', [email]
+        text_content = plaintext.render(d)
+        html_content = html.render(d)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.attach_alternative(html_content, "text/html")
+        #  if settings.DEBUG == False:
+        msg.send()
 
         # delete local zip
         os.remove(zip_path)
