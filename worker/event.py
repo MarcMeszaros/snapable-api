@@ -60,14 +60,13 @@ def create_images_zip(event_id):
         # URL valid for 24h (86400 seconds)
         zip_temp_url = zip_obj.get_temp_url(86400)
 
-
         # mail zip url
         # load in the templates
-        plaintext = get_template('passwordreset_email.txt')
-        html = get_template('passwordreset_email.html')
+        plaintext = get_template('zip_url.txt')
+        html = get_template('zip_url.html')
 
         # setup the template context variables
-        d = Context({ 'reset_url': zip_temp_url,
+        d = Context({ 'zip_temp_url': zip_temp_url,
             })
 
         # build the email
@@ -76,7 +75,7 @@ def create_images_zip(event_id):
         html_content = html.render(d)
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.attach_alternative(html_content, "text/html")
-        #  if settings.DEBUG == False:
+        #if settings.DEBUG == False:
         msg.send()
 
         # delete local zip
