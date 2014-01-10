@@ -72,8 +72,9 @@ def create_album_zip(event_id):
             zip_obj.delete
             zip_obj = cont.upload_file(zip_path)
 
-            # delete temp
+            # delete temp photo dir and zip
             shutil.rmtree(tempdir)
+            os.remove(zip_path)
 
         # issue temp URL (24h = 86400 seconds)
         zip_temp_url = zip_obj.get_temp_url(86400)
@@ -98,6 +99,4 @@ def create_album_zip(event_id):
         #if settings.DEBUG == False:
         msg.send()
 
-        # delete local zip
-        os.remove(zip_path)
-
+     
