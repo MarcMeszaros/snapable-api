@@ -25,11 +25,6 @@ import settings
 from data.models import Event, Photo, AccountUser
 from api.utils.loggers import Log
 
-# pyrax connection
-#pyrax.set_setting('identity_type', 'rackspace')
-#pyrax.set_credentials(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY)
-#pyrax.set_default_region('DFW')
-
 @app.task
 def create_album_zip(event_id):
 
@@ -45,11 +40,9 @@ def create_album_zip(event_id):
         conn.make_container_public(cont.name)
         Log.i('created a new CDN container: ' + settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
-
     # create tempdir and get the photos
     tempdir = tempfile.mkdtemp(prefix='snap_api_event_{0}_'.format(event_id))
     photos = event.photo_set.all()
-
 
     # Three scenarios are possible
     # 1) zip already exists on CDN and is rather old -> recreate and reup
@@ -116,7 +109,6 @@ def create_album_zip(event_id):
         html_content = html.render(d)
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.attach_alternative(html_content, "text/html")
+
         #if settings.DEBUG == False:
         msg.send()
-
-     
