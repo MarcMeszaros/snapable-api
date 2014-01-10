@@ -46,40 +46,60 @@ def create_album_zip(event_id):
         Log.i('created a new CDN container: ' + settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
 
+    # create tempdir and get the photos
+    tempdir = tempfile.mkdtemp(prefix='snap_api_event_{0}_'.format(event_id))
+    photos = event.photo_set.all()
+
+
+    # Three scenarios are possible
+    # 1) zip already exists on CDN and is rather old -> recreate and reup
+    # 2) zip already exists on CDN and is rather new -> simply mail url for current zip
+    # 3) zip does not exist on CDN -> create zip and upload
+
     try:
-        # check if zip already created
+        # check if zip already created on CDN
         zip_obj = cont.get_object(event.title + ".zip")
 
     except pyrax.exceptions.NoSuchObject as e:
         # no zip for event on CDN yet -> upload to the CDN
+
+        # loop through all the photos, and save to disk on the worker server
+        for photo in photos:
+            photo.get_image().img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
+
+        # create and upload the zip file
+        zip_path = shutil.make_archive(tempfile.tempdir+"/"+event.title,'zip', tempdir)
         zip_obj = cont.upload_file(zip_path)
 
+        # delete local zip
+        os.remove(zip_path)
+
     else:
+        # zip already created on CDN...
         td = datetime.utcnow() - parser.parse(zip_obj.last_modified)
 
-        # zip was created a while ago (>15min) -> recreate and reupload
+        # zip was created a while ago (>15min) -> needs refresh
         if td.seconds/60 > 15:
-            # create tempdir and get the event
-            tempdir = tempfile.mkdtemp(prefix='snap_api_event_{0}_'.format(event_id))
-            photos = event.photo_set.all()
-
-            # loop through all the photos, and save to disk on the worker server
+             # loop through all the photos, and save to disk on the worker server
             for photo in photos:
                 photo.get_image().img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
 
-            # create and (re)upload the zip file
+            # create and upload the zip file
             zip_path = shutil.make_archive(tempfile.tempdir+"/"+event.title,'zip', tempdir)
+
             zip_obj.delete
             zip_obj = cont.upload_file(zip_path)
 
-            # delete temp photo dir and zip
-            shutil.rmtree(tempdir)
+            # delete local zip
             os.remove(zip_path)
+
+    finally:
+        # cleanup
+        shutil.rmtree(tempdir)
 
         # issue temp URL (24h = 86400 seconds)
         zip_temp_url = zip_obj.get_temp_url(86400)
 
-    finally:
         # mail zip url
 
         # load in the templates
