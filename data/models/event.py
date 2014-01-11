@@ -5,21 +5,13 @@ import random
 from datetime import datetime
 
 # django/tastypie/libs
-import pyrax
-
 from django.conf import settings
 from django.db import models
 from PIL import Image
 
 # snapable
-from data.models import Account
-from data.models import Addon
-
-# pyrax connection
-pyrax.set_setting('identity_type', 'rackspace')
-pyrax.set_credentials(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY)
-pyrax.set_default_region('DFW')
-cf = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
+from data.models import Account, Addon
+from utils import rackspace
 
 class Event(models.Model):
 
@@ -87,7 +79,7 @@ class Event(models.Model):
         try:
             # check the partner API account first
             if self.account.api_account is not None:
-                cont = cf.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
+                cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
 
                 # try and get watermark image
                 obj = cont.get_object('{0}.png'.format(self.account.api_account.pk))
@@ -100,9 +92,9 @@ class Event(models.Model):
                 snap_watermark = Image.open(filepath_logo)
                 return snap_watermark
 
-        except pyrax.exceptions.NoSuchObject as e:
+        except rackspace.pyrax.exceptions.NoSuchObject as e:
             return None
-        except pyrax.exceptions.NoSuchContainer as e:
+        except rackspace.pyrax.exceptions.NoSuchContainer as e:
             return None
 
     def save_watermark(self, image):
