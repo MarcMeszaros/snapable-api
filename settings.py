@@ -257,9 +257,9 @@ CELERY_IMPORTS = (
 
 # tasks to run on a schedule
 CELERYBEAT_SCHEDULE = {
-    'expire-every-5-seconds': {
+    'passwordnonce-expire-check': {
         'task': 'worker.passwordnonce.expire',
-        'schedule': timedelta(seconds=5),
+        'schedule': timedelta(minutes=15),
         #'args': (1440)
     },
 }
