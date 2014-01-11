@@ -26,7 +26,7 @@ from api.utils.loggers import Log
 def create_album_zip(event_id):
 
     # add lock
-    app.backend.set('create_album_zip_'+event_id, 'RUNNING')
+    app.backend.set('create_album_zip_'+str(event_id), 'RUNNING')
 
     event = Event.objects.get(pk=event_id)
 
@@ -82,4 +82,4 @@ def create_album_zip(event_id):
     msg.send()
 
     # remove lock
-    app.backend.delete('create_album_zip_'+event_id)
+    app.backend.delete('create_album_zip_'+str(event_id))
