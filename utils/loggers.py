@@ -7,39 +7,40 @@ class Log:
     """
 
     @staticmethod
-    def d(message):
+    def d(message, extra=None):
         """Log a debug message."""
         logger = logging.getLogger('snapable')
-        logger.debug(message)
+        logger.debug(message, extra=extra)
 
     @staticmethod
-    def i(message):
-        """Log a information message."""
+    def i(message, extra=None):
+        """Log an information message."""
         logger = logging.getLogger('snapable')
-        logger.info(message)
+        logger.info(message, extra=extra)
 
     @staticmethod
-    def w(message):
+    def w(message, extra=None):
         """Log a warning message."""
         logger = logging.getLogger('snapable')
-        logger.warning(message)
+        logger.warning(message, extra=extra)
 
     @staticmethod
-    def e(message):
-        """Log a error message."""
+    def e(message, extra=None):
+        """Log an error message."""
         logger = logging.getLogger('snapable')
-        logger.error(message)
+        logger.error(message, extra=extra)
 
     @staticmethod
-    def c(message):
+    def c(message, extra=None):
         """Log a critical message."""
         logger = logging.getLogger('snapable')
-        logger.critical(message)
+        logger.critical(message, extra=extra)
 
     @staticmethod
-    def deprecated(message, stacklevel=1):
+    def deprecated(message, extra=None, stacklevel=1):
         """
-        Add a deprecation warning.
+        Log a deprecation warning.
         """
         warnings.warn(message, DeprecationWarning, stacklevel=stacklevel+2)
-        Log.w(message)
+        logger = logging.getLogger('snapable')
+        logger.warning(message, extra=extra)
