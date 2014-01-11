@@ -1,10 +1,7 @@
 # python
 import cStringIO
-import warnings
 
 # django/tastypie/libs
-import pyrax
-
 from django.conf import settings
 from django.db import models
 from PIL import Image
@@ -12,13 +9,8 @@ from PIL import Image
 # snapable
 from data.images import SnapImage
 from data.models import Event, Guest
+from utils import rackspace
 from utils.loggers import Log
-
-# pyrax connection
-pyrax.set_setting('identity_type', 'rackspace')
-pyrax.set_credentials(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY)
-pyrax.set_default_region('DFW')
-cf = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
 
 class Photo(models.Model):
 
@@ -38,11 +30,11 @@ class Photo(models.Model):
     ## virtual properties getters/setters ##
     # return the created at timestamp
     def _get_timestamp(self):
-        warnings.warn('Photo.timestamp is deprecated. Use Photo.created_at', DeprecationWarning)
+        Log.deprecated('Photo.timestamp is deprecated. Use Photo.created_at', stacklevel=2)
         return self.created_at
 
     def _set_timestamp(self, value):
-        warnings.warn('Photo.timestamp is deprecated. Use Photo.created_at', DeprecationWarning)
+        Log.deprecated('Photo.timestamp is deprecated. Use Photo.created_at', stacklevel=2)
         self.created_at = value
 
     # add the virtual properties
@@ -59,7 +51,7 @@ class Photo(models.Model):
 
     # override built-in delete function
     def delete(self):
-        cont = cf.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+        cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
         # get all files related to this photo (original + resizes)
         images = cont.get_objects(prefix='{0}/{1}_'.format(self.event.id, self.id))
@@ -79,7 +71,7 @@ class Photo(models.Model):
         if self.id != None and self.event != None:
             #connect to container
             try:
-                cont = cf.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+                cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
                 # try an get the size wanted
                 try:
@@ -93,7 +85,7 @@ class Photo(models.Model):
                         obj = cont.get_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id))
                         img = Image.open(cStringIO.StringIO(obj.get()))
                         snapimg = SnapImage(img)
-                    except pyrax.exceptions.NoSuchObject as e:
+                    except rackspace.pyrax.exceptions.NoSuchObject as e:
                         obj = cont.get_object('{0}/{1}_orig.jpg'.format(self.event.id, self.id))
                         img = Image.open(cStringIO.StringIO(obj.get()))
                         snapimg = SnapImage(img)
@@ -109,9 +101,9 @@ class Photo(models.Model):
                     obj = cont.store_object('{0}/{1}_{2}.jpg'.format(self.event.id, self.id, size), snapimg.img.tobytes('jpeg', 'RGB'))
                     return snapimg
 
-            except pyrax.exceptions.NoSuchObject as e:
+            except rackspace.pyrax.exceptions.NoSuchObject as e:
                 return None
-            except pyrax.exceptions.NoSuchContainer as e:
+            except rackspace.pyrax.exceptions.NoSuchContainer as e:
                 return None
 
         else:
@@ -123,9 +115,9 @@ class Photo(models.Model):
         """
         cont = None
         try:
-            cont = cf.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
-        except pyrax.exceptions.NoSuchContainer as e:
-            cont = cf.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+            cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+        except rackspace.pyrax.exceptions.NoSuchContainer as e:
+            cont = rackspace.cloud_files.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
             Log.i('created a new container: ' + settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
         if orig == False:
@@ -158,5 +150,5 @@ class Photo(models.Model):
                     obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.tobytes('jpeg', 'RGB'))
                 else:
                     obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.convert('RGB').tobytes('jpeg', 'RGB'))
-            except pyrax.exceptions.NoSuchContainer as e:
+            except rackspace.pyrax.exceptions.NoSuchContainer as e:
                 return None
