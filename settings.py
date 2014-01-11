@@ -8,6 +8,9 @@ PROJECT_PATH = os.path.dirname(__file__)
 import pymysql
 pymysql.install_as_MySQLdb()
 
+# explicitly set debug to false
+DEBUG = False
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
