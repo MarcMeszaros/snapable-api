@@ -1,5 +1,0 @@
-identity_type = rackspace
-keyring_username = username
-region = DFW
-debug = False
-verify_ssl = False
