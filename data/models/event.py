@@ -2,23 +2,16 @@
 import cStringIO
 import os
 import random
+from datetime import datetime
 
 # django/tastypie/libs
-import pyrax
-
 from django.conf import settings
 from django.db import models
 from PIL import Image
 
 # snapable
-from data.models import Account
-from data.models import Addon
-
-# pyrax connection
-pyrax.set_setting('identity_type', 'rackspace')
-pyrax.set_credentials(settings.RACKSPACE_USERNAME, settings.RACKSPACE_APIKEY)
-pyrax.set_default_region('DFW')
-cf = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
+from data.models import Account, Addon
+from utils import rackspace
 
 class Event(models.Model):
 
@@ -30,8 +23,8 @@ class Event(models.Model):
     addons = models.ManyToManyField(Addon, through='EventAddon')
     cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, on_delete=models.SET_NULL, help_text='The image to use for the event cover.')
 
-    start_at = models.DateTimeField(help_text='Event start time. (UTC)')
-    end_at = models.DateTimeField(help_text='Event end time. (UTC)')
+    start_at = models.DateTimeField(default=datetime.utcnow, help_text='Event start time. (UTC)')
+    end_at = models.DateTimeField(default=datetime.utcnow, help_text='Event end time. (UTC)')
     tz_offset = models.IntegerField(default=0, help_text='The timezone offset (in minutes) from UTC.')
     title = models.CharField(max_length=255, help_text='Event title.')
     url = models.CharField(max_length=255, unique=True, help_text='A "short name" for the event.')
@@ -63,8 +56,8 @@ class Event(models.Model):
             'created_at': self.created_at,
             'end_at': self.end_at,
             'is_enabled': self.is_enabled,
+            'is_public': self.is_public,
             'pin': self.pin,
-            'public': self.public,
             'start_at': self.start_at,
             'title': self.title,
             'url': self.url,
@@ -86,7 +79,7 @@ class Event(models.Model):
         try:
             # check the partner API account first
             if self.account.api_account is not None:
-                cont = cf.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
+                cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
 
                 # try and get watermark image
                 obj = cont.get_object('{0}.png'.format(self.account.api_account.pk))
@@ -99,9 +92,9 @@ class Event(models.Model):
                 snap_watermark = Image.open(filepath_logo)
                 return snap_watermark
 
-        except pyrax.exceptions.NoSuchObject as e:
+        except rackspace.pyrax.exceptions.NoSuchObject as e:
             return None
-        except pyrax.exceptions.NoSuchContainer as e:
+        except rackspace.pyrax.exceptions.NoSuchContainer as e:
             return None
 
     def save_watermark(self, image):

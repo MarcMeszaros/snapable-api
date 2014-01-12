@@ -9,7 +9,10 @@ from datetime import datetime, timedelta
 from data.models import PasswordNonce
 
 @app.task
-def expire():
-    delta = datetime.now() - timedelta(hours=24)
-    nonces = PasswordNonce.objects.filter(valid=True, timestamp__lte=delta)
-    nonces.update(valid=False)
+def expire(minutes=1440):
+    """
+    Invalidate nonces older than X minutes.
+    Defaults to 1440 minutes (24 hours).
+    """
+    date = datetime.utcnow() - timedelta(0,minutes)
+    return PasswordNonce.objects.filter(created_at__lt=date).update(valid=False)

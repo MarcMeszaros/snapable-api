@@ -13,7 +13,6 @@ System packages required are for the pip installer to work:
 * make (generic)
 * python-dev (generic)
 * libffi-dev (bcrypt)
-* libmysqlclient-dev (mysql) 
 * libtiff4-dev  (pillow)
 * libjpeg8-dev (pillow)
 * zlib1g-dev (pillow)
@@ -26,16 +25,16 @@ Run the following commands:
 
     > sudo pip install --upgrade
     > sudo pip install virtualenv
-    > virtualenv ~/api/
-    > cd ~/api/
+    > virtualenv ~/snap_api/
+    > cd ~/snap_api/
     > source bin/activate
-    > git clone git@bitbucket.org:snapable/api.git snapable
-    > cd snapable
+    > git clone git@bitbucket.org:snapable/api.git
+    > cd api
     > pip install -r requirements.txt
     > ./manage.py syncdb
     > ./manage.py migrate data
     > ./manage.py migrate api
-    > gunicorn api.wsgi:application
+    > gunicorn wsgi:application
 
 # DEVELOPMENT #
 
@@ -52,14 +51,14 @@ signing requirements of the API. Thankfully, you can disable the authentication 
 the server with the ``SNAP_AUTHENTICATION`` environment variable set to ``False``. Gunicorn has a special
 option to pass in environment variables to your application.
 
-``gunicorn -e SNAP_AUTHENTICATION=False api.wsgi:application``
+``gunicorn -e SNAP_AUTHENTICATION=False wsgi:application``
 
 ## Unit Tests ##
 To run the unit tests, you first need to log on to the VM using ``vagrant ssh``. Then execute the following commands:
 
-    cd ~/api
+    cd ~/snap_api
     source bin/activate
-    cd snapable
+    cd api
     ./manage.py test
 
 # CONFIGURATION #
@@ -78,7 +77,7 @@ in the root API source code folder.
         }
     }
 
-    # sendgrid
+    # mailgun
     EMAIL_HOST = 'smtp.mailgun.org'
     EMAIL_HOST_USER = 'my_user' # only save in local settings
     EMAIL_HOST_PASSWORD = 'my_pass' # only save in local settings
