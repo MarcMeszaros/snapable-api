@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.paginator import Paginator, InvalidPage
 from django.db.models import Q
 from django.http import HttpResponse, Http404
-from tastypie import fields
+from tastypie import fields, http
 from tastypie.authorization import Authorization
 from tastypie.resources import ALL
 
@@ -24,13 +24,14 @@ import api.base_v1.resources
 from account import AccountResource
 from api.utils.serializers import SnapSerializer
 from data.models import Event, Location, Photo, User
+from worker import app
 
 class EventResource(api.base_v1.resources.EventResource):
 
     # relations
     account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
     addons = fields.ManyToManyField('api.private_v1.resources.EventAddonResource', 'eventaddon_set', null=True, full=True)
-    addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'location_set', null=True, full=True) 
+    addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'location_set', null=True, full=True)
     cover = fields.ForeignKey('api.private_v1.resources.PhotoResource', 'cover', null=True)
 
     # virtual fields
@@ -45,6 +46,7 @@ class EventResource(api.base_v1.resources.EventResource):
         fields = api.base_v1.resources.EventResource.Meta.fields + ['created_at', 'cover', 'photo_count', 'are_photos_streamable', 'enabled', 'start', 'end'] # DEPRECATED: enabled, start, end
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
+        zip_allowed_methods = ['get','post']
         ordering = api.base_v1.resources.EventResource.Meta.ordering + ['start_at', 'end_at', 'start', 'end'] # DEPRECATED: start, end
         authentication = api.auth.ServerAuthentication()
         authorization = Authorization()
@@ -66,6 +68,7 @@ class EventResource(api.base_v1.resources.EventResource):
     def prepend_urls(self):
         return [
             url(r'^(?P<resource_name>%s)/search/$' % self._meta.resource_name, self.wrap_view('get_search'), name="api_get_search"),
+            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/zip/$' % self._meta.resource_name, self.wrap_view('post_zip'), name="api_post_zip"),
         ]
 
     def get_search(self, request, **kwargs):
@@ -102,6 +105,30 @@ class EventResource(api.base_v1.resources.EventResource):
         to_be_serialized['objects'] = [self.full_dehydrate(bundle) for bundle in bundles]
 
         return self.create_response(request, to_be_serialized)
+
+    def post_zip(self, request, **kwargs):
+
+        self.method_check(request, allowed=['post'])
+        self.is_authenticated(request)
+        self.throttle_check(request)
+
+        try:
+            obj = Event.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return http.HttpNotFound()
+        except MultipleObjectsReturned:
+            return http.HttpMultipleChoices("More than one resource is found at this URI.")
+        else:
+            # check if there isin't already a job running that is creating an album archive
+            if app.backend.get('event:{0}:create_album_zip'.format(kwargs['pk'])):
+                http409 = http.HttpReponse
+                http409.status_code = 409
+                return http409()
+            else:
+                app.send_task('worker.event.create_album_zip',[kwargs['pk']])
+                return http.HttpAccepted()
+
+        return http.HttpNotFound()
 
     def apply_filters(self, request, applicable_filters):
         # check if the filter is there

@@ -26,7 +26,7 @@ from api.utils.loggers import Log
 def create_album_zip(event_id):
 
     # add lock
-    app.backend.set('create_album_zip_'+str(event_id), 'RUNNING')
+    app.backend.set('event:{0}:create_album_zip'.format(event_id), 1)
 
     event = Event.objects.get(pk=event_id)
 
@@ -58,8 +58,7 @@ def create_album_zip(event_id):
     os.remove(zip_path)
     shutil.rmtree(tempdir)
 
-    # issue temp URL (24h = 86400 seconds)
-    zip_temp_url = zip_obj.get_temp_url(86400)
+    zip_cdn_url = cont.cdn_uri + "/" + event.title + ".zip"
 
     # mail zip url
 
@@ -68,7 +67,7 @@ def create_album_zip(event_id):
     html = get_template('zip_url.html')
 
     # setup the template context variables
-    d = Context({ 'zip_temp_url': zip_temp_url })
+    d = Context({ 'zip_url': zip_cdn_url })
 
     # build the email
     email = AccountUser.objects.get(account_id=event.account_id).user.email
@@ -81,5 +80,5 @@ def create_album_zip(event_id):
     #if settings.DEBUG == False:
     msg.send()
 
-    # remove lock
-    app.backend.delete('create_album_zip_'+str(event_id))
+    # remove (expire) lock
+    app.backend.expire('event:{0}:create_album_zip'.format(event_id), 30)

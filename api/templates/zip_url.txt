@@ -2,7 +2,7 @@ Hi,
 
 Your album is now ready for download.
 
-Copy/paste this url into your browser's location bar: {{zip_temp_url}}
-         
+Copy/paste this url into your browser's location bar: {{zip_url}}
+       
 Automatically yours,
 The Snapable Team.
