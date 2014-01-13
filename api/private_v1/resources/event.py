@@ -24,7 +24,7 @@ import api.base_v1.resources
 from account import AccountResource
 from api.utils.serializers import SnapSerializer
 from data.models import Event, Location, Photo, User
-from worker import app
+from worker import app, event
 
 class EventResource(api.base_v1.resources.EventResource):
 
@@ -125,7 +125,7 @@ class EventResource(api.base_v1.resources.EventResource):
                 http409.status_code = 409
                 return http409()
             else:
-                app.send_task('worker.event.create_album_zip',[kwargs['pk']])
+                event.create_album_zip.delay(kwargs['pk'])
                 return http.HttpAccepted()
 
         return http.HttpNotFound()
