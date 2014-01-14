@@ -121,7 +121,7 @@ class EventResource(api.base_v1.resources.EventResource):
         else:
             # check if there isin't already a job running that is creating an album archive
             if app.backend.get('event:{0}:create_album_zip'.format(kwargs['pk'])):
-                http409 = http.HttpReponse
+                http409 = http.HttpResponse
                 http409.status_code = 409
                 return http409()
             else:
@@ -203,7 +203,7 @@ class EventResource(api.base_v1.resources.EventResource):
         if 'public' in bundle.data:
             bundle.obj.is_public = bundle.data['public']
 
-        # convert the old type values into "public" flag 
+        # convert the old type values into "public" flag
         if 'type' in bundle.data:
             if bundle.data['type'] == '/private_v1/type/6/':
                 bundle.obj.is_public = True
