@@ -246,7 +246,7 @@ STRIPE_CURRENCY = 'usd'
 BROKER_URL = 'amqp://snap_api:snapable12345@192.168.56.102:5672/snap_api'
 
 # Results backend.
-CELERY_RESULT_BACKEND = 'redis://192.168.56.102'
+CELERY_RESULT_BACKEND = 'redis://192.168.56.102/0'
 
 # Expire tasks after a set time
 CELERY_TASK_RESULT_EXPIRES = 3600 # 1h
