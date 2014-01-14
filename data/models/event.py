@@ -8,6 +8,7 @@ from datetime import datetime
 from django.conf import settings
 from django.db import models
 from PIL import Image
+from uuidfield import UUIDField
 
 # snapable
 from data.models import Account, Addon
@@ -23,6 +24,7 @@ class Event(models.Model):
     addons = models.ManyToManyField(Addon, through='EventAddon')
     cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, on_delete=models.SET_NULL, help_text='The image to use for the event cover.')
 
+    uuid = UUIDField(auto=True, help_text='A unique identifier for the event.')
     start_at = models.DateTimeField(default=datetime.utcnow, help_text='Event start time. (UTC)')
     end_at = models.DateTimeField(default=datetime.utcnow, help_text='Event end time. (UTC)')
     tz_offset = models.IntegerField(default=0, help_text='The timezone offset (in minutes) from UTC.')
