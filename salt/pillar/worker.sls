@@ -1,6 +1,7 @@
 snap_user:
   user: vagrant
 
-rabbitmq:
-  plugins:
-    - rabbitmq_management
+# only enable once "Hydrogen" is released
+#rabbitmq:
+#  plugins:
+#    - rabbitmq_management
