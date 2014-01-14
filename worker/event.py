@@ -16,11 +16,12 @@ from django.template import Context
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import get_template
 
+from uuidfield import UUIDField
+
 # snapable
 import settings
 
 from data.models import Event, Photo, AccountUser
-from api.utils.loggers import Log
 
 @app.task
 def create_album_zip(event_id):
@@ -51,14 +52,14 @@ def create_album_zip(event_id):
         photo.get_image().img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
 
     # create and upload the zip file
-    zip_path = shutil.make_archive(tempfile.tempdir+"/"+event.title,'zip', tempdir)
+    zip_path = shutil.make_archive(tempfile.tempdir+"/"+str(event.uuid),'zip', tempdir)
     zip_obj = cont.upload_file(zip_path)
 
     # cleanup
     os.remove(zip_path)
     shutil.rmtree(tempdir)
 
-    zip_cdn_url = cont.cdn_uri + "/" + event.title + ".zip"
+    zip_cdn_url = cont.cdn_uri + "/" + str(event.uuid) + ".zip"
 
     # mail zip url
 

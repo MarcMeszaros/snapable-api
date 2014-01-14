@@ -7,6 +7,7 @@ from decimal import Decimal
 
 # django/tastypie/libs
 import pytz
+import pyrax
 
 from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -16,10 +17,12 @@ from django.http import HttpResponse, Http404
 from tastypie import fields, http
 from tastypie.authorization import Authorization
 from tastypie.resources import ALL
+from uuidfield import UUIDField
 
 # snapable
 import api.auth
 import api.base_v1.resources
+import settings
 
 from account import AccountResource
 from api.utils.serializers import SnapSerializer
@@ -68,7 +71,7 @@ class EventResource(api.base_v1.resources.EventResource):
     def prepend_urls(self):
         return [
             url(r'^(?P<resource_name>%s)/search/$' % self._meta.resource_name, self.wrap_view('get_search'), name="api_get_search"),
-            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/zip/$' % self._meta.resource_name, self.wrap_view('post_zip'), name="api_post_zip"),
+            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/zip/$' % self._meta.resource_name, self.wrap_view('dispatch_zip'), name="api_dispatch_zip"),
         ]
 
     def get_search(self, request, **kwargs):
@@ -106,20 +109,22 @@ class EventResource(api.base_v1.resources.EventResource):
 
         return self.create_response(request, to_be_serialized)
 
-    def post_zip(self, request, **kwargs):
+    def dispatch_zip(self, request, **kwargs):
+        return self.dispatch('zip', request, **kwargs)
 
+    def post_zip(self, request, **kwargs):
         self.method_check(request, allowed=['post'])
         self.is_authenticated(request)
         self.throttle_check(request)
 
         try:
-            obj = Event.objects.get(pk=kwargs['pk'])
+            event_obj = Event.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
             return http.HttpNotFound()
         except MultipleObjectsReturned:
             return http.HttpMultipleChoices("More than one resource is found at this URI.")
         else:
-            # check if there isin't already a job running that is creating an album archive
+            # check if there's already a job running that is creating an album archive
             if app.backend.get('event:{0}:create_album_zip'.format(kwargs['pk'])):
                 http409 = http.HttpResponse
                 http409.status_code = 409
@@ -128,7 +133,28 @@ class EventResource(api.base_v1.resources.EventResource):
                 event.create_album_zip.delay(kwargs['pk'])
                 return http.HttpAccepted()
 
-        return http.HttpNotFound()
+    def get_zip(self, request, **kwargs):
+        self.method_check(request, allowed=['get'])
+        self.is_authenticated(request)
+        self.throttle_check(request)
+
+        try:
+            event_obj = Event.objects.get(pk=kwargs['pk'])
+
+            conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
+            cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event_obj.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+
+            zip_cdn_url = cont.cdn_uri + "/" + str(event_obj.uuid) + ".zip"
+            album_zip = cont.get_object(str(event_obj.uuid) + ".zip")
+
+            return self.create_response(request, zip_cdn_url)
+
+        except ObjectDoesNotExist:
+            return http.HttpNotFound()
+        except pyrax.exceptions.NoSuchContainer:
+            return http.HttpNotFound()
+        except pyrax.exceptions.NoSuchObject:
+            return http.HttpNotFound()
 
     def apply_filters(self, request, applicable_filters):
         # check if the filter is there
