@@ -243,10 +243,10 @@ STRIPE_CURRENCY = 'usd'
 
 ##### Celery #####
 # Broker settings.
-BROKER_URL = 'amqp://snap_api:snapable12345@localhost:5672/snap_api'
+BROKER_URL = 'amqp://snap_api:snapable12345@192.168.56.102:5672/snap_api'
 
 # Results backend.
-CELERY_RESULT_BACKEND = 'amqp://snap_api:snapable12345@localhost:5672/snap_api'
+CELERY_RESULT_BACKEND = 'redis://192.168.56.102/0'
 
 # Expire tasks after a set time
 CELERY_TASK_RESULT_EXPIRES = 3600 # 1h
