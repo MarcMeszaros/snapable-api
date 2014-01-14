@@ -70,6 +70,7 @@ class Private_v1__EventResourceTest(ResourceTestCase):
             'tz_offset',
             'url',
             'user',
+            'uuid'
         ])
 
     def test_get_events(self):

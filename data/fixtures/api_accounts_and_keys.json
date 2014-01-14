@@ -69,7 +69,8 @@
         "pin": "1234",
         "start_at": "2012-10-09T00:00:00+00:00",
         "title": "Crazy Event",
-        "url": "crazy2"
+        "url": "crazy2",
+        "uuid": "4eaf0fe10b094a979a84358261181b97"
     }
 },
 

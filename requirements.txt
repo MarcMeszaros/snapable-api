@@ -10,6 +10,7 @@ celery[redis]>=3.1.7,<3.2                                   # python 3
 
 ## SECONDARY (SHOULD be stable packages) ##
 jsonfield>=0.9.20,<0.10                                     # python 3
+django-uuidfield>=0.4.0                                     # python 2 x?
 setproctitle>=1.1.8,<2.0                                    # python 3
 gevent>=1.0,<2.0                                            # python 2 x
 #netifaces-py3>=0.8                                          # python 3

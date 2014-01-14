@@ -84,7 +84,6 @@ Vagrant.configure("2") do |config|
       salt.install_master = true
       salt.master_config = "salt/master"
       salt.minion_config = "salt/minion-worker"
-      salt.install_type = "git" # required until 'Hydrogen' is released
       salt.verbose = true
 
       salt.master_key = "salt/key/master.pem"
