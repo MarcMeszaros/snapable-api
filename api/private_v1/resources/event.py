@@ -147,7 +147,12 @@ class EventResource(api.base_v1.resources.EventResource):
             zip_cdn_url = cont.cdn_uri + "/" + str(event_obj.uuid) + ".zip"
             album_zip = cont.get_object(str(event_obj.uuid) + ".zip")
 
-            return self.create_response(request, zip_cdn_url)
+            response_body = {
+                'zip_url': zip_cdn_url,
+                'created_at': album_zip.last_modified + "Z",
+            }
+
+            return self.create_response(request, response_body)
 
         except ObjectDoesNotExist:
             return http.HttpNotFound()
