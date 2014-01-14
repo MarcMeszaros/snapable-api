@@ -43,7 +43,7 @@ class EventResource(api.base_v1.resources.EventResource):
     end = fields.DateTimeField(attribute='end_at')
 
     class Meta(api.base_v1.resources.EventResource.Meta): # set Meta to the public API Meta
-        fields = api.base_v1.resources.EventResource.Meta.fields + ['created_at', 'cover', 'photo_count', 'are_photos_streamable', 'enabled', 'start', 'end'] # DEPRECATED: enabled, start, end
+        fields = api.base_v1.resources.EventResource.Meta.fields + ['uuid', 'created_at', 'cover', 'photo_count', 'are_photos_streamable', 'enabled', 'start', 'end'] # DEPRECATED: enabled, start, end
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         zip_allowed_methods = ['get','post']
