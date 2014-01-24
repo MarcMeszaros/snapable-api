@@ -9,8 +9,6 @@ import zipfile
 import tempfile
 
 # django/tastypie/libs
-import pyrax
-
 from django.conf import settings
 from django.template import Context
 from django.core.mail import send_mail, EmailMultiAlternatives
@@ -22,6 +20,7 @@ from uuidfield import UUIDField
 import settings
 
 from data.models import Event, Photo, AccountUser
+from utils import rackspace
 
 @app.task
 def create_album_zip(event_id):
@@ -32,13 +31,12 @@ def create_album_zip(event_id):
     event = Event.objects.get(pk=event_id)
 
     # establish a connection to the CDN
-    conn = pyrax.connect_to_cloudfiles(public=settings.RACKSPACE_CLOUDFILE_PUBLIC_NETWORK)
     cont = None
     try:
-        cont = conn.get_container(settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
-    except pyrax.exceptions.NoSuchContainer as e:
-        cont = conn.create_container(settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
-        conn.make_container_public(cont.name)
+        cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+    except rackspace.pyrax.exceptions.NoSuchContainer as e:
+        cont = rackspace.cloud_files.create_container(settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+        rackspace.cloud_files.make_container_public(cont.name)
         Log.i('created a new CDN container: ' + settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
 
     # (add try IO error block?)
