@@ -7,6 +7,6 @@ base:
     - match: grain
     - worker
 
-  'roles:worker':
+  'roles:worker-node':
     - match: grain
     - worker

@@ -35,6 +35,8 @@ class SnapSerializer(Serializer):
                 return snapimg.img.tobytes('jpeg', 'RGB')
             except Exception as e:
                 #photo.delete() # is there really a point to keep metadata for something without a photo
+                photo.streamable = False
+                photo.save()
                 raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
         elif isinstance(bundle.obj, Event):
             # set the size variable

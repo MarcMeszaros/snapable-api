@@ -7,4 +7,4 @@ grains:
   env: vagrant
   roles:
     - worker-server
-    - worker
+    - worker-node

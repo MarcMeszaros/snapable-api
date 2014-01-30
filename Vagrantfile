@@ -37,7 +37,7 @@ Vagrant.configure("2") do |config|
     # install python-git (required for saltstack gitfs)
     config.vm.provision "shell", inline: "apt-get update"
     config.vm.provision "shell", inline: "apt-get -y install python-software-properties"
-    config.vm.provision "shell", inline: "apt-add-repository ppa:pabelanger/zuul"
+    config.vm.provision "shell", inline: "apt-add-repository ppa:nikicat/salt-depends"
     config.vm.provision "shell", inline: "apt-get update"
     config.vm.provision "shell", inline: "apt-get -y install python-git"
 
@@ -76,7 +76,7 @@ Vagrant.configure("2") do |config|
     # install python-git (required for saltstack gitfs)
     config.vm.provision "shell", inline: "apt-get update"
     config.vm.provision "shell", inline: "apt-get -y install python-software-properties"
-    config.vm.provision "shell", inline: "apt-add-repository ppa:pabelanger/zuul"
+    config.vm.provision "shell", inline: "apt-add-repository ppa:nikicat/salt-depends"
     config.vm.provision "shell", inline: "apt-get update"
     config.vm.provision "shell", inline: "apt-get -y install python-git"
 
