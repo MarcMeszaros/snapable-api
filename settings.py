@@ -195,6 +195,10 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': True,
         },
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
+            'propagate': False,
+        },
         'snapable': {
             'handlers': ['console', 'sentry'],
             'level': 'DEBUG',
