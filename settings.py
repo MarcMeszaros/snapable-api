@@ -199,6 +199,11 @@ LOGGING = {
             'handlers': ['null'],
             'propagate': False,
         },
+        'celery': {
+            'handlers': ['console', 'sentry'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         'snapable': {
             'handlers': ['console', 'sentry'],
             'level': 'DEBUG',
