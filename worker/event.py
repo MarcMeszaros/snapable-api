@@ -26,7 +26,7 @@ from utils import rackspace
 def create_album_zip(event_id):
 
     # add lock
-    app.backend.set('event:{0}:create_album_zip'.format(event_id), 1)
+    app.backend.setex('event:{0}:create_album_zip'.format(event_id), 1, 900) # expire in 15 mins
 
     event = Event.objects.get(pk=event_id)
 
