@@ -201,7 +201,7 @@ LOGGING = {
         },
         'celery': {
             'handlers': ['console', 'sentry'],
-            'level': 'INFO',
+            'level': 'WARNING',
             'propagate': True,
         },
         'snapable': {
