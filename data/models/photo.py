@@ -4,6 +4,7 @@ import cStringIO
 # django/tastypie/libs
 from django.conf import settings
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 
 # snapable
@@ -12,6 +13,7 @@ from data.models import Event, Guest
 from utils import rackspace
 from utils.loggers import Log
 
+@python_2_unicode_compatible
 class Photo(models.Model):
 
     # required to make 'south' migrations work
@@ -40,7 +42,10 @@ class Photo(models.Model):
     # add the virtual properties
     timestamp = property(_get_timestamp, _set_timestamp)
 
-    def __unicode__(self):
+    def __str__(self):
+        return '{0} - {1}'.format(self.event, self.caption)
+
+    def __repr__(self):
         return str({
             'caption': self.caption,
             'created_at': self.created_at,

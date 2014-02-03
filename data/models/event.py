@@ -7,6 +7,7 @@ from datetime import datetime
 # django/tastypie/libs
 from django.conf import settings
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 from uuidfield import UUIDField
 
@@ -14,6 +15,7 @@ from uuidfield import UUIDField
 from data.models import Account, Addon
 from utils import rackspace
 
+@python_2_unicode_compatible
 class Event(models.Model):
 
     # required to make 'south' migrations work
@@ -50,7 +52,10 @@ class Event(models.Model):
     # create the property
     photo_count = property(_get_photo_count, _set_photo_count)
 
-    def __unicode__(self):
+    def __str__(self):
+        return '{0} [{1}]'.format(self.title, self.url)
+
+    def __repr__(self):
         return str({
             'account': self.account,
             'are_photos_streamable': self.are_photos_streamable,

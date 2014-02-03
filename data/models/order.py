@@ -1,9 +1,13 @@
+# django/tastypie/libs
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
+# snapable
 from data.models import Account
 from data.models import User
 
+@python_2_unicode_compatible
 class Order(models.Model):
     
     # required to make 'south' migrations work
@@ -32,7 +36,10 @@ class Order(models.Model):
     # add the virtual properties
     timestamp = property(_get_timestamp, _set_timestamp)
 
-    def __unicode__(self):
+    def __str__(self):
+        return '{0} - ${1:.2f}(-${2:.2f}) [{3}] {4}'.format(self.pk, (self.amount/100.0), (self.amount_refunded/100.0), self.coupon, self.charge_id)
+
+    def __repr__(self):
         return str({
             'amount': self.amount,
             'amount_refunded': self.amount_refunded,
