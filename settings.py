@@ -93,6 +93,7 @@ TEMPLATE_LOADERS = (
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth', # Admin
     'django.contrib.messages.context_processors.messages', # Admin
+    'django.core.context_processors.request',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -122,6 +123,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'grappelli',
     'django.contrib.admin',
     # required for admin
     'django.contrib.auth',
@@ -281,6 +283,9 @@ CELERYBEAT_SCHEDULE = {
         #'args': (1440)
     },
 }
+
+##### Admin #####
+GRAPPELLI_ADMIN_TITLE = 'Snapable'
 
 #### Import Local Settings #####
 try:

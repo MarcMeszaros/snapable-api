@@ -26,6 +26,7 @@ urlpatterns = patterns('',
     url(r'^humans\.txt$', lambda r: render(r, 'humans.txt', content_type='text/plain')),
 
     # add admin
+    (r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     (r'^control_tower/', include(admin.site.urls)),
 
     ## define all the API versions here ##
