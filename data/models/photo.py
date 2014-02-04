@@ -43,7 +43,7 @@ class Photo(models.Model):
     timestamp = property(_get_timestamp, _set_timestamp)
 
     def __str__(self):
-        return '{0} - {1}'.format(self.event, self.caption)
+        return '{0} - <{1}> {2}'.format(self.pk, self.event, self.caption)
 
     def __repr__(self):
         return str({

@@ -53,7 +53,7 @@ class Event(models.Model):
     photo_count = property(_get_photo_count, _set_photo_count)
 
     def __str__(self):
-        return '{0} [{1}]'.format(self.title, self.url)
+        return '{0} - {1} [{2}]'.format(self.pk, self.title, self.url)
 
     def __repr__(self):
         return str({

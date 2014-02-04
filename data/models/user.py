@@ -86,7 +86,7 @@ class User(AbstractBaseUser):
     is_superuser = property(_get_is_superuser, _set_is_superuser)
 
     def __str__(self):
-        return '{0} ({1})'.format(self.name, self.email)
+        return '{0} - {1} ({2})'.format(self.pk, self.name, self.email)
 
     def __repr__(self):
         return str({
