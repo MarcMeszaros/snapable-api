@@ -3,6 +3,7 @@ import cStringIO
 
 # django/tastypie/libs
 from django.conf import settings
+from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
@@ -157,3 +158,8 @@ class Photo(models.Model):
                     obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.convert('RGB').tobytes('jpeg', 'RGB'))
             except rackspace.pyrax.exceptions.NoSuchContainer as e:
                 return None
+
+class PhotoAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Photo, PhotoAdmin)
+

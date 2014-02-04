@@ -6,6 +6,7 @@ from datetime import datetime
 
 # django/tastypie/libs
 from django.conf import settings
+from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
@@ -106,3 +107,7 @@ class Event(models.Model):
 
     def save_watermark(self, image):
         pass
+
+class EventAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Event, EventAdmin)

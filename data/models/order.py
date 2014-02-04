@@ -1,5 +1,6 @@
 # django/tastypie/libs
 from django.db import models
+from django.contrib import admin
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
@@ -48,3 +49,7 @@ class Order(models.Model):
             'created_at': self.created_at,
             'paid': self.paid,
         })
+
+class OrderAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Order, OrderAdmin)
