@@ -29,11 +29,11 @@ class ApiKey(models.Model):
     account = models.ForeignKey(ApiAccount)
 
     # regular fields
-    key = models.CharField(max_length=255, unique=True, db_index=True, help_text='The api key.')
-    secret = models.CharField(max_length=255, help_text='The api key secret.')
-    version = models.CharField(max_length=25, choices=API_CHOICES, help_text='The api version that the key has access to.')
-    created = models.DateTimeField(auto_now_add=True, help_text='When the api key was created. (UTC)')
-    enabled = models.BooleanField(default=True, help_text='If the api key is enabled.')
+    key = models.CharField(max_length=255, unique=True, db_index=True, help_text='The API key.')
+    secret = models.CharField(max_length=255, help_text='The API key secret.')
+    version = models.CharField(max_length=25, choices=API_CHOICES, help_text='The API version that the key has access to.')
+    created = models.DateTimeField(auto_now_add=True, help_text='When the API key was created. (UTC)')
+    enabled = models.BooleanField(default=True, help_text='If the API key is enabled.')
 
     def __str__(self):
         return '{0} - ({1}) [{2}]'.format(self.pk, self.account.company, self.key)

@@ -23,9 +23,9 @@ class Event(models.Model):
     class Meta:
         app_label = 'data'
 
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(Account, help_text='What account the event belongs to.')
     addons = models.ManyToManyField(Addon, through='EventAddon')
-    cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, on_delete=models.SET_NULL, help_text='The image to use for the event cover.')
+    cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The image to use for the event cover.')
 
     uuid = UUIDField(auto=True, help_text='A unique identifier for the event.')
     start_at = models.DateTimeField(default=datetime.utcnow, help_text='Event start time. (UTC)')
@@ -109,5 +109,6 @@ class Event(models.Model):
         pass
 
 class EventAdmin(admin.ModelAdmin):
-    pass
+    exclude = ['access_count', 'are_photos_watermarked']
+
 admin.site.register(Event, EventAdmin)

@@ -18,7 +18,7 @@ class Account(models.Model):
     addons = models.ManyToManyField(Addon, through='AccountAddon')
     users = models.ManyToManyField(User, through='AccountUser')
     valid_until = models.DateTimeField(null=True, default=None, help_text='If set, the account is valid until this date (UTC). [Usually set when buying a package.]')
-    api_account = models.ForeignKey(ApiAccount, null=True, default=None)
+    api_account = models.ForeignKey(ApiAccount, null=True, default=None, blank=True, help_text='The API Account this account was created by. (None = Snapable)')
 
     def __str__(self):
         company = 'Snapable' if self.api_account is None else self.api_account.company

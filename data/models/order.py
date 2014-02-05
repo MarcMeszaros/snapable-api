@@ -15,8 +15,8 @@ class Order(models.Model):
     class Meta:
         app_label = 'data'
 
-    account = models.ForeignKey(Account)
-    user = models.ForeignKey(User, null=True)
+    account = models.ForeignKey(Account, help_text='The account that the order is for.')
+    user = models.ForeignKey(User, null=True, help_text='The user that made the order.')
 
     amount = models.IntegerField(default=0, help_text='The order amount. (USD cents)')
     amount_refunded = models.IntegerField(default=0, help_text='The amount refunded. (USD cents)')
@@ -38,7 +38,7 @@ class Order(models.Model):
     timestamp = property(_get_timestamp, _set_timestamp)
 
     def __str__(self):
-        return '{0} - ${1:.2f}(-${2:.2f}) [{3}] {4}'.format(self.pk, (self.amount/100.0), (self.amount_refunded/100.0), self.coupon, self.charge_id)
+        return '{0} - ${1:.2f} [{2}] {3}'.format(self.pk, (self.amount - self.amount_refunded)/100.0, self.coupon, self.charge_id)
 
     def __repr__(self):
         return str({

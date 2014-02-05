@@ -26,12 +26,12 @@ class Package(models.Model):
     amount = models.IntegerField(help_text='The package price. (CENTS)')
     enabled = models.BooleanField(help_text='If the package is enabled.')
     items = JSONField(help_text='The items included in the package.')
-    interval = models.CharField(max_length=5, null=True, choices=INTERVAL_CHOICES, default=None, help_text='The interval type for the package. (NULL/day/month/year)') # day, month, year
+    interval = models.CharField(max_length=5, null=True, default=None, blank=True, choices=INTERVAL_CHOICES, help_text='The interval type for the package. (NULL/day/month/year)') # day, month, year
     interval_count = models.IntegerField(default=0, help_text='The interval count for the package if the interval field isn\'t null.')
     trial_period_days = models.IntegerField(default=0, help_text='How many days to offer a trial for.')
 
     def __str__(self):
-        return '{0} - {1} ({2:.2f})'.format(self.pk, self.short_name, (self.amount/100.0))
+        return '{0} - {1} [{2}] ({3:.2f})'.format(self.pk, self.name, self.short_name, (self.amount/100.0))
 
     def __repr__(self):
         return str({

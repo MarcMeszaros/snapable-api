@@ -22,12 +22,12 @@ class Photo(models.Model):
         app_label = 'data'
 
     # the model fields
-    event = models.ForeignKey(Event)
-    guest = models.ForeignKey(Guest, null=True, default=None, on_delete=models.SET_NULL)
+    event = models.ForeignKey(Event, help_text='The event the photo belongs to.')
+    guest = models.ForeignKey(Guest, null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The guest who took the photo.')
 
-    caption = models.CharField(max_length=255, help_text='The photo caption.')
+    caption = models.CharField(max_length=255, blank=True, help_text='The photo caption.')
     streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
-    created_at = models.DateTimeField(auto_now_add=True, help_text='The photo timestamp.')
+    created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text='The photo timestamp.')
     metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics
 
     ## virtual properties getters/setters ##
@@ -160,6 +160,7 @@ class Photo(models.Model):
                 return None
 
 class PhotoAdmin(admin.ModelAdmin):
-    pass
+    exclude = ['metrics']
+
 admin.site.register(Photo, PhotoAdmin)
 
