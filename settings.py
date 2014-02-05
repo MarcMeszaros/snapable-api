@@ -123,6 +123,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'grappelli.dashboard',
     'grappelli',
     'django.contrib.admin',
     # required for admin
@@ -287,6 +288,7 @@ CELERYBEAT_SCHEDULE = {
 
 ##### Admin #####
 GRAPPELLI_ADMIN_TITLE = 'Snapable'
+GRAPPELLI_INDEX_DASHBOARD = 'admin.dashboard.CustomIndexDashboard'
 
 #### Import Local Settings #####
 try:
