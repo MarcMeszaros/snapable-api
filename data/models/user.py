@@ -98,12 +98,6 @@ class User(AbstractBaseUser):
             'last_name': self.last_name,
         })
 
-    #def set_password(self, raw_password, hasher='pbkdf2_sha256'):
-    #    self.password = User.generate_password(raw_password, hasher)
-
-    #def check_password(self, raw_password):
-    #    return check_password(raw_password, self.password)
-
     def get_full_name(self):
         return self.name
 
@@ -167,7 +161,8 @@ class UserAdmin(admin.ModelAdmin):
                 'password',
                 ('first_name', 'last_name'),
                 ('created_at', 'last_login'),
-            )
+            ),
+            'description': '<strong>NOTE: <em>A "plaintext" password in the "password" field will be hashed and saved and will overwrite the existing password.</em></strong>'
         }),
         ('Stripe', {
             'classes': ('collapse',),
@@ -176,5 +171,10 @@ class UserAdmin(admin.ModelAdmin):
             )
         }),
     )
+
+    def save_model(self, request, obj, form, change):
+        if obj.password[:14] != 'pbkdf2_sha256$':
+            obj.set_password(obj.password)
+        obj.save()
 
 admin.site.register(User, UserAdmin)
