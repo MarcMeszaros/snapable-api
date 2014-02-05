@@ -10,7 +10,7 @@
         "created_at": "2012-07-19T19:25:17+00:00", 
         "email": "marc.meszaros@gmail.com",
         "first_name": "Marc",
-        "last_access": "2012-07-19T19:25:17+00:00",
+        "last_login": "2012-07-19T19:25:17+00:00",
         "last_name": "Meszaros",
         "password": "pbkdf2_sha256$10000$u5Eu61BvBueU$Qx5gGz+FvdaKFxJRBJHmLOE05PkQ2eQ3DriOdhbeSlY="
     }
