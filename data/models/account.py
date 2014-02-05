@@ -1,4 +1,5 @@
 # django/tastypie/libs
+from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -31,3 +32,7 @@ class Account(models.Model):
             'users': self.users,
             'valid_until': self.valid_until,
         })
+
+class AccountAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Account, AccountAdmin)

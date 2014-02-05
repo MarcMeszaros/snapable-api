@@ -1,6 +1,10 @@
+# django/tastypies/libs
+from django.contrib import admin
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
+@python_2_unicode_compatible
 class Package(models.Model):
 
     # required to make 'south' migrations work
@@ -26,7 +30,10 @@ class Package(models.Model):
     interval_count = models.IntegerField(default=0, help_text='The interval count for the package if the interval field isn\'t null.')
     trial_period_days = models.IntegerField(default=0, help_text='How many days to offer a trial for.')
 
-    def __unicode__(self):
+    def __str__(self):
+        return '{0} - {1} ({2:.2f})'.format(self.pk, self.short_name, (self.amount/100.0))
+
+    def __repr__(self):
         return str({
             'amount': self.amount,
             'enabled': self.enabled,
@@ -35,3 +42,7 @@ class Package(models.Model):
             'name': self.name,
             'short_name': self.short_name,
         })
+
+class PackageAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Package, PackageAdmin)

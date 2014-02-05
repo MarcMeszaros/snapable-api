@@ -41,7 +41,7 @@ class User(AbstractBaseUser):
     last_name = models.CharField(max_length=255, help_text="The user's last name.")
     created_at = models.DateTimeField(auto_now_add=True, help_text='When the user was created. (UTC)')
     #last_login = models.DateTimeField(auto_now_add=True, help_text='When the user last accessed the system. (UTC)')
-    payment_gateway_user_id = models.CharField(max_length=255, null=True, default=None, help_text='The user ID on the payment gateway linked to this user.')
+    payment_gateway_user_id = models.CharField(max_length=255, null=True, default=None, blank=True, help_text='The user ID on the payment gateway linked to this user.')
 
     ## virtual properties getters/setters ##
     # return the number of photos related to this event
@@ -98,11 +98,11 @@ class User(AbstractBaseUser):
             'last_name': self.last_name,
         })
 
-    def set_password(self, raw_password, hasher='pbkdf2_sha256'):
-        self.password = User.generate_password(raw_password, hasher)
+    #def set_password(self, raw_password, hasher='pbkdf2_sha256'):
+    #    self.password = User.generate_password(raw_password, hasher)
 
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.password)
+    #def check_password(self, raw_password):
+    #    return check_password(raw_password, self.password)
 
     def get_full_name(self):
         return self.name
@@ -158,5 +158,23 @@ class User(AbstractBaseUser):
             return False
 
 class UserAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ['created_at', 'last_login']
+    search_fields = ['email', 'first_name', 'last_name']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'email', 
+                'password',
+                ('first_name', 'last_name'),
+                ('created_at', 'last_login'),
+            )
+        }),
+        ('Stripe', {
+            'classes': ('collapse',),
+            'fields': (
+                'payment_gateway_user_id',
+            )
+        }),
+    )
+
 admin.site.register(User, UserAdmin)
