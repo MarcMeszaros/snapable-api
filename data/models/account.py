@@ -34,5 +34,22 @@ class Account(models.Model):
         })
 
 class AccountAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'package', 'valid_until']
+    readonly_fields = ['id']
+    search_fields = []
+    fieldsets = (
+        (None, {
+            'fields': (
+                'id',
+                'package',
+            ),
+        }),
+        ('Ownership', {
+            'classes': ('collapse',),
+            'fields': (
+                'api_account',
+            )
+        }),
+    )
+
 admin.site.register(Account, AccountAdmin)

@@ -54,7 +54,7 @@ class Event(models.Model):
     photo_count = property(_get_photo_count, _set_photo_count)
 
     def __str__(self):
-        return '{0} - {1} [{2}]'.format(self.pk, self.title, self.url)
+        return '{0} ({1})'.format(self.title, self.url)
 
     def __repr__(self):
         return str({
@@ -110,5 +110,26 @@ class Event(models.Model):
 
 class EventAdmin(admin.ModelAdmin):
     exclude = ['access_count', 'are_photos_watermarked']
+    list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'is_enabled', 'created_at']
+    readonly_fields = ['id', 'pin', 'created_at']
+    search_fields = ['title', 'url']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'id',
+                'title',
+                'url',
+                ('start_at', 'end_at', 'tz_offset'),
+                'cover',
+                ('pin', 'created_at'),
+            ),
+        }),
+        ('Ownership', {
+            'classes': ('collapse',),
+            'fields': (
+                'account',
+            )
+        }),
+    )
 
 admin.site.register(Event, EventAdmin)

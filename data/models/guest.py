@@ -1,9 +1,12 @@
 # django/tastypie/libs
+from django.contrib import admin
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
 from data.models import Event
 
+@python_2_unicode_compatible
 class Guest(models.Model):
 
     # required to make 'south' migrations work
@@ -28,7 +31,10 @@ class Guest(models.Model):
     # create the property
     photo_count = property(_get_photo_count, _set_photo_count)
 
-    def __unicode__(self):
+    def __str__(self):
+        return '{0} ({1})'.format(self.name, self.email)
+
+    def __repr__(self):
         return str({
             'created_at': self.created_at,
             'email': self.email,
@@ -37,3 +43,27 @@ class Guest(models.Model):
             'name': self.name,
             'photo_count': self.photo_count,
         })
+
+class GuestAdmin(admin.ModelAdmin):
+    list_display = ['id', 'email', 'name', 'invited', 'created_at']
+    readonly_fields = ['id', 'created_at']
+    search_fields = ['email', 'name']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'id',
+                'email', 
+                'name',
+                'invited',
+                'created_at',
+            ),
+        }),
+        ('Ownership', {
+            'classes': ('collapse',),
+            'fields': (
+                'event',
+            )
+        }),
+    )
+
+admin.site.register(Guest, GuestAdmin)

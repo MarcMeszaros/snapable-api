@@ -44,7 +44,7 @@ class Photo(models.Model):
     timestamp = property(_get_timestamp, _set_timestamp)
 
     def __str__(self):
-        return '{0} - <{1}> {2}'.format(self.pk, self.event, self.caption)
+        return '{0} ({1})'.format(self.caption, self.event.url)
 
     def __repr__(self):
         return str({
@@ -161,6 +161,25 @@ class Photo(models.Model):
 
 class PhotoAdmin(admin.ModelAdmin):
     exclude = ['metrics']
+    list_display = ['id', 'caption', 'streamable', 'created_at']
+    readonly_fields = ['id', 'created_at']
+    search_fields = ['caption']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'id',
+                'caption',
+                'streamable',
+                'created_at',
+            )
+        }),
+        ('Ownership', {
+            'classes': ('collapse',),
+            'fields': (
+                'event',
+                'guest',
+            )
+        }),
+    )
 
 admin.site.register(Photo, PhotoAdmin)
-

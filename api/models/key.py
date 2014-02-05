@@ -36,11 +36,11 @@ class ApiKey(models.Model):
     enabled = models.BooleanField(default=True, help_text='If the API key is enabled.')
 
     def __str__(self):
-        return '{0} - ({1}) [{2}]'.format(self.pk, self.account.company, self.key)
+        return '{0} ({1})'.format(self.key, self.account.company)
 
     def __repr__(self):
         return str({
-            'api_account': self.api_account,
+            'account': self.account,
             'created': self.created,
             'enabled': self.enabled,
             'key': self.key,
@@ -70,6 +70,27 @@ class ApiKey(models.Model):
         return hashlib.sha256(uuid.uuid4().hex).hexdigest()
 
 class ApiKeyAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'key', 'secret', 'version', 'enabled', 'created']
+    readonly_fields = ['id', 'created']
+    search_fields = ['key', 'secret']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'id',
+                'key', 
+                'secret',
+                'version',
+                'enabled',
+                'created',
+            ),
+        }),
+        ('Ownership', {
+            'classes': ('collapse',),
+            'fields': (
+                'account',
+            )
+        }),
+    )
+
 admin.site.register(ApiKey, ApiKeyAdmin)
 

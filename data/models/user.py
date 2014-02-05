@@ -87,7 +87,7 @@ class User(AbstractBaseUser):
     is_superuser = property(_get_is_superuser, _set_is_superuser)
 
     def __str__(self):
-        return '{0} - {1} ({2})'.format(self.pk, self.name, self.email)
+        return '{0} ({1})'.format(self.name, self.email)
 
     def __repr__(self):
         return str({
@@ -152,15 +152,17 @@ class User(AbstractBaseUser):
             return False
 
 class UserAdmin(admin.ModelAdmin):
-    readonly_fields = ['created_at', 'last_login']
+    list_display = ['id', 'email', 'first_name', 'last_name', 'created_at']
+    readonly_fields = ['id', 'created_at', 'last_login']
     search_fields = ['email', 'first_name', 'last_name']
     fieldsets = (
         (None, {
             'fields': (
+                'id',
                 'email', 
                 'password',
                 ('first_name', 'last_name'),
-                ('created_at', 'last_login'),
+                ('last_login', 'created_at'),
             ),
             'description': '<strong>NOTE: <em>A "plaintext" password in the "password" field will be hashed and saved and will overwrite the existing password.</em></strong>'
         }),

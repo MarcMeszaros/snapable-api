@@ -31,7 +31,7 @@ class Package(models.Model):
     trial_period_days = models.IntegerField(default=0, help_text='How many days to offer a trial for.')
 
     def __str__(self):
-        return '{0} - {1} [{2}] ({3:.2f})'.format(self.pk, self.name, self.short_name, (self.amount/100.0))
+        return '{0} ({1}) - ${2:.2f}'.format(self.name, self.short_name, (self.amount/100.0))
 
     def __repr__(self):
         return str({
@@ -44,5 +44,21 @@ class Package(models.Model):
         })
 
 class PackageAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'short_name', 'name', 'amount', 'enabled']
+    readonly_fields = ['id']
+    search_fields = ['short_name', 'name']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'id',
+                'enabled',
+                'name', 
+                'short_name',
+                'amount',
+                'items',
+                ('interval', 'interval_count', 'trial_period_days'),
+            ),
+        }),
+    )
+
 admin.site.register(Package, PackageAdmin)

@@ -15,7 +15,7 @@ class ApiAccount(models.Model):
     created = models.DateTimeField(auto_now_add=True, help_text='When the api account was created. (UTC)')
 
     def __str__(self):
-        return '{0} - {1} ({2})'.format(self.pk, self.email, self.company)
+        return '{0} ({1})'.format(self.email, self.company)
 
     def __repr__(self):
         return str({
@@ -26,5 +26,18 @@ class ApiAccount(models.Model):
         })
 
 class ApiAccountAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'email', 'company', 'created']
+    readonly_fields = ['id', 'created']
+    search_fields = ['email', 'company']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'id',
+                'email', 
+                'company',
+                'created',
+            ),
+        }),
+    )
+
 admin.site.register(ApiAccount, ApiAccountAdmin)

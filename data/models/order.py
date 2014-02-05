@@ -38,7 +38,7 @@ class Order(models.Model):
     timestamp = property(_get_timestamp, _set_timestamp)
 
     def __str__(self):
-        return '{0} - ${1:.2f} [{2}] {3}'.format(self.pk, (self.amount - self.amount_refunded)/100.0, self.coupon, self.charge_id)
+        return '{0} - ${1:.2f} {2} ({3})'.format(self.pk, (self.amount - self.amount_refunded)/100.0, self.charge_id, self.coupon)
 
     def __repr__(self):
         return str({
@@ -51,5 +51,26 @@ class Order(models.Model):
         })
 
 class OrderAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'amount', 'amount_refunded', 'paid', 'coupon', 'created_at']
+    readonly_fields = ['id', 'charge_id', 'coupon']
+    search_fields = ['coupon']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'id',
+                ('charge_id', 'coupon'), 
+                ('amount', 'amount_refunded'),
+                'items',
+                'paid',
+            ),
+        }),
+        ('Ownership', {
+            'classes': ('collapse',),
+            'fields': (
+                'account',
+                'user',
+            )
+        }),
+    )
+
 admin.site.register(Order, OrderAdmin)
