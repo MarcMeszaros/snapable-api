@@ -46,7 +46,7 @@ class Guest(models.Model):
 
 class GuestAdmin(admin.ModelAdmin):
     list_display = ['id', 'email', 'name', 'invited', 'created_at']
-    readonly_fields = ['id', 'created_at']
+    readonly_fields = ['id', 'created_at', 'event']
     search_fields = ['email', 'name']
     fieldsets = (
         (None, {

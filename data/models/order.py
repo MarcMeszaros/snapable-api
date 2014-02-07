@@ -52,7 +52,7 @@ class Order(models.Model):
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'amount', 'amount_refunded', 'paid', 'coupon', 'created_at']
-    readonly_fields = ['id', 'charge_id', 'coupon']
+    readonly_fields = ['id', 'charge_id', 'coupon', 'account', 'user']
     search_fields = ['coupon']
     fieldsets = (
         (None, {

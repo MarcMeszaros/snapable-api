@@ -111,6 +111,7 @@ class Event(models.Model):
 class EventAdmin(admin.ModelAdmin):
     exclude = ['access_count', 'are_photos_watermarked']
     list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'is_enabled', 'created_at']
+    list_filter = ['is_public', 'is_enabled']
     readonly_fields = ['id', 'pin', 'created_at']
     search_fields = ['title', 'url']
     fieldsets = (

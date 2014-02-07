@@ -161,8 +161,9 @@ class Photo(models.Model):
 
 class PhotoAdmin(admin.ModelAdmin):
     exclude = ['metrics']
-    list_display = ['id', 'caption', 'streamable', 'created_at']
-    readonly_fields = ['id', 'created_at']
+    list_display = ['id', 'event', 'caption', 'streamable', 'created_at']
+    list_display_links = ['id', 'event']
+    readonly_fields = ['id', 'event', 'created_at']
     search_fields = ['caption']
     fieldsets = (
         (None, {
@@ -181,5 +182,12 @@ class PhotoAdmin(admin.ModelAdmin):
             )
         }),
     )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        object_id = filter(None, request.path.split('/'))[-1]
+        photo = Photo.objects.get(pk=object_id)
+        if db_field.name == 'guest':
+            kwargs['queryset'] = Guest.objects.filter(event=photo.event)
+        return super(PhotoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 admin.site.register(Photo, PhotoAdmin)
