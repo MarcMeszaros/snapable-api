@@ -4,10 +4,6 @@ from django.contrib import admin
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
-# snapable
-from data.models import Account
-from data.models import User
-
 @python_2_unicode_compatible
 class Order(models.Model):
     
@@ -15,8 +11,8 @@ class Order(models.Model):
     class Meta:
         app_label = 'data'
 
-    account = models.ForeignKey(Account, help_text='The account that the order is for.')
-    user = models.ForeignKey(User, null=True, help_text='The user that made the order.')
+    account = models.ForeignKey('Account', help_text='The account that the order is for.')
+    user = models.ForeignKey('User', null=True, help_text='The user that made the order.')
 
     amount = models.IntegerField(default=0, help_text='The order amount. (USD cents)')
     amount_refunded = models.IntegerField(default=0, help_text='The amount refunded. (USD cents)')
@@ -50,7 +46,10 @@ class Order(models.Model):
             'paid': self.paid,
         })
 
-class OrderAdmin(admin.ModelAdmin):
+
+#===== Admin =====#
+# base details for direct and inline admin models
+class OrderAdminDetails():
     list_display = ['id', 'amount', 'amount_refunded', 'paid', 'coupon', 'created_at']
     readonly_fields = ['id', 'charge_id', 'coupon', 'account', 'user']
     search_fields = ['coupon']
@@ -73,4 +72,17 @@ class OrderAdmin(admin.ModelAdmin):
         }),
     )
 
+# add the direct admin model
+class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
+    pass
 admin.site.register(Order, OrderAdmin)
+
+# add the inline admin model
+class OrderAdminInline(OrderAdminDetails, admin.StackedInline):
+    model = Order
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

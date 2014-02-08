@@ -33,7 +33,11 @@ class Account(models.Model):
             'valid_until': self.valid_until,
         })
 
+from data.models.order import OrderAdminInline
 class AccountAdmin(admin.ModelAdmin):
+    inlines = [
+        OrderAdminInline
+    ]
     list_display = ['id', 'package', 'valid_until']
     readonly_fields = ['id']
     search_fields = []

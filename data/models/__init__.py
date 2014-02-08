@@ -1,3 +1,7 @@
+# modules to import for 'import *'
+#__all__ = ['']
+
+#===== Old Imports (Backwards Compatibility) =====#
 # first level: independent models
 from data.models.user import User
 from data.models.package import Package
