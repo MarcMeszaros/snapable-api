@@ -108,7 +108,9 @@ class Event(models.Model):
     def save_watermark(self, image):
         pass
 
-class EventAdmin(admin.ModelAdmin):
+#===== Admin =====#
+# base details for direct and inline admin models
+class EventAdminDetails(object):
     exclude = ['access_count', 'are_photos_watermarked']
     list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'is_enabled', 'created_at']
     list_filter = ['is_public', 'is_enabled']
@@ -133,4 +135,10 @@ class EventAdmin(admin.ModelAdmin):
         }),
     )
 
+# add the direct admin model
+from data.models.location import LocationAdminInline
+class EventAdmin(EventAdminDetails, admin.ModelAdmin):
+    inlines = [LocationAdminInline]
+
 admin.site.register(Event, EventAdmin)
+
