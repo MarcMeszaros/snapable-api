@@ -49,8 +49,9 @@ class Order(models.Model):
 
 #===== Admin =====#
 # base details for direct and inline admin models
-class OrderAdminDetails():
+class OrderAdminDetails(object):
     list_display = ['id', 'amount', 'amount_refunded', 'paid', 'coupon', 'created_at']
+    list_filter = ['paid', 'created_at']
     readonly_fields = ['id', 'charge_id', 'coupon', 'account', 'user']
     search_fields = ['coupon']
     fieldsets = (
