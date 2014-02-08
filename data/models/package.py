@@ -1,8 +1,10 @@
 # django/tastypies/libs
-from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
+
+# snapable
+import admin
 
 @python_2_unicode_compatible
 class Package(models.Model):

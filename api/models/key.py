@@ -3,11 +3,11 @@ import hashlib
 import uuid
 
 # django/tastypie/libs
-from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
+import admin
 from api.models import ApiAccount
 
 @python_2_unicode_compatible

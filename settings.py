@@ -288,7 +288,9 @@ CELERYBEAT_SCHEDULE = {
 
 ##### Admin #####
 GRAPPELLI_ADMIN_TITLE = 'Snapable'
-GRAPPELLI_INDEX_DASHBOARD = 'admin.dashboard.CustomIndexDashboard'
+GRAPPELLI_INDEX_DASHBOARD = {
+    'admin.site': 'admin.dashboard.CustomIndexDashboard'
+}
 
 #### Import Local Settings #####
 try:

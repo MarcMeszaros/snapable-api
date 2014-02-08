@@ -1,10 +1,13 @@
+# django/tastypie/libs
 import bcrypt
 from django.db import models
 from django.conf import settings
-from django.contrib import admin
 from django.contrib.auth.hashers import (check_password, make_password, is_password_usable)
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.encoding import python_2_unicode_compatible
+
+# snapable
+import admin
 
 class UserManager(BaseUserManager):
 

@@ -1,9 +1,9 @@
-from django.contrib import admin
 from django.conf.urls import patterns, include, url
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 # apis
+import admin
 import api.partner_v1
 import api.private_v1
 

@@ -6,13 +6,13 @@ from datetime import datetime
 
 # django/tastypie/libs
 from django.conf import settings
-from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 from uuidfield import UUIDField
 
 # snapable
+import admin
 from data.models import Account, Addon
 from utils import rackspace
 
