@@ -123,7 +123,16 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'grappelli.dashboard',
+    # core apps for snapable
+    'api',
+    'data',
+    'admin',
+    # third-party libraries/apps
+    'raven.contrib.django',
+    'tastypie',
+    'south',
+
+    # django related
     'grappelli',
     'django.contrib.admin',
     # required for admin
@@ -132,14 +141,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # core apps for snapable
-    'api',
-    'data',
-    # third-party libraries/apps
-    'raven.contrib.django',
-    'tastypie',
-    'south',
 )
 
 # See http://docs.djangoproject.com/en/dev/topics/logging for
@@ -288,9 +289,6 @@ CELERYBEAT_SCHEDULE = {
 
 ##### Admin #####
 GRAPPELLI_ADMIN_TITLE = 'Snapable'
-GRAPPELLI_INDEX_DASHBOARD = {
-    'admin.site': 'admin.dashboard.CustomIndexDashboard'
-}
 
 #### Import Local Settings #####
 try:

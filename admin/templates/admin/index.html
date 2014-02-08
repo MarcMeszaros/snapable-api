@@ -1,0 +1,48 @@
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+
+<!-- LOADING -->
+{% load i18n grp_tags log %}
+
+{% block stylesheets %}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="{%static 'bootstrap/css/bootstrap.min.css' %}">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="{%static 'bootstrap/css/bootstrap-theme.min.css' %}">
+    {{ block.super }}
+{% endblock %}
+
+<!-- JAVASCRIPTS -->
+{% block javascripts %}
+    {{ block.super }}
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="{%static 'bootstrap/js/bootstrap.min.js' %}"></script>
+{% endblock %}
+
+<!-- BREADCRUMBS -->
+{% block breadcrumbs %}
+    <ul class="grp-horizontal-list">
+        <li>{% trans "Home" %}</li>
+    </ul>
+{% endblock %}
+{% block content_title %}
+    {% if title %}
+        <header><h1>{{ title }}</h1></header>
+    {% endif %}
+{% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+    <div class="g-d-c">
+        <div class="g-d-12 g-d-f">
+            {% for app in app_list %}
+                <div class="grp-module" id="app_{{ app.name|lower }}">
+                    <h2><a href="{{ app.app_url }}" class="grp-section">{% trans app.name %}</a></h2>
+                </div>
+            {% empty %}
+                <p>{% trans "You don´t have permission to edit anything." %}</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
