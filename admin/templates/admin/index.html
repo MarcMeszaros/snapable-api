@@ -7,10 +7,10 @@
 {% block stylesheets %}
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="{%static 'bootstrap/css/bootstrap.min.css' %}">
-
-    <!-- Optional theme -->
     <link rel="stylesheet" href="{%static 'bootstrap/css/bootstrap-theme.min.css' %}">
     {{ block.super }}
+
+    <link rel="stylesheet" href="{%static 'assets/css/dashboard.css' %}">
 {% endblock %}
 
 <!-- JAVASCRIPTS -->
@@ -34,8 +34,114 @@
 
 <!-- CONTENT -->
 {% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-9">
+                <h2>Metrics</h2>
+            </div>
+            <div id="metrics-range" class="col-lg-3">
+                <form>
+                    <span id="metrics-refresh">[Refresh]</span> |
+                    <input type="radio" id="metrics-range-7d" name="metrics-range" value="7" checked />
+                    <label for="metrics-range-7d">7d</label> |
+                    <input type="radio" id="metrics-range-14d" name="metrics-range" value="14" />
+                    <label for="metrics-range-14d">14d</label> |
+                    <input type="radio"  id="metrics-range-1m" name="metrics-range" value="30" />
+                    <label for="metrics-range-1m">1m</label> |
+                    <input type="radio" id="metrics-range-3m" name="metrics-range" value="90" />
+                    <label for="metrics-range-3m">3m</label> |
+                    <input type="radio" id="metrics-range-all" name="metrics-range" value="-1" />
+                    <label for="metrics-range-all">All</label>
+                </form>
+            </div>
+        </div>
+
+        <div id="metrics" class="row">
+        <div class="col-lg-3">
+            <div id="metric-signups" class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Total Signups</h3>
+                    User signup count.
+                </div>
+                <div class="panel-body">
+                    <span class="value"></span><span class="spinner-wrap status hide"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div id="metric-past-events-count" class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Past Events</h3>
+                    Events ending in range.
+                </div>
+                <div class="panel-body">
+                    <span class="value"></span><span class="spinner-wrap status hide"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div id="metric-past-events-photos" class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Past Events with Photos</h3>
+                    Events with at least 1 photo.
+                </div>
+                <div class="panel-body">
+                    <span class="value"></span><span class="spinner-wrap status hide"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div id="metric-upcoming-events" class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Upcoming Events</h3>
+                    ...and current events.
+                </div>
+                <div class="panel-body">
+                    <span class="value"></span><span class="spinner-wrap status hide"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div id="metric-photos-count" class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Photo Count</h3>
+                    Photos taken/uploaded.
+                </div>
+                <div class="panel-body">
+                    <span class="value"></span><span class="spinner-wrap status hide"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div id="metric-avg-event-photos" class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Avg. photos/event</h3>
+                    Average photos per event.
+                </div>
+                <div class="panel-body">
+                    <span class="value"></span><span class="spinner-wrap status hide"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div id="metric-revenue" class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Revenue</h3>
+                    Gross | Net revenue from sales.
+                </div>
+                <div class="panel-body">
+                    <span class="value"></span><span class="spinner-wrap status hide"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+    <hr/>
+
     <div class="g-d-c">
         <div class="g-d-12 g-d-f">
+            <h2>App List</h2>
             {% for app in app_list %}
                 <div class="grp-module" id="app_{{ app.name|lower }}">
                     <h2><a href="{{ app.app_url }}" class="grp-section">{% trans app.name %}</a></h2>
