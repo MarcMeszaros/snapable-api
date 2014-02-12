@@ -4,14 +4,17 @@ import cStringIO
 # django/tastypie/libs
 from django.conf import settings
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 
 # snapable
+import admin
 from data.images import SnapImage
 from data.models import Event, Guest
 from utils import rackspace
 from utils.loggers import Log
 
+@python_2_unicode_compatible
 class Photo(models.Model):
 
     # required to make 'south' migrations work
@@ -19,12 +22,12 @@ class Photo(models.Model):
         app_label = 'data'
 
     # the model fields
-    event = models.ForeignKey(Event)
-    guest = models.ForeignKey(Guest, null=True, default=None, on_delete=models.SET_NULL)
+    event = models.ForeignKey(Event, help_text='The event the photo belongs to.')
+    guest = models.ForeignKey(Guest, null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The guest who took the photo.')
 
-    caption = models.CharField(max_length=255, help_text='The photo caption.')
+    caption = models.CharField(max_length=255, blank=True, help_text='The photo caption.')
     streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
-    created_at = models.DateTimeField(auto_now_add=True, help_text='The photo timestamp.')
+    created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text='The photo timestamp.')
     metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics
 
     ## virtual properties getters/setters ##
@@ -40,7 +43,10 @@ class Photo(models.Model):
     # add the virtual properties
     timestamp = property(_get_timestamp, _set_timestamp)
 
-    def __unicode__(self):
+    def __str__(self):
+        return '{0} ({1})'.format(self.caption, self.event.url)
+
+    def __repr__(self):
         return str({
             'caption': self.caption,
             'created_at': self.created_at,
@@ -152,3 +158,36 @@ class Photo(models.Model):
                     obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.convert('RGB').tobytes('jpeg', 'RGB'))
             except rackspace.pyrax.exceptions.NoSuchContainer as e:
                 return None
+
+class PhotoAdmin(admin.ModelAdmin):
+    exclude = ['metrics']
+    list_display = ['id', 'event', 'caption', 'streamable', 'created_at']
+    list_display_links = ['id', 'event']
+    readonly_fields = ['id', 'event', 'created_at']
+    search_fields = ['caption']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'id',
+                'caption',
+                'streamable',
+                'created_at',
+            )
+        }),
+        ('Ownership', {
+            'classes': ('collapse',),
+            'fields': (
+                'event',
+                'guest',
+            )
+        }),
+    )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        object_id = filter(None, request.path.split('/'))[-1]
+        photo = Photo.objects.get(pk=object_id)
+        if db_field.name == 'guest':
+            kwargs['queryset'] = Guest.objects.filter(event=photo.event)
+        return super(PhotoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+admin.site.register(Photo, PhotoAdmin)

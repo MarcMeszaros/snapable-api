@@ -7,22 +7,25 @@ from datetime import datetime
 # django/tastypie/libs
 from django.conf import settings
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 from uuidfield import UUIDField
 
 # snapable
+import admin
 from data.models import Account, Addon
 from utils import rackspace
 
+@python_2_unicode_compatible
 class Event(models.Model):
 
     # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
 
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(Account, help_text='What account the event belongs to.')
     addons = models.ManyToManyField(Addon, through='EventAddon')
-    cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, on_delete=models.SET_NULL, help_text='The image to use for the event cover.')
+    cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The image to use for the event cover.')
 
     uuid = UUIDField(auto=True, help_text='A unique identifier for the event.')
     start_at = models.DateTimeField(default=datetime.utcnow, help_text='Event start time. (UTC)')
@@ -50,7 +53,10 @@ class Event(models.Model):
     # create the property
     photo_count = property(_get_photo_count, _set_photo_count)
 
-    def __unicode__(self):
+    def __str__(self):
+        return '{0} ({1})'.format(self.title, self.url)
+
+    def __repr__(self):
         return str({
             'account': self.account,
             'are_photos_streamable': self.are_photos_streamable,
@@ -101,3 +107,38 @@ class Event(models.Model):
 
     def save_watermark(self, image):
         pass
+
+#===== Admin =====#
+# base details for direct and inline admin models
+class EventAdminDetails(object):
+    exclude = ['access_count', 'are_photos_watermarked']
+    list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'is_enabled', 'created_at']
+    list_filter = ['is_public', 'is_enabled']
+    readonly_fields = ['id', 'pin', 'created_at']
+    search_fields = ['title', 'url']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'id',
+                'title',
+                'url',
+                ('start_at', 'end_at', 'tz_offset'),
+                'cover',
+                ('pin', 'created_at'),
+            ),
+        }),
+        ('Ownership', {
+            'classes': ('collapse',),
+            'fields': (
+                'account',
+            )
+        }),
+    )
+
+# add the direct admin model
+from data.models.location import LocationAdminInline
+class EventAdmin(EventAdminDetails, admin.ModelAdmin):
+    inlines = [LocationAdminInline]
+
+admin.site.register(Event, EventAdmin)
+

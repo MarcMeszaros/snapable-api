@@ -59,7 +59,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -90,13 +90,19 @@ TEMPLATE_LOADERS = (
     #'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth', # Admin
+    'django.contrib.messages.context_processors.messages', # Admin
+    'django.core.context_processors.request',
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware', # Admin
     #'django.middleware.csrf.CsrfViewMiddleware',
-    #'django.contrib.auth.middleware.AuthenticationMiddleware',
-    #'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # Admin
+    'django.contrib.messages.middleware.MessageMiddleware', # Admin
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.http.ConditionalGetMiddleware', # Adds 'Content-Length' header
@@ -117,20 +123,24 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    #'django.contrib.auth',
-    #'django.contrib.contenttypes',
-    #'django.contrib.sessions',
-    #'django.contrib.sites',
-    #'django.contrib.messages',
-    #'django.contrib.staticfiles',
-
     # core apps for snapable
     'api',
     'data',
+    'admin',
     # third-party libraries/apps
     'raven.contrib.django',
     'tastypie',
     'south',
+
+    # django related
+    'grappelli',
+    'django.contrib.admin',
+    # required for admin
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 )
 
 # See http://docs.djangoproject.com/en/dev/topics/logging for
@@ -244,6 +254,7 @@ RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = True
 ##### Tastypie #####
 API_LIMIT_PER_PAGE = 50
 TASTYPIE_DEFAULT_FORMATS = ['json']
+TASTYPIE_ABSTRACT_APIKEY = True
 
 ##### Stripe #####
 STRIPE_KEY_SECRET = '***REMOVED***' # testing
@@ -275,6 +286,9 @@ CELERYBEAT_SCHEDULE = {
         #'args': (1440)
     },
 }
+
+##### Admin #####
+GRAPPELLI_ADMIN_TITLE = 'Snapable'
 
 #### Import Local Settings #####
 try:

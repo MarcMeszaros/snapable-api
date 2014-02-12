@@ -1,0 +1,33 @@
+/* Metrics */
+#metrics-range form {
+    float: right;
+}
+#metrics-range label {
+    display: inline;
+}
+#metrics-range label:hover {
+    cursor: pointer;
+}
+#metrics-range input[type="radio"] {
+    display: none;
+}
+#metrics-range input[type="radio"]:checked + label {
+    text-decoration: underline;
+}
+/* The metrics refresh button */
+#metrics-refresh:hover {
+    cursor: pointer;
+}
+
+#metrics .panel-body {
+    text-align: center;
+    min-height: 50px;
+    padding: 5px;
+}
+#metrics .panel-body .value {
+    font-weight: bold;
+    font-size: 2.0em;
+}
+#metrics .panel-body .spinner-wrap {
+    padding-top: 14px;
+}

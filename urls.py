@@ -2,6 +2,9 @@ from django.conf.urls import patterns, include, url
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
+# apis
+import admin
+import ajax
 import api.partner_v1
 import api.private_v1
 
@@ -15,6 +18,11 @@ urlpatterns = patterns('',
     # tell bots not to try and crawl the API
     url(r'^robots\.txt$', lambda r: render(r, 'robots.txt', content_type='text/plain')),
     url(r'^humans\.txt$', lambda r: render(r, 'humans.txt', content_type='text/plain')),
+
+    # add admin
+    (r'^grappelli/', include('grappelli.urls')), # grappelli URLS
+    (r'^control_tower/', include(admin.site.urls)),
+    (r'^control_tower/ajax/', include(ajax.urls)),
 
     ## define all the API versions here ##
     # public APIs

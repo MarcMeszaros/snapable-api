@@ -81,6 +81,12 @@ class ServerAuthentication(Authentication):
             signature = hmac.new(api_secret, raw, hashlib.sha1).hexdigest()
             return 'SNAP snap_key="'+api_key+'",snap_signature="'+signature+'",snap_nonce="'+snap_nonce+'",snap_date="'+snap_date+'"'
 
+    @staticmethod
+    def sign_request(request, api_key, api_secret):
+        signature = ServerAuthentication.create_signature(api_key, api_secret, request.method, request.path)
+        request.META['HTTP_AUTHORIZATION'] = signature
+        return request
+
     def is_authenticated(self, request, **kwargs):
         # check for the environment variable to skip auth
         if os.environ.get('SNAP_AUTHENTICATION', 'True') in ['False', 'false']:
