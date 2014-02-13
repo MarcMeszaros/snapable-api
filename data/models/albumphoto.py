@@ -1,7 +1,5 @@
+# django/libs
 from django.db import models
-
-from data.models import Album
-from data.models import Photo
 
 class AlbumPhoto(models.Model):
 
@@ -9,5 +7,5 @@ class AlbumPhoto(models.Model):
     class Meta:
         app_label = 'data'
 
-    album = models.ForeignKey(Album)
-    photo = models.ForeignKey(Photo)
+    album = models.ForeignKey('Album')
+    photo = models.ForeignKey('Photo')

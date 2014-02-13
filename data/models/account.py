@@ -5,7 +5,6 @@ from django.utils.encoding import python_2_unicode_compatible
 # snapable
 import admin
 from api.models import ApiAccount
-from data.models import Addon, Package, User
 
 @python_2_unicode_compatible
 class Account(models.Model):
@@ -14,9 +13,9 @@ class Account(models.Model):
     class Meta:
         app_label = 'data'
 
-    package = models.ForeignKey(Package, null=True, default=None, help_text='The active package associated with the account.')
-    addons = models.ManyToManyField(Addon, through='AccountAddon')
-    users = models.ManyToManyField(User, through='AccountUser')
+    package = models.ForeignKey('Package', null=True, default=None, help_text='The active package associated with the account.')
+    addons = models.ManyToManyField('Addon', through='AccountAddon')
+    users = models.ManyToManyField('User', through='AccountUser')
     valid_until = models.DateTimeField(null=True, default=None, help_text='If set, the account is valid until this date (UTC). [Usually set when buying a package.]')
     api_account = models.ForeignKey(ApiAccount, null=True, default=None, blank=True, help_text='The API Account this account was created by. (None = Snapable)')
 

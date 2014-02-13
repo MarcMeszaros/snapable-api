@@ -5,9 +5,6 @@ import random
 # django/tastypie
 from django.db import models
 
-# snapable
-from data.models import User
-
 class PasswordNonce(models.Model):
 
     # required to make 'south' migrations work
@@ -15,7 +12,7 @@ class PasswordNonce(models.Model):
         app_label = 'data'
 
     # the model fields
-    user = models.ForeignKey(User)
+    user = models.ForeignKey('User')
 
     nonce = models.CharField(max_length=255, unique=True, help_text="The password nonce.")
     valid = models.BooleanField(default=False, help_text='If the nonce is still valid.')

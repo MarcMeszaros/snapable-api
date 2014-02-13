@@ -10,6 +10,7 @@ from PIL import Image
 # snapable
 import admin
 from data.images import SnapImage
+from data.models import Guest
 from utils import rackspace
 from utils.loggers import Log
 
