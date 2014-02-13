@@ -44,7 +44,7 @@ class Photo(models.Model):
     timestamp = property(_get_timestamp, _set_timestamp)
 
     def __str__(self):
-        return '{0} ({1})'.format(self.caption, self.event.url)
+        return u'{0} ({1})'.format(self.caption, self.event.url)
 
     def __repr__(self):
         return str({

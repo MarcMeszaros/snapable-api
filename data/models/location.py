@@ -19,7 +19,7 @@ class Location(models.Model):
     lng = models.DecimalField(max_digits=9, decimal_places=6, default=0, help_text='The address longitude.') # +/- 180.123456, accuracy: 0.111 m (ie. 11.1cm)
 
     def __str__(self):
-        return '{0} - ({1},{2})'.format(self.address, self.lat, self.lng)
+        return u'{0} - ({1},{2})'.format(self.address, self.lat, self.lng)
 
     def __repr__(self):
         return str({
