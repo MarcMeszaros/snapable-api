@@ -7,3 +7,4 @@ class AdminSite(django.contrib.admin.sites.AdminSite):
 
 # This global object represents the admin site, for the common case.
 site = AdminSite()
+site.disable_action('delete_selected')
