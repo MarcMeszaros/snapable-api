@@ -13,12 +13,13 @@ from data.models.passwordnonce import PasswordNonce # depends: User
 
 # third level: depends on second level models or below
 from data.models.accountuser import AccountUser # depends: Account, User
+from data.models.photo import Photo # depends: Guest
 from data.models.event import Event # depends: Account, Package
 
 # fourth level: depends on third level models or below
 from data.models.location import Location # depends: Event
 from data.models.guest import Guest # depends: Event
-from data.models.photo import Photo # depends: Event, Guest
+
 from data.models.order import Order # depends: Account
 
 # fifth level: depends on fourth level models or below

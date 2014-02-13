@@ -13,7 +13,7 @@ from uuidfield import UUIDField
 
 # snapable
 import admin
-from data.models import Account, Addon
+from data.models import Photo
 from utils import rackspace
 
 @python_2_unicode_compatible
@@ -23,8 +23,8 @@ class Event(models.Model):
     class Meta:
         app_label = 'data'
 
-    account = models.ForeignKey(Account, help_text='What account the event belongs to.')
-    addons = models.ManyToManyField(Addon, through='EventAddon')
+    account = models.ForeignKey('Account', help_text='What account the event belongs to.')
+    addons = models.ManyToManyField('Addon', through='EventAddon')
     cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The image to use for the event cover.')
 
     uuid = UUIDField(auto=True, help_text='A unique identifier for the event.')
@@ -140,5 +140,17 @@ from data.models.location import LocationAdminInline
 class EventAdmin(EventAdminDetails, admin.ModelAdmin):
     inlines = [LocationAdminInline]
 
-admin.site.register(Event, EventAdmin)
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        try:
+            object_id = filter(None, request.path.split('/'))[-1]
+            event = Event.objects.get(pk=object_id)
+            if db_field.name == 'cover':
+                kwargs['queryset'] = Photo.objects.filter(event=event)
+            return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        except ValueError:
+            if db_field.name == 'cover':
+                kwargs['queryset'] = Photo.objects.none()
+            return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+
+admin.site.register(Event, EventAdmin)

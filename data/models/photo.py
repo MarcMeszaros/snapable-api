@@ -10,7 +10,6 @@ from PIL import Image
 # snapable
 import admin
 from data.images import SnapImage
-from data.models import Event, Guest
 from utils import rackspace
 from utils.loggers import Log
 
@@ -22,8 +21,8 @@ class Photo(models.Model):
         app_label = 'data'
 
     # the model fields
-    event = models.ForeignKey(Event, help_text='The event the photo belongs to.')
-    guest = models.ForeignKey(Guest, null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The guest who took the photo.')
+    event = models.ForeignKey('Event', help_text='The event the photo belongs to.')
+    guest = models.ForeignKey('Guest', null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The guest who took the photo.')
 
     caption = models.CharField(max_length=255, blank=True, help_text='The photo caption.')
     streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
