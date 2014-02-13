@@ -36,7 +36,7 @@ class Order(models.Model):
     timestamp = property(_get_timestamp, _set_timestamp)
 
     def __str__(self):
-        return '{0} - ${1:.2f} {2} ({3})'.format(self.pk, (self.amount - self.amount_refunded)/100.0, self.charge_id, self.coupon)
+        return u'{0} - ${1:.2f} {2} ({3})'.format(self.pk, (self.amount - self.amount_refunded)/100.0, self.charge_id, self.coupon)
 
     def __repr__(self):
         return str({

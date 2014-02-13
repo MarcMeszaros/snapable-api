@@ -33,7 +33,7 @@ class Package(models.Model):
     trial_period_days = models.IntegerField(default=0, help_text='How many days to offer a trial for.')
 
     def __str__(self):
-        return '{0} ({1}) - ${2:.2f}'.format(self.name, self.short_name, (self.amount/100.0))
+        return u'{0} ({1}) - ${2:.2f}'.format(self.name, self.short_name, (self.amount/100.0))
 
     def __repr__(self):
         return str({

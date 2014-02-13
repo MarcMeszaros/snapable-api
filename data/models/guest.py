@@ -32,7 +32,7 @@ class Guest(models.Model):
     photo_count = property(_get_photo_count, _set_photo_count)
 
     def __str__(self):
-        return '{0} ({1})'.format(self.name, self.email)
+        return u'{0} ({1})'.format(self.name, self.email)
 
     def __repr__(self):
         return str({

@@ -22,7 +22,7 @@ class Account(models.Model):
 
     def __str__(self):
         company = 'Snapable' if self.api_account is None else self.api_account.company
-        return '{0} - ({1})'.format(self.pk, company)
+        return u'{0} - ({1})'.format(self.pk, company)
 
     def __repr__(self):
         return str({
