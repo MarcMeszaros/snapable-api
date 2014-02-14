@@ -32,11 +32,9 @@ class Account(models.Model):
             'valid_until': self.valid_until,
         })
 
-from data.models.order import OrderAdminInline
-class AccountAdmin(admin.ModelAdmin):
-    inlines = [
-        OrderAdminInline
-    ]
+#===== Admin =====#
+# base details for direct and inline admin models
+class AccountAdminDetails(object):
     list_display = ['id', 'package', 'valid_until']
     readonly_fields = ['id']
     search_fields = []
@@ -54,5 +52,11 @@ class AccountAdmin(admin.ModelAdmin):
             )
         }),
     )
+
+# add the direct admin model
+from event import EventAdminInline
+from order import OrderAdminInline
+class AccountAdmin(AccountAdminDetails, admin.ModelAdmin):
+    inlines = [EventAdminInline, OrderAdminInline]
 
 admin.site.register(Account, AccountAdmin)

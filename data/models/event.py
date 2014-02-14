@@ -13,7 +13,7 @@ from uuidfield import UUIDField
 
 # snapable
 import admin
-from data.models import Photo
+from photo import Photo
 from utils import rackspace
 
 @python_2_unicode_compatible
@@ -135,8 +135,9 @@ class EventAdminDetails(object):
         }),
     )
 
-# add the direct admin model
-from data.models.location import LocationAdminInline
+#===== Admin =====#
+# base details for direct and inline admin models
+from location import LocationAdminInline
 class EventAdmin(EventAdminDetails, admin.ModelAdmin):
     inlines = [LocationAdminInline]
 
@@ -152,5 +153,8 @@ class EventAdmin(EventAdminDetails, admin.ModelAdmin):
                 kwargs['queryset'] = Photo.objects.none()
             return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-
 admin.site.register(Event, EventAdmin)
+
+# add the inline admin model
+class EventAdminInline(EventAdminDetails, admin.StackedInline):
+    model = Event

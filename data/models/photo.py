@@ -10,7 +10,7 @@ from PIL import Image
 # snapable
 import admin
 from data.images import SnapImage
-from data.models import Guest
+from guest import Guest
 from utils import rackspace
 from utils.loggers import Log
 
@@ -159,7 +159,9 @@ class Photo(models.Model):
             except rackspace.pyrax.exceptions.NoSuchContainer as e:
                 return None
 
-class PhotoAdmin(admin.ModelAdmin):
+#===== Admin =====#
+# base details for direct and inline admin models
+class PhotoAdminDetails(object):
     exclude = ['metrics']
     list_display = ['id', 'event', 'caption', 'streamable', 'created_at']
     list_display_links = ['id', 'event']
@@ -183,6 +185,8 @@ class PhotoAdmin(admin.ModelAdmin):
         }),
     )
 
+# add the direct admin model
+class PhotoAdmin(PhotoAdminDetails, admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         object_id = filter(None, request.path.split('/'))[-1]
         photo = Photo.objects.get(pk=object_id)
