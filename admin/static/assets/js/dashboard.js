@@ -72,7 +72,7 @@ function metrics() {
     $.getJSON('ajax/metrics/'+start, function(json){
         // average photo
         $('#metric-avg-event-photos .value').hide();
-        $('#metric-avg-event-photos .value').html(json.metrics.avg);
+        $('#metric-avg-event-photos .value').html(json.metrics.avg.toFixed(2));
         $('#metric-avg-event-photos .value').fadeIn();
 
         // revenue
