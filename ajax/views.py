@@ -84,7 +84,7 @@ def upcoming_events(request, start=0, end=None):
         enddate = datetime.utcfromtimestamp(float(end))
 
     kwargs = {
-        'end_at__gte': startdate.strftime('%Y-%m-%dT%H:%M:%SZ'),
+        'end_at__gte': enddate.strftime('%Y-%m-%dT%H:%M:%SZ'),
         'order_by': 'start',
     }
 
