@@ -9,4 +9,5 @@ urls = patterns('',
     url(r'^photos_count(/(?P<start>\d+)(/(?P<end>\d+))?)?$', views.photos_count, name='photos_count'),
     url(r'^upcoming_events(/(?P<start>\d+)(/(?P<end>\d+))?)?$', views.upcoming_events, name='upcoming_events'),
     url(r'^events_with_photo_count/(?P<photo_count>\d+)(/(?P<start>\d+)(/(?P<end>\d+))?)?$', views.events_with_photo_count, name='events_with_photo_count'),
+    url(r'^metrics(/(?P<start>\d+)(/(?P<end>\d+))?)?$', views.metrics, name='metrics'),
 )

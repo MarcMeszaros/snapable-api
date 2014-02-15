@@ -17,8 +17,7 @@ function update_metrics() {
     photos_count();
     upcoming_events();
     past_events_photos();
-    //avg_event_photos();
-    //revenue();
+    metrics();
 }
 
 
@@ -68,20 +67,18 @@ function past_events_photos() {
     });
 }
 
-function avg_event_photos() {
+function metrics() {
     var start = get_unix_start();
-    $.getJSON('ajax_internal/avg_event_photos/'+start, function(json){
+    $.getJSON('ajax/metrics/'+start, function(json){
+        // average photo
         $('#metric-avg-event-photos .value').hide();
-        $('#metric-avg-event-photos .value').html(Math.round(json.metrics.avg*100)/100);
+        $('#metric-avg-event-photos .value').html(json.metrics.avg);
         $('#metric-avg-event-photos .value').fadeIn();
-    });
-}
 
-function revenue() {
-    var start = get_unix_start();
-    $.getJSON('ajax/revenue/'+start, function(json){
+        // revenue
+        var net_revenue = json.metrics.orders.amount__sum - json.metrics.orders.amount_refunded__sum;
         $('#metric-revenue .value').hide();
-        $('#metric-revenue .value').html('$'+Math.round(json.metrics.gross_revenue/100)+' | $'+Math.round(json.metrics.net_revenue/100));
+        $('#metric-revenue .value').html('$'+Math.round(json.metrics.orders.amount__sum/100)+' | $'+Math.round(net_revenue/100));
         $('#metric-revenue .value').fadeIn();
     });
 }
