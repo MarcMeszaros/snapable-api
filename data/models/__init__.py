@@ -3,28 +3,22 @@
 
 #===== Old Imports (Backwards Compatibility) =====#
 # first level: independent models
-from data.models.user import User
-from data.models.package import Package
-from data.models.addon import Addon
+from account import Account
+from accountaddon import AccountAddon
+from accountuser import AccountUser
+from addon import Addon
+from album import Album
+from albumphoto import AlbumPhoto
+from eventaddon import EventAddon
+from guest import Guest
+from location import Location
+from order import Order
+from package import Package
+from passwordnonce import PasswordNonce
+from user import User
 
 # second level: depends on independent models
-from data.models.account import Account # depends: User
-from data.models.passwordnonce import PasswordNonce # depends: User
+from photo import Photo # depends: Guest
 
 # third level: depends on second level models or below
-from data.models.accountuser import AccountUser # depends: Account, User
-from data.models.event import Event # depends: Account, Package
-
-# fourth level: depends on third level models or below
-from data.models.location import Location # depends: Event
-from data.models.guest import Guest # depends: Event
-from data.models.photo import Photo # depends: Event, Guest
-from data.models.order import Order # depends: Account
-
-# fifth level: depends on fourth level models or below
-from data.models.album import Album # depends: Event, Photo
-from data.models.accountaddon import AccountAddon # depends: Account, Addon
-from data.models.eventaddon import EventAddon # depends: Event, Addon
-
-# sixth level: depends on fifth level models or below
-from data.models.albumphoto import AlbumPhoto # depends: Album, Photo
+from event import Event # depends: Photo

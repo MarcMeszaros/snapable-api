@@ -21,13 +21,9 @@
 
 #metrics .panel-body {
     text-align: center;
-    min-height: 50px;
-    padding: 5px;
+    min-height: 60px;
 }
 #metrics .panel-body .value {
     font-weight: bold;
-    font-size: 2.0em;
-}
-#metrics .panel-body .spinner-wrap {
-    padding-top: 14px;
+    font-size: 3.0em;
 }

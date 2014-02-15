@@ -4,7 +4,6 @@ from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
 import admin
-from data.models import Event
 
 @python_2_unicode_compatible
 class Guest(models.Model):
@@ -13,7 +12,7 @@ class Guest(models.Model):
     class Meta:
         app_label = 'data'
     
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey('Event', on_delete=models.CASCADE)
 
     name = models.CharField(max_length=255, help_text='The guest name.')
     email = models.CharField(max_length=255, help_text='The guest email address.')

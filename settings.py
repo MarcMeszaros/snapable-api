@@ -124,8 +124,8 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     # core apps for snapable
-    'api',
     'data',
+    'api',
     'admin',
     # third-party libraries/apps
     'raven.contrib.django',

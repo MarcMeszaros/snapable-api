@@ -2,18 +2,20 @@
 import cStringIO
 import os
 import random
-from datetime import datetime
+from calendar import monthrange
+from datetime import datetime, timedelta
 
 # django/tastypie/libs
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 from uuidfield import UUIDField
 
 # snapable
 import admin
-from data.models import Account, Addon
+from photo import Photo
 from utils import rackspace
 
 @python_2_unicode_compatible
@@ -23,8 +25,8 @@ class Event(models.Model):
     class Meta:
         app_label = 'data'
 
-    account = models.ForeignKey(Account, help_text='What account the event belongs to.')
-    addons = models.ManyToManyField(Addon, through='EventAddon')
+    account = models.ForeignKey('Account', help_text='What account the event belongs to.')
+    addons = models.ManyToManyField('Addon', through='EventAddon')
     cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The image to use for the event cover.')
 
     uuid = UUIDField(auto=True, help_text='A unique identifier for the event.')
@@ -109,11 +111,67 @@ class Event(models.Model):
         pass
 
 #===== Admin =====#
+class UpcomingEventListFilter(admin.SimpleListFilter):
+    title = 'Upcoming'
+    parameter_name = 'upcoming'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        return (
+            ('any', 'Any'),
+            ('today', 'Today'),
+            ('week', 'Next 7 days'),
+            ('month', 'This month'),
+            ('year', 'This year'),
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        tolerance = timedelta(hours=6)
+        now = datetime.utcnow()
+        start = now - tolerance
+
+        if self.value() is None:
+            return queryset
+
+        if self.value() == 'any':
+            return queryset.filter(Q(start_at__gte=start) | Q(end_at__gte=start))
+
+        if self.value() == 'today':
+            end = now.replace(hour=23, minute=59, second=59)
+            end += tolerance
+
+        if self.value() == 'week':
+            end = now.replace(hour=23, minute=59, second=59)
+            end += timedelta(days=7) + tolerance
+
+        if self.value() == 'month':
+            end = now.replace(day=monthrange(now.year, now.month)[1], hour=23, minute=59, second=59)
+            end += tolerance
+
+        if self.value() == 'year':
+            end = now.replace(month=12, day=monthrange(now.year, 12)[1], hour=23, minute=59, second=59)
+            end += tolerance
+
+        # the actual query
+        query = (Q(start_at__gte=start) | Q(end_at__gte=start)) & (Q(start_at__lte=end) | Q(end_at__lte=end))
+        return queryset.filter(query)
+
 # base details for direct and inline admin models
 class EventAdminDetails(object):
     exclude = ['access_count', 'are_photos_watermarked']
     list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'is_enabled', 'created_at']
-    list_filter = ['is_public', 'is_enabled']
+    list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
     readonly_fields = ['id', 'pin', 'created_at']
     search_fields = ['title', 'url']
     fieldsets = (
@@ -135,10 +193,26 @@ class EventAdminDetails(object):
         }),
     )
 
-# add the direct admin model
-from data.models.location import LocationAdminInline
+#===== Admin =====#
+# base details for direct and inline admin models
+from location import LocationAdminInline
 class EventAdmin(EventAdminDetails, admin.ModelAdmin):
     inlines = [LocationAdminInline]
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        try:
+            object_id = filter(None, request.path.split('/'))[-1]
+            event = Event.objects.get(pk=object_id)
+            if db_field.name == 'cover':
+                kwargs['queryset'] = Photo.objects.filter(event=event)
+            return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        except ValueError:
+            if db_field.name == 'cover':
+                kwargs['queryset'] = Photo.objects.none()
+            return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
 admin.site.register(Event, EventAdmin)
 
+# add the inline admin model
+class EventAdminInline(EventAdminDetails, admin.StackedInline):
+    model = Event
