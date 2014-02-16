@@ -54,7 +54,6 @@ class Private_v1__PhotoResourceTest(ResourceTestCase):
             'event',
             'guest',
             'image',
-            'metrics',
             'resource_uri',
             'streamable',
             'timestamp',

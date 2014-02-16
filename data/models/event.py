@@ -38,8 +38,6 @@ class Event(models.Model):
     is_public = models.BooleanField(default=True, help_text='Is the event considered "public".')
     pin = models.CharField(max_length=255, help_text='Pseudo-random PIN used for private events.')
     created_at = models.DateTimeField(auto_now_add=True, help_text='When the event was created. (UTC)')
-    last_access = models.DateTimeField(auto_now_add=True, help_text='When the event was last accessed. (UTC)')
-    access_count = models.IntegerField(default=0)
     is_enabled = models.BooleanField(default=True, help_text='Is the event considered "active" in the system.')
     are_photos_streamable = models.BooleanField(default=True, help_text='Should the images be streamable by default when created.')
     are_photos_watermarked = models.BooleanField(default=False, help_text='Should a watermark be applied to non-original images.')

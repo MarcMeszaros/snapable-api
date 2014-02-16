@@ -36,10 +36,10 @@
     "pk": 2, 
     "model": "data.user", 
     "fields": {
-        "created_at": "2012-07-19T19:25:17+00:00", 
+        "created_at": "2012-07-19T19:25:17Z", 
         "email": "marc@snapable.com",
         "first_name": "Marc",
-        "last_login": "2012-07-19T19:25:17+00:00",
+        "last_login": "2012-07-19T19:25:17Z",
         "last_name": "Meszaros",
         "password": "pbkdf2_sha256$10000$u5Eu61BvBueU$Qx5gGz+FvdaKFxJRBJHmLOE05PkQ2eQ3DriOdhbeSlY="
     }
@@ -52,7 +52,7 @@
         "account": 2,
         "user": 2,
         "admin": 1,
-        "date_added": "2012-07-19T19:25:17+00:00"
+        "date_added": "2012-07-19T19:25:17Z"
     }
 },
 
@@ -61,13 +61,12 @@
     "model": "data.event", 
     "fields": {
         "account": 2,
-        "created_at": "2012-07-21T04:48:10+00:00",
-        "end_at": "2012-10-09T12:00:00+00:00",
+        "created_at": "2012-07-21T04:48:10Z",
+        "end_at": "2012-10-09T12:00:00Z",
         "is_enabled": 1,
         "is_public": 0,
-        "last_access": "2012-07-21T04:48:10+00:00",
         "pin": "1234",
-        "start_at": "2012-10-09T00:00:00+00:00",
+        "start_at": "2012-10-09T00:00:00Z",
         "title": "Crazy Event",
         "url": "crazy2",
         "uuid": "4eaf0fe10b094a979a84358261181b97"

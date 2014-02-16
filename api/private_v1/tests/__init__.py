@@ -1,3 +1,6 @@
+import logging
+logging.disable(logging.WARNING)
+
 from address import *
 from event import *
 from guest import *

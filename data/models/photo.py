@@ -28,7 +28,6 @@ class Photo(models.Model):
     caption = models.CharField(max_length=255, blank=True, help_text='The photo caption.')
     streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
     created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text='The photo timestamp.')
-    metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics
 
     def __str__(self):
         return u'{0} ({1})'.format(self.caption, self.event.url)
