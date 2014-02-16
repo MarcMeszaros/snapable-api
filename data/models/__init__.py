@@ -7,8 +7,6 @@ from account import Account
 from accountaddon import AccountAddon
 from accountuser import AccountUser
 from addon import Addon
-from album import Album
-from albumphoto import AlbumPhoto
 from eventaddon import EventAddon
 from guest import Guest
 from location import Location
