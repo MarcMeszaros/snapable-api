@@ -30,19 +30,6 @@ class Photo(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text='The photo timestamp.')
     metrics = models.TextField(help_text='JSON metrics about the photo.') # JSON metrics
 
-    ## virtual properties getters/setters ##
-    # return the created at timestamp
-    def _get_timestamp(self):
-        Log.deprecated('Photo.timestamp is deprecated. Use Photo.created_at', stacklevel=2)
-        return self.created_at
-
-    def _set_timestamp(self, value):
-        Log.deprecated('Photo.timestamp is deprecated. Use Photo.created_at', stacklevel=2)
-        self.created_at = value
-
-    # add the virtual properties
-    timestamp = property(_get_timestamp, _set_timestamp)
-
     def __str__(self):
         return u'{0} ({1})'.format(self.caption, self.event.url)
 

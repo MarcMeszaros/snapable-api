@@ -61,13 +61,6 @@ class User(AbstractBaseUser):
     def _set_stripe_customer_id(self, value):
         self.payment_gateway_user_id = value
 
-    # return the created at timestamp
-    def _get_created(self):
-        return self.created_at
-
-    def _set_created(self, value):
-        self.created_at = value
-
     # return if the current user is a staff
     def _get_is_staff(self):
         return self.pk < 1000
