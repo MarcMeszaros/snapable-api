@@ -46,14 +46,9 @@ class Event(models.Model):
 
     # virtual properties #
     # return the number of photos related to this event
-    def _get_photo_count(self):
+    @property
+    def photo_count(self):
         return self.photo_set.count()
-
-    def _set_photo_count(self, value):
-        pass
-
-    # create the property
-    photo_count = property(_get_photo_count, _set_photo_count)
 
     def __str__(self):
         return u'{0} ({1})'.format(self.title, self.url)
