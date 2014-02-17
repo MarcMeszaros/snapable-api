@@ -97,3 +97,36 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
         new_event2['url'] = 'invalid-url '
         resp = self.api_client.post(uri, data=new_event2, format='json', authentication=self.get_credentials('POST', uri))
         self.assertHttpBadRequest(resp)
+
+    def test_put_event(self):
+        uri = '/partner_v1/event/{0}/'.format(self.event_1.pk)
+        put_data = {
+            'account': '/partner_v1/account/{0}/'.format(self.event_1.account.pk),
+            'end_at': self.event_1.end_at.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'start_at': self.event_1.start_at.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'title': self.event_1.title,
+            'url': self.event_1.url,
+            'is_public': self.event_1.is_public,
+            'tz_offset': self.event_1.tz_offset,
+        }
+        resp = self.api_client.put(uri, data=put_data, format='json', authentication=self.get_credentials('PUT', uri))
+
+        # make sure it was updated
+        self.assertHttpOK(resp)
+
+        # try changing the url to another event
+        event_1 = Event.objects.filter(account__api_account=None)[0]
+        uri = '/partner_v1/event/{0}/'.format(self.event_1.pk)
+        put_data = {
+            'account': '/partner_v1/account/{0}/'.format(self.event_1.account.pk),
+            'end_at': self.event_1.end_at.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'start_at': self.event_1.start_at.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'title': self.event_1.title,
+            'url': event_1.url,
+            'is_public': self.event_1.is_public,
+            'tz_offset': self.event_1.tz_offset,
+        }
+        resp = self.api_client.put(uri, data=put_data, format='json', authentication=self.get_credentials('PUT', uri))
+
+        # make sure it was updated
+        self.assertHttpBadRequest(resp)
