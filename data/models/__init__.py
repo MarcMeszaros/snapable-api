@@ -10,12 +10,12 @@ from addon import Addon
 from eventaddon import EventAddon
 from guest import Guest
 from location import Location
-from order import Order
 from package import Package
 from passwordnonce import PasswordNonce
 from user import User
 
 # second level: depends on independent models
+from order import Order # depends: Package
 from photo import Photo # depends: Guest
 
 # third level: depends on second level models or below

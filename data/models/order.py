@@ -1,10 +1,15 @@
 # django/tastypie/libs
+from django.conf import settings
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
+from django.template.loader import get_template
+from django.template import Context
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
 # snapable
 import admin
+from package import Package
 
 @python_2_unicode_compatible
 class Order(models.Model):
@@ -37,6 +42,39 @@ class Order(models.Model):
             'paid': self.paid,
         })
 
+    def send_email_with_discount(self, discount=None):
+        # receipt items
+        receipt_items = list()
+
+        if 'package' in self.items:
+            package = Package.objects.get(pk=self.items['package'])
+            item = {'name': 'Snapable Event Package ({0})'.format(package.name), 'amount': package.amount}
+            receipt_items.append(item)
+
+        # add discounts
+        if type(discount) == list and len(discount) > 0:
+            for item in discount:
+                receipt_items.append(item)
+
+        ## send the receipt ##
+        # load in the templates
+        plaintext = get_template('receipt.txt')
+        html = get_template('receipt.html')
+
+        # setup the template context variables
+        d = Context({
+            'items': receipt_items,
+            'total': self.amount,
+        })
+
+        # build the email
+        subject, from_email, to = 'Your Snapable order has been processed', 'support@snapable.com', [self.user.email]
+        text_content = plaintext.render(d)
+        html_content = html.render(d)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.attach_alternative(html_content, "text/html")
+        if settings.DEBUG == False:
+            msg.send()
 
 #===== Admin =====#
 # base details for direct and inline admin models
