@@ -18,17 +18,6 @@ class PasswordNonce(models.Model):
     valid = models.BooleanField(default=False, help_text='If the nonce is still valid.')
     created_at = models.DateTimeField(auto_now_add=True, help_text='When the nonce was created. (UTC)')
 
-    ## virtual properties getters/setters ##
-    # return the created at timestamp
-    def _get_timestamp(self):
-        return self.created_at
-
-    def _set_timestamp(self, value):
-        self.created_at = value
-
-    # add the virtual properties
-    timestamp = property(_get_timestamp, _set_timestamp)
-
     def __unicode__(self):
         return str({
             'created_at': self.created_at,

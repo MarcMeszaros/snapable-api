@@ -11,4 +11,4 @@ class EventAddon(models.Model):
     addon = models.ForeignKey('Addon')
 
     quantity = models.IntegerField(default=1, help_text='The quantity modifier of the addon.')
-    paid = models.BooleanField(default=False, help_text='If the event addon has been paid.')
+    is_paid = models.BooleanField(default=False, help_text='If the event addon has been paid.')

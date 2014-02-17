@@ -3,7 +3,6 @@ from accountaddon import AccountAddonResource
 from accountuser import AccountUserResource
 from addon import AddonResource
 from address import AddressResource
-from album import AlbumResource
 from event import EventResource
 from eventaddon import EventAddonResource
 from guest import GuestResource

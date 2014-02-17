@@ -48,46 +48,28 @@ class User(AbstractBaseUser):
 
     ## virtual properties getters/setters ##
     # return the number of photos related to this event
-    def _get_name(self):
+    @property
+    def name(self):
         return self.first_name + ' ' + self.last_name
 
-    def _set_name(self, value):
-        pass
-
     # return the stripe credentials
-    def _get_stripe_customer_id(self):
+    @property
+    def stripe_customer_id(self):
         return self.payment_gateway_user_id
 
-    def _set_stripe_customer_id(self, value):
+    @stripe_customer_id.setter
+    def stripe_customer_id(self, value):
         self.payment_gateway_user_id = value
 
-    # return the created at timestamp
-    def _get_created(self):
-        return self.created_at
-
-    def _set_created(self, value):
-        self.created_at = value
-
     # return if the current user is a staff
-    def _get_is_staff(self):
+    @property
+    def is_staff(self):
         return self.pk < 1000
-
-    def _set_is_staff(self, value):
-        pass
 
     # return if the current user is a superuser
-    def _get_is_superuser(self):
+    @property
+    def is_superuser(self):
         return self.pk < 1000
-
-    def _set_is_superuser(self, value):
-        pass
-
-    # add the virtual properties
-    name = property(_get_name, _set_name)
-    stripe_customer_id = property(_get_stripe_customer_id, _set_stripe_customer_id)
-    created = property(_get_created, _set_created)
-    is_staff = property(_get_is_staff, _set_is_staff)
-    is_superuser = property(_get_is_superuser, _set_is_superuser)
 
     def __str__(self):
         return u'{0} ({1})'.format(self.name, self.email)

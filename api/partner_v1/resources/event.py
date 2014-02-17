@@ -41,7 +41,9 @@ class EventValidation(Validation):
             errors['url'] = 'Event url is too short. Must be at least 6 characters.'
         if re.search('[^a-zA-Z0-9-_]', url_str) is not None:
             errors['url'] = 'Invalid url characters. Only allowed: [a-zA-Z0-9-_]'
-        if Event.objects.filter(url=url_str).count() > 0:
+        if (request.method not in ['PUT', 'PATCH']) and Event.objects.filter(url=url_str).count() > 0:
+            errors['url'] = 'An event with that url already exists.'
+        if (request.method in ['PUT', 'PATCH']) and Event.objects.filter(~Q(pk=bundle.data['pk']) & Q(url=url_str)).count() > 0:
             errors['url'] = 'An event with that url already exists.'
 
         for key, value in bundle.data.items():

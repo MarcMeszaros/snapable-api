@@ -1,9 +1,10 @@
+# django/libs
 from tastypie import fields
 from tastypie.resources import ModelResource
-from data.models import AlbumPhoto, Photo
 
+# snapable
+from data.models import Photo
 from event import EventResource
-#from guest import GuestResource
 
 class PhotoResource(ModelResource):
     

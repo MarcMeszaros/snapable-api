@@ -10,5 +10,5 @@ class AccountUser(models.Model):
     account = models.ForeignKey('Account')
     user = models.ForeignKey('User')
 
-    admin = models.BooleanField(default=False, help_text='If the user is an account admin.')
+    is_admin = models.BooleanField(default=False, help_text='If the user is an account admin.')
     date_added = models.DateTimeField(auto_now_add=True, help_text='When the user was added to the account. (UTC)')
