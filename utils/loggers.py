@@ -1,4 +1,6 @@
 import logging
+import sys
+import traceback
 import warnings
 
 class Log:
@@ -41,6 +43,14 @@ class Log:
         """
         Log a deprecation warning.
         """
+        extra = dict() if extra is None else extra
         warnings.warn(message, DeprecationWarning, stacklevel=stacklevel+2)
+
+        # get the frame that called this function, and generate the traceback
+        frame = sys._getframe(stacklevel-1) # private function, bad practice...
+        stack_info = traceback.print_stack(frame) # convert to a text
+        extra['traceback'] = stack_info # add the traceback to the log message
+
+        # log the warning
         logger = logging.getLogger('snapable')
         logger.warning(message, extra=extra)
