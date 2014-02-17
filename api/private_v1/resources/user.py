@@ -15,11 +15,7 @@ from tastypie.resources import ALL
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie import http
 
-from data.models import Account
-from data.models import AccountUser
-from data.models import Package
-from data.models import PasswordNonce
-from data.models import User
+from data.models import Account, AccountUser, Package, PasswordNonce, User
 
 class UserResource(api.base_v1.resources.UserResource):
 
@@ -109,7 +105,7 @@ class UserResource(api.base_v1.resources.UserResource):
         account.save()
 
         # add the user as an admin to the new account
-        accountuser = AccountUser(account=account, user=bundle.obj, admin=True)
+        accountuser = AccountUser(account=account, user=bundle.obj, is_admin=True)
         accountuser.save()
 
         return bundle

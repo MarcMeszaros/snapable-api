@@ -191,7 +191,7 @@ class EventResource(api.base_v1.resources.EventResource):
             bundle.data['public'] = bundle.obj.is_public
 
             # add the old user field
-            users = User.objects.filter(account=bundle.obj.account, accountuser__admin=True)
+            users = User.objects.filter(account=bundle.obj.account, accountuser__is_admin=True)
             if users.count() > 0:
                 bundle.data['user'] = '/private_v1/user/{0}/'.format(users[0].pk)
             else:

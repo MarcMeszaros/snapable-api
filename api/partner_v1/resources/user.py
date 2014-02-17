@@ -55,7 +55,7 @@ class UserResource(api.base_v1.resources.UserResource):
         account.save()
 
         # add the user as an admin to the new account
-        accountuser = AccountUser(account=account, user=bundle.obj, admin=True)
+        accountuser = AccountUser(account=account, user=bundle.obj, is_admin=True)
         accountuser.save()
 
         return bundle

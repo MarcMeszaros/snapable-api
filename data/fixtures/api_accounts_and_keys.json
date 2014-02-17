@@ -51,7 +51,7 @@
     "fields": {
         "account": 2,
         "user": 2,
-        "admin": 1,
+        "is_admin": 1,
         "date_added": "2012-07-19T19:25:17Z"
     }
 },
