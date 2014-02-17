@@ -44,7 +44,7 @@ class EventValidation(Validation):
         if (request.method not in ['PUT', 'PATCH']) and Event.objects.filter(url=url_str).count() > 0:
             errors['url'] = 'An event with that url already exists.'
         if (request.method in ['PUT', 'PATCH']) and Event.objects.filter(~Q(pk=bundle.data['pk']) & Q(url=url_str)).count() > 0:
-            errors['url'] = 'An event with that url already exists.2'
+            errors['url'] = 'An event with that url already exists.'
 
         for key, value in bundle.data.items():
             # if the addresses field is set
