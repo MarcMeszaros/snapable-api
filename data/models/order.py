@@ -66,9 +66,9 @@ class Order(models.Model):
                 total += addon.amount
 
         # update the amount
-        if not self.paid:
-            self.amount = total - discount
-            self.save()
+        #if not self.paid:
+        self.amount = total - discount
+
 
     def charge(self, stripe_token):
         if self.paid or self.amount < 50:

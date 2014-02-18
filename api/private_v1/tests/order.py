@@ -8,6 +8,7 @@ from tastypie.test import ResourceTestCase
 
 # snapable
 from api.auth.server import ServerAuthentication
+from data.models import Order
 
 class Private_v1__OrderResourceTest(ResourceTestCase):
     fixtures = ['packages.json', 'accounts_and_users.json', 'events.json', 'photos.json', 'orders.json']
@@ -32,7 +33,7 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
         }
 
         self.post_account = {
-            'email': 'bob_order@example.com',
+            'email': 'marc+test@snapable.com',
             'password': 'monkey123',
             'first_name': 'Bob',
             'last_name': 'Example',
@@ -63,7 +64,7 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
         self.assertHttpCreated(resp)
 
         # test to make sure all the keys are in the response
-        self.assertKeys(self.deserialize(resp), [
+        self.assertKeys(data, [
             'account',
             'amount',
             'amount_refunded',

@@ -189,17 +189,15 @@ class OrderResource(ModelResource):
         bundle = super(OrderResource, self).obj_create(bundle, **kwargs)
 
         # receipt items
-        receipt_items = list()
         discount_list = list()
 
         # get the package
         package = None
         if 'package' in bundle.obj.items:
             package = Package.objects.get(pk=bundle.obj.items['package'])
-            item = {'name': 'Snapable Event Package ({0})'.format(package.name), 'amount': package.amount}
-            receipt_items.append(item)
 
         # add discount
+        discount = 0
         if 'discount' in bundle.data and bundle.data['discount'] >= 0:
             discount = bundle.data['discount']
             # if there is a coupon code
@@ -209,58 +207,14 @@ class OrderResource(ModelResource):
             else:
                 item = {'name': 'Discount', 'amount': -discount}
 
-            receipt_items.append(item)
             discount_list.append(item)
 
-        # calculate the total
-        total = 0
-        for item in receipt_items:
-            total += item['amount']
-
-        # make sure the total is non-negative
-        if total < 0:
-            total = 0
-
         # set the actual total
-        bundle.obj.amount = total
+        bundle.obj.calculate(discount=discount)
         bundle.obj.save()
 
-        if 'stripeToken' in bundle.data and bundle.obj.amount >= 50:         
-            user = bundle.obj.user
-            # Create the charge on Stripe's servers - this will charge the user's card
-            try:
-                charge = None
-                if user is not None:
-                    # if there is no customer on stripe, create them
-                    if user.stripe_customer_id is None:
-                        customer = stripe.Customer.create(
-                            card=bundle.data['stripeToken'],
-                            email=user.email
-                        )
-                        # save the id for later
-                        user.stripe_customer_id = customer.id
-                        user.save()
-
-                    # charge the card
-                    charge = stripe.Charge.create(
-                        amount=bundle.obj.amount, # in cents
-                        currency=settings.STRIPE_CURRENCY,
-                        customer=user.stripe_customer_id
-                    )
-
-                else:
-                    charge = stripe.Charge.create(
-                        amount=bundle.obj.amount, # amount in cents, again
-                        currency=settings.STRIPE_CURRENCY,
-                        card=bundle.data['stripeToken'],
-                        description='Charge to {0}'.format(bundle.obj.user.email)
-                    )
-                bundle.obj.charge_id = charge.id
-                bundle.obj.paid = True
-                bundle.obj.save()
-            except stripe.CardError, e:
-                # The card has been declined
-                print e
+        if 'stripeToken' in bundle.data:         
+            if bundle.obj.charge(bundle.data['stripeToken']) == False:
                 raise ImmediateHttpResponse('Error processing Credit Card')
 
         if 'event' in bundle.data:
@@ -268,19 +222,6 @@ class OrderResource(ModelResource):
             event = event_resource.get_via_uri(bundle.data['event'])
             event.enabled = True
             event.save()
-
-        # loop through account_addons & event_addons and mark as paid
-        # mark all the account addons as paid for
-        for account_addon in bundle.obj.items['account_addons']:
-            addon = AccountAddon.objects.get(pk=account_addon)
-            addon.paid = True
-            addon.save()
-
-        # mark all the event addons as paid for
-        for event_addon in bundle.obj.items['event_addons']:
-            addon = EventAddon.objects.get(pk=event_addon)
-            addon.paid = True
-            addon.save()
 
         # update the account
         if package is not None and package.interval is not None:
