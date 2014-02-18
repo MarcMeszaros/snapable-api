@@ -1,4 +1,5 @@
-# django/tastypie/libs
+# django/libs
+import stripe
 from django.conf import settings
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
@@ -9,6 +10,8 @@ from jsonfield import JSONField
 
 # snapable
 import admin
+from accountaddon import AccountAddon
+from eventaddon import EventAddon
 from package import Package
 
 @python_2_unicode_compatible
@@ -42,6 +45,87 @@ class Order(models.Model):
             'paid': self.paid,
         })
 
+    def calculate(self, discount=0):
+        total = 0
+
+        if 'package' in self.items:
+            package = Package.objects.get(pk=self.items['package'])
+            total += package.amount
+
+        # loop through account_addons & event_addons and mark as paid
+        # mark all the account addons as paid for
+        if 'account_addons' in self.items:
+            for account_addon in self.items['account_addons']:
+                addon = AccountAddon.objects.get(pk=account_addon)
+                total += addon.amount
+
+        # mark all the event addons as paid for
+        if 'event_addons' in self.items:
+            for event_addon in self.items['event_addons']:
+                addon = EventAddon.objects.get(pk=event_addon)
+                total += addon.amount
+
+        # update the amount
+        if not self.paid:
+            self.amount = total - discount
+            self.save()
+
+    def charge(self, stripe_token):
+        if self.paid or self.amount < 50:
+            return False
+
+        try:
+            charge = None
+            if self.user is not None:
+                # if there is no customer on stripe, create them
+                if self.user.stripe_customer_id is None:
+                    customer = stripe.Customer.create(
+                        card=stripe_token,
+                        email=self.user.email
+                    )
+                    # save the id for later
+                    self.user.stripe_customer_id = customer.id
+                    self.user.save()
+
+                # charge the card
+                charge = stripe.Charge.create(
+                    amount=self.amount, # in cents
+                    currency=settings.STRIPE_CURRENCY,
+                    customer=self.user.stripe_customer_id
+                )
+
+            else:
+                charge = stripe.Charge.create(
+                    amount=self.amount, # amount in cents, again
+                    currency=settings.STRIPE_CURRENCY,
+                    card=stripe_token,
+                    description='Charge to {0}'.format(self.user.email)
+                )
+            self.charge_id = charge.id
+            self.paid = True
+            self.save()
+
+            # loop through account_addons & event_addons and mark as paid
+            # mark all the account addons as paid for
+            if 'account_addons' in self.items:
+                for account_addon in self.items['account_addons']:
+                    addon = AccountAddon.objects.get(pk=account_addon)
+                    addon.is_paid = True
+                    addon.save()
+
+            # mark all the event addons as paid for
+            if 'event_addons' in self.items:
+                for event_addon in self.items['event_addons']:
+                    addon = EventAddon.objects.get(pk=event_addon)
+                    addon.is_paid = True
+                    addon.save()
+
+            return True
+        except:
+            return False
+            #raise ImmediateHttpResponse('Error processing Credit Card')
+
+
     def send_email_with_discount(self, discount=None):
         # receipt items
         receipt_items = list()
@@ -73,8 +157,7 @@ class Order(models.Model):
         html_content = html.render(d)
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.attach_alternative(html_content, "text/html")
-        if settings.DEBUG == False:
-            msg.send()
+        msg.send()
 
 #===== Admin =====#
 # base details for direct and inline admin models
