@@ -190,6 +190,7 @@ class OrderResource(ModelResource):
 
         # receipt items
         receipt_items = list()
+        discount_list = list()
 
         # get the package
         package = None
@@ -209,6 +210,7 @@ class OrderResource(ModelResource):
                 item = {'name': 'Discount', 'amount': -discount}
 
             receipt_items.append(item)
+            discount_list.append(item)
 
         # calculate the total
         total = 0
@@ -302,23 +304,6 @@ class OrderResource(ModelResource):
             account.save()
 
         ## send the receipt ##
-        # load in the templates
-        plaintext = get_template('receipt.txt')
-        html = get_template('receipt.html')
-
-        # setup the template context variables
-        d = Context({
-            'items': receipt_items,
-            'total': total,
-        })
-
-        # build the email
-        subject, from_email, to = 'Your Snapable order has been processed', 'support@snapable.com', [bundle.obj.user.email]
-        text_content = plaintext.render(d)
-        html_content = html.render(d)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
-        msg.attach_alternative(html_content, "text/html")
-        if settings.DEBUG == False:
-            msg.send()
+        bundle.obj.send_email_with_discount(discount=discount_list)
 
         return bundle
