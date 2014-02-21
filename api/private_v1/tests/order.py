@@ -108,7 +108,7 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
             'last_name',
             'lat',
             'lng',
-            'paid',
+            #'paid',
             'password',
             'price',
             'resource_uri',

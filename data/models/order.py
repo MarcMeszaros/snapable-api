@@ -13,6 +13,7 @@ import admin
 from accountaddon import AccountAddon
 from eventaddon import EventAddon
 from package import Package
+from utils.loggers import Log
 
 @python_2_unicode_compatible
 class Order(models.Model):
@@ -29,8 +30,18 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, help_text='When the order was processed. (UTC)')
     items = JSONField(help_text='The items payed for.')
     charge_id = models.CharField(max_length=255, null=True, help_text='The invoice id for the payment gateway.')
-    paid = models.BooleanField(default=False, help_text='If the order has been paid for.')
+    is_paid = models.BooleanField(default=False, help_text='If the order has been paid for.')
     coupon = models.CharField(max_length=255, null=True, default=None, help_text='The coupon code used in the order.')
+
+    @property
+    def paid(self):
+        Log.deprecated('Order.paid is deprecated, use Order.is_paid')
+        return self.is_paid
+
+    @paid.setter
+    def paid(self, value):
+        Log.deprecated('Order.paid is deprecated, use Order.is_paid')
+        self.is_paid = value
 
     def __str__(self):
         return u'{0} - ${1:.2f} {2} ({3})'.format(self.pk, (self.amount - self.amount_refunded)/100.0, self.charge_id, self.coupon)
@@ -42,7 +53,7 @@ class Order(models.Model):
             'charge_id': self.charge_id,
             'coupon': self.coupon,
             'created_at': self.created_at,
-            'paid': self.paid,
+            'is_paid': self.is_paid,
         })
 
     def calculate(self, discount=0):
@@ -162,8 +173,8 @@ class Order(models.Model):
 #===== Admin =====#
 # base details for direct and inline admin models
 class OrderAdminDetails(object):
-    list_display = ['id', 'amount', 'amount_refunded', 'paid', 'coupon', 'created_at']
-    list_filter = ['paid', 'created_at']
+    list_display = ['id', 'amount', 'amount_refunded', 'is_paid', 'coupon', 'created_at']
+    list_filter = ['is_paid', 'created_at']
     readonly_fields = ['id', 'charge_id', 'coupon', 'account', 'user']
     search_fields = ['coupon']
     fieldsets = (
@@ -173,7 +184,7 @@ class OrderAdminDetails(object):
                 ('charge_id', 'coupon'), 
                 ('amount', 'amount_refunded'),
                 'items',
-                'paid',
+                'is_paid',
             ),
         }),
         ('Ownership', {
