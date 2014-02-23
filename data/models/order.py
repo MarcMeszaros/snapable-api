@@ -10,6 +10,7 @@ from jsonfield import JSONField
 
 # snapable
 import admin
+#import utils.sendwithus
 from accountaddon import AccountAddon
 from eventaddon import EventAddon
 from package import Package
@@ -24,22 +25,22 @@ class Order(models.Model):
 
     # the choices for the interval field
     COUPON_CHOICES = (
-        ('201bride', '201 Bride (-$10)'), # 1000, // added: 2013-03-26; valid_until: TBD
-        ('adorii', 'Adorii (-$49)'), # 4900, // added: 2013-01-24; valid_until: TBD
-        ('adorii5986', 'Adorii_5986 (-$49)'), # 4900, // added: 2013-02-06; valid_until: TBD
-        ('bespoke', 'Bespoke (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('betheman', 'Betheman (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('bridaldetective', 'Bridal Detective (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('budgetsavvy', 'BudgetSavvy (-$10)'), # 1000, // added: 2013-02-26; valid_until: TBD
-        ('enfianced', 'Enfianced (-$10)'),# 1000, // added: 2013-01-31; valid_until: TBD
-        ('gbg', 'GBG (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('nonprofitedu', 'Non-profit/Education (-$49)'), # 4900, // added: 2014-02-20; valid_until: TBD
-        ('poptastic', 'Poptastic (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('smartbride', 'Smart Bride (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('snaptrial2013', 'Snapable Trial 2013 (-$49)'), # 4900, // added: 2013-03-14; valid_until: TBD
-        ('snaptrial2014', 'Snapable Trial 2014 (-$49)'), # 4900, // added: 2014-02-20; valid_until: TBD
-        ('weddingful5986', 'Weddingful (-$49)'), # 4900, // added: 2013-02-06; valid_until: TBD
-        ('wr2013', 'Wedding Republic 2013 (-$10)'), # 1000, // added: 2013-01-17; valid_until: TBD
+        ('201bride', '201bride (-$10)'), # 1000, // added: 2013-03-26; valid_until: TBD
+        ('adorii', 'adorii (-$49)'), # 4900, // added: 2013-01-24; valid_until: TBD
+        ('adorii5986', 'adorii5986 (-$49)'), # 4900, // added: 2013-02-06; valid_until: TBD
+        ('bespoke', 'bespoke (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('betheman', 'betheman (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('bridaldetective', 'bridaldetective (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('budgetsavvy', 'budgetsavvy (-$10)'), # 1000, // added: 2013-02-26; valid_until: TBD
+        ('enfianced', 'enfianced (-$10)'),# 1000, // added: 2013-01-31; valid_until: TBD
+        ('gbg', 'gbg (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('nonprofitedu', 'nonprofitedu (-$49)'), # 4900, // added: 2014-02-20; valid_until: TBD
+        ('poptastic', 'poptastic (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('smartbride', 'smartbride (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('snaptrial2013', 'snaptrial2013 (-$49)'), # 4900, // added: 2013-03-14; valid_until: TBD
+        ('snaptrial2014', 'snaptrial2014 (-$49)'), # 4900, // added: 2014-02-20; valid_until: TBD
+        ('weddingful5986', 'weddingful5986 (-$49)'), # 4900, // added: 2013-02-06; valid_until: TBD
+        ('wr2013', 'wr2013 (-$10)'), # 1000, // added: 2013-01-17; valid_until: TBD
     )
     COUPON_PRICES = {
         '201bride': 1000,
@@ -174,19 +175,20 @@ class Order(models.Model):
             return False
             #raise ImmediateHttpResponse('Error processing Credit Card')
 
-
     def send_email(self):
         receipt_items = list()
 
         # add the package
         if 'package' in self.items:
             package = Package.objects.get(pk=self.items['package'])
-            item = {'name': 'Snapable Event Package ({0})'.format(package.name), 'amount': package.amount}
+            description = 'Snapable Event Package ({0})'.format(package.name)
+            item = {'name': description, 'description': description, 'amount': package.amount}
             receipt_items.append(item)
 
         # add the coupons
         if self.coupon in self.COUPON_PRICES:
-            discount = {'name': 'Discount (coupon: {0})'.format(self.coupon), 'amount': -self.COUPON_PRICES[self.coupon]}
+            description = 'Discount (coupon: {0})'.format(self.coupon)
+            discount = {'name': description, 'description': description, 'amount': -self.COUPON_PRICES[self.coupon]}
             receipt_items.append(discount)
 
         ## send the receipt ##
@@ -207,6 +209,22 @@ class Order(models.Model):
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.attach_alternative(html_content, "text/html")
         msg.send()
+
+        # sendwithus
+        #email_data = {
+        #    'order': {
+        #        'total': self.amount,
+        #        'lines': receipt_items,
+        #        #'created_at': self.created_at,
+        #    }
+        #}
+
+        #r = utils.sendwithus.api.send(
+        #    email_id='8mVTzXEJEvfXXCrwJFegHa',
+        #    recipient={'address': self.user.email},
+        #    email_data=email_data
+        #)
+        #Log.i('email send status: {0}'.format(r.status_code))
 
     def send_email_with_discount(self, discount=None):
         Log.deprecated('Order.send_email_with_discount() is deprecated, use Order.send_email() instead')
