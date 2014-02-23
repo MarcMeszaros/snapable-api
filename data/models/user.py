@@ -136,7 +136,9 @@ class User(AbstractBaseUser):
         else:
             return False
 
-class UserAdmin(admin.ModelAdmin):
+#===== Admin =====#
+# base details for direct and inline admin models
+class UserAdminDetails(object):
     list_display = ['id', 'email', 'first_name', 'last_name', 'created_at']
     readonly_fields = ['id', 'created_at', 'last_login']
     search_fields = ['email', 'first_name', 'last_name']
@@ -159,9 +161,18 @@ class UserAdmin(admin.ModelAdmin):
         }),
     )
 
+# add the direct admin model
+from accountuser import AccountUserAdminInline
+class UserAdmin(UserAdminDetails, admin.ModelAdmin):
+    inlines = [AccountUserAdminInline]
+
     def save_model(self, request, obj, form, change):
         if obj.password[:14] != 'pbkdf2_sha256$':
             obj.set_password(obj.password)
         obj.save()
 
 admin.site.register(User, UserAdmin)
+
+# add the inline admin model
+class UserAdminInline(UserAdminDetails, admin.StackedInline):
+    model = User

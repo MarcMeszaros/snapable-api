@@ -17,7 +17,7 @@ class ApiAccount(models.Model):
     created = models.DateTimeField(auto_now_add=True, help_text='When the api account was created. (UTC)')
 
     def __str__(self):
-        return '{0} ({1})'.format(self.email, self.company)
+        return '{0}'.format(self.company)
 
     def __repr__(self):
         return str({
