@@ -1,4 +1,5 @@
-# django/tastypie/libs
+# django/libs
+import stripe
 from django.conf import settings
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
@@ -9,7 +10,10 @@ from jsonfield import JSONField
 
 # snapable
 import admin
+from accountaddon import AccountAddon
+from eventaddon import EventAddon
 from package import Package
+from utils.loggers import Log
 
 @python_2_unicode_compatible
 class Order(models.Model):
@@ -26,8 +30,18 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, help_text='When the order was processed. (UTC)')
     items = JSONField(help_text='The items payed for.')
     charge_id = models.CharField(max_length=255, null=True, help_text='The invoice id for the payment gateway.')
-    paid = models.BooleanField(default=False, help_text='If the order has been paid for.')
+    is_paid = models.BooleanField(default=False, help_text='If the order has been paid for.')
     coupon = models.CharField(max_length=255, null=True, default=None, help_text='The coupon code used in the order.')
+
+    @property
+    def paid(self):
+        Log.deprecated('Order.paid is deprecated, use Order.is_paid')
+        return self.is_paid
+
+    @paid.setter
+    def paid(self, value):
+        Log.deprecated('Order.paid is deprecated, use Order.is_paid')
+        self.is_paid = value
 
     def __str__(self):
         return u'{0} - ${1:.2f} {2} ({3})'.format(self.pk, (self.amount - self.amount_refunded)/100.0, self.charge_id, self.coupon)
@@ -39,8 +53,89 @@ class Order(models.Model):
             'charge_id': self.charge_id,
             'coupon': self.coupon,
             'created_at': self.created_at,
-            'paid': self.paid,
+            'is_paid': self.is_paid,
         })
+
+    def calculate(self, discount=0):
+        total = 0
+
+        if 'package' in self.items:
+            package = Package.objects.get(pk=self.items['package'])
+            total += package.amount
+
+        # loop through account_addons & event_addons and mark as paid
+        # mark all the account addons as paid for
+        if 'account_addons' in self.items:
+            for account_addon in self.items['account_addons']:
+                addon = AccountAddon.objects.get(pk=account_addon)
+                total += addon.amount
+
+        # mark all the event addons as paid for
+        if 'event_addons' in self.items:
+            for event_addon in self.items['event_addons']:
+                addon = EventAddon.objects.get(pk=event_addon)
+                total += addon.amount
+
+        # update the amount
+        #if not self.paid:
+        self.amount = total - discount
+
+
+    def charge(self, stripe_token):
+        if self.paid or self.amount < 50:
+            return False
+
+        try:
+            charge = None
+            if self.user is not None:
+                # if there is no customer on stripe, create them
+                if self.user.stripe_customer_id is None:
+                    customer = stripe.Customer.create(
+                        card=stripe_token,
+                        email=self.user.email
+                    )
+                    # save the id for later
+                    self.user.stripe_customer_id = customer.id
+                    self.user.save()
+
+                # charge the card
+                charge = stripe.Charge.create(
+                    amount=self.amount, # in cents
+                    currency=settings.STRIPE_CURRENCY,
+                    customer=self.user.stripe_customer_id
+                )
+
+            else:
+                charge = stripe.Charge.create(
+                    amount=self.amount, # amount in cents, again
+                    currency=settings.STRIPE_CURRENCY,
+                    card=stripe_token,
+                    description='Charge to {0}'.format(self.user.email)
+                )
+            self.charge_id = charge.id
+            self.paid = True
+            self.save()
+
+            # loop through account_addons & event_addons and mark as paid
+            # mark all the account addons as paid for
+            if 'account_addons' in self.items:
+                for account_addon in self.items['account_addons']:
+                    addon = AccountAddon.objects.get(pk=account_addon)
+                    addon.is_paid = True
+                    addon.save()
+
+            # mark all the event addons as paid for
+            if 'event_addons' in self.items:
+                for event_addon in self.items['event_addons']:
+                    addon = EventAddon.objects.get(pk=event_addon)
+                    addon.is_paid = True
+                    addon.save()
+
+            return True
+        except:
+            return False
+            #raise ImmediateHttpResponse('Error processing Credit Card')
+
 
     def send_email_with_discount(self, discount=None):
         # receipt items
@@ -73,14 +168,13 @@ class Order(models.Model):
         html_content = html.render(d)
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.attach_alternative(html_content, "text/html")
-        if settings.DEBUG == False:
-            msg.send()
+        msg.send()
 
 #===== Admin =====#
 # base details for direct and inline admin models
 class OrderAdminDetails(object):
-    list_display = ['id', 'amount', 'amount_refunded', 'paid', 'coupon', 'created_at']
-    list_filter = ['paid', 'created_at']
+    list_display = ['id', 'amount', 'amount_refunded', 'is_paid', 'coupon', 'created_at']
+    list_filter = ['is_paid', 'created_at']
     readonly_fields = ['id', 'charge_id', 'coupon', 'account', 'user']
     search_fields = ['coupon']
     fieldsets = (
@@ -90,7 +184,7 @@ class OrderAdminDetails(object):
                 ('charge_id', 'coupon'), 
                 ('amount', 'amount_refunded'),
                 'items',
-                'paid',
+                'is_paid',
             ),
         }),
         ('Ownership', {

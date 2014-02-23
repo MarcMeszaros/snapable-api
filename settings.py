@@ -159,6 +159,11 @@ LOGGING = {
             'format': '%(asctime)s %(message)s'
         },
     },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        }
+    },
     'handlers': {
         'null': {
             'level': 'DEBUG',
@@ -176,6 +181,7 @@ LOGGING = {
         },
         'sentry': {
             'level': 'INFO',
+            'filters': ['require_debug_false'],
             'class': 'raven.contrib.django.handlers.SentryHandler',
         },
         'file.requests': {
@@ -215,6 +221,11 @@ LOGGING = {
             'propagate': True,
         },
         'snapable': {
+            'handlers': ['console', 'sentry'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'snapable.deprecated': {
             'handlers': ['console', 'sentry'],
             'level': 'DEBUG',
             'propagate': True,

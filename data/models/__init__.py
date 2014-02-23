@@ -15,7 +15,7 @@ from passwordnonce import PasswordNonce
 from user import User
 
 # second level: depends on independent models
-from order import Order # depends: Package
+from order import Order # depends: Package, EventAddon, AccountAddon
 from photo import Photo # depends: Guest
 
 # third level: depends on second level models or below

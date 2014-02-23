@@ -103,6 +103,10 @@ class Event(models.Model):
     def save_watermark(self, image):
         pass
 
+    def create_zip(self):
+        from worker import event
+        event.create_album_zip.delay(self.pk)
+
 #===== Admin =====#
 class UpcomingEventListFilter(admin.SimpleListFilter):
     title = 'Upcoming'
@@ -167,6 +171,10 @@ class EventAdminDetails(object):
     list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
     readonly_fields = ['id', 'pin', 'created_at']
     search_fields = ['title', 'url']
+    raw_id_fields = ['account']
+    related_lookup_fields = {
+        'fk': ['account'],
+    }
     fieldsets = (
         (None, {
             'fields': (
@@ -190,6 +198,7 @@ class EventAdminDetails(object):
 # base details for direct and inline admin models
 from location import LocationAdminInline
 class EventAdmin(EventAdminDetails, admin.ModelAdmin):
+    actions = ['create_event_photo_zip']
     inlines = [LocationAdminInline]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -203,6 +212,12 @@ class EventAdmin(EventAdminDetails, admin.ModelAdmin):
             if db_field.name == 'cover':
                 kwargs['queryset'] = Photo.objects.none()
             return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def create_event_photo_zip(self, request, queryset):
+        for event in queryset.iterator():
+            event.create_zip()
+        self.message_user(request, "Successfully scheduled zip archive creation.")
+
 
 admin.site.register(Event, EventAdmin)
 

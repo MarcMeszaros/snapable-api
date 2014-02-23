@@ -1,4 +1,7 @@
+import inspect
 import logging
+import os
+import traceback
 import warnings
 
 class Log:
@@ -41,6 +44,22 @@ class Log:
         """
         Log a deprecation warning.
         """
-        warnings.warn(message, DeprecationWarning, stacklevel=stacklevel+2)
-        logger = logging.getLogger('snapable')
-        logger.warning(message, extra=extra)
+        extra = dict() if extra is None else extra
+
+        # get the frame that called this function, and generate the traceback
+        frame = inspect.currentframe().f_back # get the frame one level up from here
+        co = frame.f_code # the code object
+        pathname = os.path.normcase(co.co_filename) # the full path
+        func = co.co_name # the function name
+        lineno = frame.f_lineno # the line number
+        exc_info = None # no exception
+        args = None # no args to pass to message (ie. message % args)
+
+        # figure out the trace
+        msg = '{0}:{1}: {2}'.format(pathname, lineno, message)
+        extra['trace'] = ''.join(traceback.format_stack(frame, 3))
+
+        # log the warning
+        logger = logging.getLogger('snapable.deprecated')
+        r = logger.makeRecord('snapable.deprecated', logging.WARNING, pathname, lineno, msg, args, exc_info, func=func, extra=extra)
+        logger.handle(r)

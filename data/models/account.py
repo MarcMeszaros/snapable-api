@@ -21,7 +21,8 @@ class Account(models.Model):
 
     def __str__(self):
         company = 'Snapable' if self.api_account is None else self.api_account.company
-        return u'{0} - ({1})'.format(self.pk, company)
+        emails = ', '.join([u.email for u in self.users.all()])
+        return u'{0} - {1}'.format(company, emails)
 
     def __repr__(self):
         return str({
@@ -35,9 +36,9 @@ class Account(models.Model):
 #===== Admin =====#
 # base details for direct and inline admin models
 class AccountAdminDetails(object):
-    list_display = ['id', 'package', 'valid_until']
+    list_display = ['id', 'package', 'valid_until', 'api_account', 'account__users']
     readonly_fields = ['id']
-    search_fields = []
+    search_fields = ['api_account__company', 'users__email']
     fieldsets = (
         (None, {
             'fields': (
@@ -53,10 +54,14 @@ class AccountAdminDetails(object):
         }),
     )
 
+    def account__users(self, obj):
+        return ','.join([u.email for u in obj.users.all()])
+
 # add the direct admin model
+from accountuser import AccountUserAdminInline
 from event import EventAdminInline
 from order import OrderAdminInline
 class AccountAdmin(AccountAdminDetails, admin.ModelAdmin):
-    inlines = [EventAdminInline, OrderAdminInline]
+    inlines = [AccountUserAdminInline, EventAdminInline, OrderAdminInline]
 
 admin.site.register(Account, AccountAdmin)
