@@ -122,7 +122,7 @@ class Order(models.Model):
 
 
     def charge(self, stripe_token):
-        if self.paid or self.amount < 50:
+        if self.is_paid or self.amount < 50:
             return False
 
         try:
@@ -153,7 +153,7 @@ class Order(models.Model):
                     description='Charge to {0}'.format(self.user.email)
                 )
             self.charge_id = charge.id
-            self.paid = True
+            self.is_paid = True
             self.save()
 
             # loop through account_addons & event_addons and mark as paid
