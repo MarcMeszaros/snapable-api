@@ -162,9 +162,7 @@ class UserAdminDetails(object):
     )
 
 # add the direct admin model
-from accountuser import AccountUserAdminInline
 class UserAdmin(UserAdminDetails, admin.ModelAdmin):
-    inlines = [AccountUserAdminInline]
 
     def save_model(self, request, obj, form, change):
         if obj.password[:14] != 'pbkdf2_sha256$':
