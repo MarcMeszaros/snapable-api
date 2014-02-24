@@ -10,7 +10,8 @@ from jsonfield import JSONField
 
 # snapable
 import admin
-#import utils.sendwithus
+import utils.currency
+import utils.sendwithus
 from accountaddon import AccountAddon
 from eventaddon import EventAddon
 from package import Package
@@ -182,13 +183,15 @@ class Order(models.Model):
         if 'package' in self.items:
             package = Package.objects.get(pk=self.items['package'])
             description = 'Snapable Event Package ({0})'.format(package.name)
-            item = {'name': description, 'description': description, 'amount': package.amount}
+            amount_str = utils.currency.cents_to_str(package.amount)
+            item = {'name': description, 'description': description, 'amount': amount_str}
             receipt_items.append(item)
 
         # add the coupons
         if self.coupon in self.COUPON_PRICES:
             description = 'Discount (coupon: {0})'.format(self.coupon)
-            discount = {'name': description, 'description': description, 'amount': -self.COUPON_PRICES[self.coupon]}
+            amount_str = utils.currency.cents_to_str(-self.COUPON_PRICES[self.coupon])
+            discount = {'name': description, 'description': description, 'amount': amount_str}
             receipt_items.append(discount)
 
         ## send the receipt ##
@@ -199,7 +202,7 @@ class Order(models.Model):
         # setup the template context variables
         d = Context({
             'items': receipt_items,
-            'total': self.amount,
+            'total': utils.currency.cents_to_str(self.amount),
         })
 
         # build the email
@@ -208,23 +211,23 @@ class Order(models.Model):
         html_content = html.render(d)
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.attach_alternative(html_content, "text/html")
-        msg.send()
+        #msg.send()
 
         # sendwithus
-        #email_data = {
-        #    'order': {
-        #        'total': self.amount,
-        #        'lines': receipt_items,
-        #        #'created_at': self.created_at,
-        #    }
-        #}
+        email_data = {
+            'order': {
+                'total': utils.currency.cents_to_str(self.amount),
+                'lines': receipt_items,
+                #'created_at': self.created_at,
+            }
+        }
 
-        #r = utils.sendwithus.api.send(
-        #    email_id='8mVTzXEJEvfXXCrwJFegHa',
-        #    recipient={'address': self.user.email},
-        #    email_data=email_data
-        #)
-        #Log.i('email send status: {0}'.format(r.status_code))
+        r = utils.sendwithus.api.send(
+            email_id='8mVTzXEJEvfXXCrwJFegHa',
+            recipient={'address': self.user.email},
+            email_data=email_data
+        )
+        Log.i('email send status: {0}'.format(r.status_code))
 
     def send_email_with_discount(self, discount=None):
         Log.deprecated('Order.send_email_with_discount() is deprecated, use Order.send_email() instead')

@@ -273,7 +273,6 @@ STRIPE_CURRENCY = 'usd'
 
 ##### sendwithus #####
 SENDWITHUS_KEY = '***REMOVED***' # no email
-#SENDWITHUS_KEY = 'test_c492d94bac321ab1ab0923e55773df1fabdb07d1' # send emails
 
 ##### Celery #####
 # Broker settings.
