@@ -15,10 +15,12 @@ django-uuidfield>=0.4.0                                     # python 2 x
 setproctitle>=1.1.8,<2.0                                    # python 3
 gevent>=1.0,<2.0                                            # python 2 x
 pytz>=2013.9                                                # python 3
+#python-dateutil>=2.2                                        # python 3
 MonthDelta>=1.0b,<2.0                                       # python 3
 raven>=4.0.4,<5.0                                           # python 3
 bcrypt>=1.0.2                                               # python 3
 
 ## Third-Party Services ##
 stripe>=1.12.0,<2.0                                         # python 3
+sendwithus>=1.0.11                                          # python 2 x
 newrelic>=2.10.1.9                                          # python 3

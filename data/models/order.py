@@ -10,6 +10,8 @@ from jsonfield import JSONField
 
 # snapable
 import admin
+import utils.currency
+import utils.sendwithus
 from accountaddon import AccountAddon
 from eventaddon import EventAddon
 from package import Package
@@ -22,6 +24,44 @@ class Order(models.Model):
     class Meta:
         app_label = 'data'
 
+    # the choices for the interval field
+    COUPON_CHOICES = (
+        ('201bride', '201bride (-$10)'), # 1000, // added: 2013-03-26; valid_until: TBD
+        ('adorii', 'adorii (-$49)'), # 4900, // added: 2013-01-24; valid_until: TBD
+        ('adorii5986', 'adorii5986 (-$49)'), # 4900, // added: 2013-02-06; valid_until: TBD
+        ('bespoke', 'bespoke (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('betheman', 'betheman (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('bridaldetective', 'bridaldetective (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('budgetsavvy', 'budgetsavvy (-$10)'), # 1000, // added: 2013-02-26; valid_until: TBD
+        ('enfianced', 'enfianced (-$10)'),# 1000, // added: 2013-01-31; valid_until: TBD
+        ('gbg', 'gbg (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('nonprofitedu', 'nonprofitedu (-$49)'), # 4900, // added: 2014-02-20; valid_until: TBD
+        ('poptastic', 'poptastic (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('smartbride', 'smartbride (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
+        ('snaptrial2013', 'snaptrial2013 (-$49)'), # 4900, // added: 2013-03-14; valid_until: TBD
+        ('snaptrial2014', 'snaptrial2014 (-$49)'), # 4900, // added: 2014-02-20; valid_until: TBD
+        ('weddingful5986', 'weddingful5986 (-$49)'), # 4900, // added: 2013-02-06; valid_until: TBD
+        ('wr2013', 'wr2013 (-$10)'), # 1000, // added: 2013-01-17; valid_until: TBD
+    )
+    COUPON_PRICES = {
+        '201bride': 1000,
+        'adorii': 4900,
+        'adorii5986': 4900,
+        'bespoke': 1000,
+        'betheman': 1000,
+        'bridaldetective': 1000,
+        'budgetsavvy': 1000,
+        'enfianced': 1000,
+        'gbg': 1000,
+        'nonprofitedu': 4900,
+        'poptastic': 1000,
+        'smartbride': 1000,
+        'snaptrial2013': 4900,
+        'snaptrial2014': 4900,
+        'weddingful5986': 4900,
+        'wr2013': 1000,
+    }
+
     account = models.ForeignKey('Account', help_text='The account that the order is for.')
     user = models.ForeignKey('User', null=True, help_text='The user that made the order.')
 
@@ -31,7 +71,7 @@ class Order(models.Model):
     items = JSONField(help_text='The items payed for.')
     charge_id = models.CharField(max_length=255, null=True, help_text='The invoice id for the payment gateway.')
     is_paid = models.BooleanField(default=False, help_text='If the order has been paid for.')
-    coupon = models.CharField(max_length=255, null=True, default=None, help_text='The coupon code used in the order.')
+    coupon = models.CharField(max_length=255, null=True, default=None, choices=COUPON_CHOICES, help_text='The coupon code used in the order.')
 
     @property
     def paid(self):
@@ -136,20 +176,23 @@ class Order(models.Model):
             return False
             #raise ImmediateHttpResponse('Error processing Credit Card')
 
-
-    def send_email_with_discount(self, discount=None):
-        # receipt items
+    def send_email(self):
         receipt_items = list()
 
+        # add the package
         if 'package' in self.items:
             package = Package.objects.get(pk=self.items['package'])
-            item = {'name': 'Snapable Event Package ({0})'.format(package.name), 'amount': package.amount}
+            description = 'Snapable Event Package ({0})'.format(package.name)
+            amount_str = utils.currency.cents_to_str(package.amount)
+            item = {'name': description, 'description': description, 'amount': amount_str}
             receipt_items.append(item)
 
-        # add discounts
-        if type(discount) == list and len(discount) > 0:
-            for item in discount:
-                receipt_items.append(item)
+        # add the coupons
+        if self.coupon in self.COUPON_PRICES:
+            description = 'Discount (coupon: {0})'.format(self.coupon)
+            amount_str = utils.currency.cents_to_str(-self.COUPON_PRICES[self.coupon])
+            discount = {'name': description, 'description': description, 'amount': amount_str}
+            receipt_items.append(discount)
 
         ## send the receipt ##
         # load in the templates
@@ -159,7 +202,7 @@ class Order(models.Model):
         # setup the template context variables
         d = Context({
             'items': receipt_items,
-            'total': self.amount,
+            'total': utils.currency.cents_to_str(self.amount),
         })
 
         # build the email
@@ -168,14 +211,34 @@ class Order(models.Model):
         html_content = html.render(d)
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.attach_alternative(html_content, "text/html")
-        msg.send()
+        #msg.send()
+
+        # sendwithus
+        email_data = {
+            'order': {
+                'total': utils.currency.cents_to_str(self.amount),
+                'lines': receipt_items,
+                #'created_at': self.created_at,
+            }
+        }
+
+        r = utils.sendwithus.api.send(
+            email_id='8mVTzXEJEvfXXCrwJFegHa',
+            recipient={'address': self.user.email},
+            email_data=email_data
+        )
+        Log.i('email send status: {0}'.format(r.status_code))
+
+    def send_email_with_discount(self, discount=None):
+        Log.deprecated('Order.send_email_with_discount() is deprecated, use Order.send_email() instead')
+        self.send_email()
 
 #===== Admin =====#
 # base details for direct and inline admin models
 class OrderAdminDetails(object):
     list_display = ['id', 'amount', 'amount_refunded', 'is_paid', 'coupon', 'created_at']
     list_filter = ['is_paid', 'created_at']
-    readonly_fields = ['id', 'charge_id', 'coupon', 'account', 'user']
+    readonly_fields = ['id', 'charge_id', 'account', 'user']
     search_fields = ['coupon']
     fieldsets = (
         (None, {
@@ -198,7 +261,14 @@ class OrderAdminDetails(object):
 
 # add the direct admin model
 class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
-    pass
+    actions = ['send_email']
+
+    def send_email(self, request, queryset):
+        for order in queryset.iterator():
+            order.send_email()
+
+        self.message_user(request, "Successfully sent receipt emails.")
+
 admin.site.register(Order, OrderAdmin)
 
 # add the inline admin model
