@@ -19,7 +19,10 @@ class AccountUser(models.Model):
 #===== Admin =====#
 # base details for direct and inline admin models
 class AccountUserAdminDetails(object):
-    pass
+    raw_id_fields = ['account', 'user']
+    related_lookup_fields = {
+        'fk': ['account', 'user'],
+    }
 
 # add the direct admin model
 class AccountUserAdmin(AccountUserAdminDetails, admin.ModelAdmin):

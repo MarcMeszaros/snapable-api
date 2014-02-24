@@ -224,3 +224,4 @@ admin.site.register(Event, EventAdmin)
 # add the inline admin model
 class EventAdminInline(EventAdminDetails, admin.StackedInline):
     model = Event
+    extra = 1
