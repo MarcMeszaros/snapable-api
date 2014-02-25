@@ -164,6 +164,7 @@ class UpcomingEventListFilter(admin.SimpleListFilter):
         query = (Q(start_at__gte=start) | Q(end_at__gte=start)) & (Q(start_at__lte=end) | Q(end_at__lte=end))
         return queryset.filter(query)
 
+#===== Admin =====#
 # base details for direct and inline admin models
 class EventAdminDetails(object):
     exclude = ['access_count', 'are_photos_watermarked']
@@ -171,9 +172,9 @@ class EventAdminDetails(object):
     list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
     readonly_fields = ['id', 'pin', 'created_at']
     search_fields = ['title', 'url']
-    raw_id_fields = ['account']
+    raw_id_fields = ['account', 'cover']
     related_lookup_fields = {
-        'fk': ['account'],
+        'fk': ['account', 'cover'],
     }
     fieldsets = (
         (None, {
@@ -182,7 +183,7 @@ class EventAdminDetails(object):
                 'title',
                 'url',
                 ('start_at', 'end_at', 'tz_offset'),
-                'cover',
+                ('cover', 'are_photos_streamable'),
                 ('pin', 'created_at'),
             ),
         }),
@@ -194,7 +195,6 @@ class EventAdminDetails(object):
         }),
     )
 
-#===== Admin =====#
 # base details for direct and inline admin models
 from location import LocationAdminInline
 class EventAdmin(EventAdminDetails, admin.ModelAdmin):
