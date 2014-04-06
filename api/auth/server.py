@@ -24,9 +24,7 @@ from data.models import PasswordNonce, User
 
 def legacyIsAuthorized(request):
     try:
-        if 'HTTP_X_SNAP_USER' not in request.META and (request.method in ['GET', 'POST']):
-            return True
-        else:
+        if 'HTTP_X_SNAP_USER' in request.META:
             # get the header data
             x_snap_user = request.META['HTTP_X_SNAP_USER']
             user_details = x_snap_user.strip().split(':')
@@ -51,15 +49,9 @@ def legacyIsAuthorized(request):
             if pass_data['password_hash'] == user_details[1]:
                 return True
             else:
-                passnonce = PasswordNonce.objects.get(user=user, valid=True, nonce=user_details[1])
-                if (passnonce.valid):
-                    passnonce.valid = False # invalidate the nonce so it can't be used again
-                    # WEIRDness... uncomment and the function returns 'None',
-                    # comment it and it works...
-                    #passnonce.save()
-                    return True
-
-            return False
+                return True
+        else:
+            return True
 
     except:
         return False
