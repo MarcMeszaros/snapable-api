@@ -59,10 +59,6 @@ MIDDLEWARE_CLASSES = (
     'api.utils.middleware.RequestLoggingMiddleware',
 )
 
-AUTHENTICATION_BACKENDS = (
-    'web.models.SnapUserBackend',
-)
-
 ROOT_URLCONF = 'urls'
 WSGI_APPLICATION = 'wsgi.application'
 
