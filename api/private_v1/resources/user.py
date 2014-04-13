@@ -1,7 +1,7 @@
-import api.auth
-import api.base_v1.resources
+# python
 import re
 
+# django/tastypie/libs
 from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.mail import send_mail, EmailMultiAlternatives
@@ -11,13 +11,16 @@ from django.template import Context
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, NotFound
 from tastypie import fields, utils
-from tastypie.resources import ALL
+from tastypie.resources import ALL, ModelResource
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie import http
 
+# snapable
+from .meta import Meta as BaseMeta
 from data.models import Account, AccountUser, Package, PasswordNonce, User
 
-class UserResource(api.base_v1.resources.UserResource):
+
+class UserResource(ModelResource):
 
     # the accounts the user belongs to
     # seems to break on post
@@ -25,26 +28,22 @@ class UserResource(api.base_v1.resources.UserResource):
 
     created_at = fields.DateTimeField(attribute='created_at', readonly=True, help_text='When the user was created. (UTC)')
 
-    class Meta(api.base_v1.resources.UserResource.Meta): # set Meta to the public API Meta
-        fields = api.base_v1.resources.UserResource.Meta.fields + []
+    class Meta(BaseMeta): # set Meta to the public API Meta
+        queryset = User.objects.all()
+        fields = ['email', 'first_name', 'last_name', 'caption', 'streamable', 'created_at']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         passwordreset_allowed_methods = ['get', 'post', 'patch']
-        authentication = api.auth.ServerAuthentication()
-        authorization = api.auth.ServerAuthorization()
-        filtering = dict(api.base_v1.resources.UserResource.Meta.filtering, **{
+        filtering = {
             'created_at': ALL,
-        })
+            'email': ALL,
+        }
 
     def dehydrate(self, bundle):
         db_pass = bundle.obj.password.split('$', 1)
 
         # various data based on db_pass type 
-        if db_pass[0] == 'bcrypt':
-            bundle.data['password_algorithm'] = db_pass[0]
-            bundle.data['password_data'] = db_pass[1]
-        
-        elif db_pass[0] == 'pbkdf2_sha256':
+        if db_pass[0] == 'pbkdf2_sha256':
             pass_parts = db_pass[1].split('$')
 
             bundle.data['password_algorithm'] = db_pass[0]
@@ -54,7 +53,7 @@ class UserResource(api.base_v1.resources.UserResource):
         # get the accounts the user belongs to
         json_accounts = []
         for account in bundle.obj.account_set.all():
-            json_accounts.append('/private_v1/account/'+str(account.id)+'/')
+            json_accounts.append('/private_v1/account/{0}/'.format(account.id))
 
         bundle.data['accounts'] = json_accounts
 
@@ -68,20 +67,14 @@ class UserResource(api.base_v1.resources.UserResource):
 
     def hydrate(self, bundle):
 
-        if 'password' in bundle.data.keys():
+        password_keys = ['password_algorithm', 'password_iterations', 'password_salt', 'password_hash']
+
+        if 'password' in bundle.data:
             bundle.obj.set_password(bundle.data['password'])
-        elif (
-                'password_algorithm' in bundle.data.keys() or 
-                'password_iterations' in bundle.data.keys() or 
-                'password_salt' in bundle.data.keys() or 
-                'password_hash' in bundle.data.keys()
-            ):
+        elif all(key in bundle.data for key in password_keys):
             try:
                 password = []
                 password.append(bundle.data['password_algorithm'])
-                
-                # if bundle.data['password_algorithm'] == 'bcrypt':
-                #    password.append(bundle.data['password_data'])
 
                 if bundle.data['password_algorithm'] == 'pbkdf2_sha256':
                     password.append(bundle.data['password_iterations'])
@@ -145,11 +138,7 @@ class UserResource(api.base_v1.resources.UserResource):
             pass_data = {}
 
             # various data based on db_pass type
-            if db_pass[0] == 'bcrypt':
-                pass_data['password_algorithm'] = db_pass[0]
-                pass_data['password_data'] = db_pass[1]
-
-            elif db_pass[0] == 'pbkdf2_sha256':
+            if db_pass[0] == 'pbkdf2_sha256':
                 pass_parts = db_pass[1].split('$')
 
                 pass_data['password_algorithm'] = db_pass[0]
@@ -203,30 +192,9 @@ class UserResource(api.base_v1.resources.UserResource):
         # get the user
         user = User.objects.get(pk=kwargs['pk'])
 
-        # create the passwordnonce and save
-        passnonce = PasswordNonce()
-        passnonce.user = user
-        passnonce.valid = True
-        passnonce.save()
-
         # whitelist check for url
         if ('url' in bundle.data.keys() and re.match('https?://(.+\.)?snapable\.com', bundle.data['url']) != None):
-            # load in the templates
-            plaintext = get_template('passwordreset_email.txt')
-            html = get_template('passwordreset_email.html')
-
-            # setup the template context variables
-            resetUrl = bundle.data['url']+passnonce.nonce
-            d = Context({'reset_url': resetUrl })
-
-            # build the email
-            subject, from_email, to = 'Snapable: Password Reset', 'support@snapable.com', [user.email]
-            text_content = plaintext.render(d)
-            html_content = html.render(d)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-
+            user.send_password_reset(bundle.data['url'])
         elif ('url' in bundle.data.keys()):
             raise BadRequest('Invalid URL. Must be of type http(s)://*.snapable.com')
 
@@ -281,7 +249,7 @@ class UserResource(api.base_v1.resources.UserResource):
         deserialized = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
 
         if deserialized['nonce'] is not None and deserialized['password'] is not None:
-        
+
             try:
                 passnonce = PasswordNonce.objects.get(user=bundle.obj, valid=True, nonce=deserialized['nonce'])
                 passnonce.valid = False # invalidate the nonce so it can't be used again
