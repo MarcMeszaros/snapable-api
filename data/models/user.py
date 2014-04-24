@@ -111,7 +111,7 @@ class User(AbstractBaseUser):
             html = get_template('passwordreset_email.html')
 
             # setup the template context variables
-            resetUrl = bundle.data['url']+passnonce.nonce
+            resetUrl = '{0}{1}'.format(url, passnonce.nonce)
             d = Context({'reset_url': resetUrl })
 
             # build the email
