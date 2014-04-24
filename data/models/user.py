@@ -1,3 +1,6 @@
+# python
+import re
+
 # django/tastypie/libs
 import bcrypt
 from django.db import models
