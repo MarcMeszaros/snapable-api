@@ -14,6 +14,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
 import admin
+from data.models import PasswordNonce
 
 class UserManager(BaseUserManager):
 
@@ -119,7 +120,7 @@ class User(AbstractBaseUser):
             html_content = html.render(d)
             msg = EmailMultiAlternatives(subject, text_content, from_email, to)
             msg.attach_alternative(html_content, "text/html")
-            #msg.send()
+            msg.send()
 
         else:
             raise BadRequest('Invalid URL. Must be of type http(s)://*.snapable.com')
