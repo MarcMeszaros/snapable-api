@@ -115,7 +115,7 @@ class User(AbstractBaseUser):
             d = Context({'reset_url': resetUrl })
 
             # build the email
-            subject, from_email, to = 'Snapable: Password Reset', 'support@snapable.com', [user.email]
+            subject, from_email, to = 'Snapable: Password Reset', 'support@snapable.com', [self.email]
             text_content = plaintext.render(d)
             html_content = html.render(d)
             msg = EmailMultiAlternatives(subject, text_content, from_email, to)
