@@ -1,19 +1,21 @@
 # django/tastypie/libs
 from tastypie import fields
-from tastypie.authorization import Authorization
+from tastypie.resources import ALL
 
 # snapable
-import api.auth
-import api.base_v1.resources
+from .meta import BaseMeta, BaseModelResource
+from data.models import Guest
 
-from event import EventResource
+class GuestResource(BaseModelResource):
 
-class GuestResource(api.base_v1.resources.GuestResource):
+    event = fields.ForeignKey('api.partner_v1.resources.EventResource', 'event')
 
-    event = fields.ForeignKey(EventResource, 'event')
-
-    class Meta(api.base_v1.resources.GuestResource.Meta): # set Meta to the public API Meta
+    class Meta(BaseMeta): # set Meta to the public API Meta
+        queryset = Guest.objects.all()
+        fields = ['name', 'email']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
-        authentication = api.auth.DatabaseAuthentication()
-        authorization = api.auth.DatabaseAuthorization()
+        filtering = {
+            'event': ['exact'],
+            'email': ALL,
+        }
