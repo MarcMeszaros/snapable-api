@@ -6,27 +6,23 @@ import django
 import pytz
 import stripe
 
-from django.conf import settings
 from django.conf.urls import url
-from django.core.mail import send_mail, EmailMultiAlternatives
-from django.template.loader import get_template
-from django.template import Context
 from monthdelta import MonthDelta
 from tastypie import fields, http
-from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, ImmediateHttpResponse
-from tastypie.resources import ALL, ModelResource
+from tastypie.resources import ALL
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie.validation import Validation
 
 # snapable
 import api.auth
 
-from account import AccountResource
-from address import AddressResource
+from .meta import BaseMeta, BaseModelResource
+from .account import AccountResource
+from .address import AddressResource
+from .event import EventResource
+from .user import UserResource
 from data.models import Account, AccountAddon, Event, EventAddon, Package, Order, User
-from event import EventResource
-from user import UserResource
 
 class OrderValidation(Validation):
     def is_valid(self, bundle, request=None):
@@ -41,22 +37,19 @@ class OrderValidation(Validation):
 
         return errors
 
-class OrderResource(ModelResource):
+class OrderResource(BaseModelResource):
 
-    account = fields.ForeignKey(AccountResource, 'account')
-    user = fields.ForeignKey(UserResource, 'user', null=True)
+    account = fields.ForeignKey('api.private_v1.resources.AccountResource', 'account')
+    user = fields.ForeignKey('api.private_v1.resources.UserResource', 'user', null=True)
 
     amount = fields.IntegerField(attribute='amount', readonly=True, help_text='The amount of the order.')
 
-    class Meta:
+    class Meta(BaseMeta):
         queryset = Order.objects.all()
         fields = ['amount_refunded', 'created_at', 'charge_id', 'items', 'paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
         account_allowed_methods = ['post']
-        always_return_data = True
-        authentication = api.auth.ServerAuthentication()
-        authorization = Authorization()
         validation = OrderValidation()
         filtering = {
             'created_at': ALL,

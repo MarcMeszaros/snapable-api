@@ -1,20 +1,20 @@
+# django/tastypie/libs
 from tastypie import fields
-from tastypie.resources import ALL, ModelResource
+from tastypie.resources import ALL
+
+# snapable
+from .meta import BaseMeta, BaseModelResource
 from data.models import AccountUser
 
-from account import AccountResource
-from user import UserResource
+class AccountUserResource(BaseModelResource):
 
-class AccountUserResource(ModelResource):
+    account = fields.ForeignKey('api.private_v1.resources.AccountResource', 'account')
+    user = fields.ForeignKey('api.private_v1.resources.UserResource', 'user')
 
-    account = fields.ForeignKey(AccountResource, 'account')
-    user = fields.ForeignKey(UserResource, 'user')
-
-    class Meta:
+    class Meta(BaseMeta):
         queryset = AccountUser.objects.all()
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
-        always_return_data = True
         filtering = {
             'account': ALL,
             'user': ALL,

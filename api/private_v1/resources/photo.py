@@ -1,48 +1,42 @@
-import api.auth
-import api.utils
-import api.base_v1.resources
-import os
+# python
+from StringIO import StringIO
 
+# django/tastypie/libs
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import HttpResponse
 
 from tastypie import fields
-from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest
 from tastypie.resources import ALL
 from tastypie.utils.mime import determine_format, build_content_type
 
-from event import EventResource
-from guest import GuestResource
-
-from data.models import Guest
-
-from api.utils.serializers import SnapSerializer
-
-from data.images import SnapImage
-import cStringIO
 from PIL import Image
 
-class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoResource):
+# snapable
+import api.utils
 
-    event = fields.ForeignKey(EventResource, 'event')
-    guest = fields.ForeignKey(GuestResource, 'guest', null=True) # allow the foreign key to be null
+from .meta import BaseMeta, BaseModelResource
+from data.images import SnapImage
+from data.models import Guest, Photo
+
+class PhotoResource(api.utils.MultipartResource, BaseModelResource):
+
+    event = fields.ForeignKey('api.private_v1.resources.EventResource', 'event')
+    guest = fields.ForeignKey('api.private_v1.resources.GuestResource', 'guest', null=True) # allow the foreign key to be null
 
     created_at = fields.DateTimeField(attribute='created_at', readonly=True, help_text='The photo timestamp. (UTC)')
 
-    class Meta(api.base_v1.resources.PhotoResource.Meta): # set Meta to the public API Meta
-        fields = api.base_v1.resources.PhotoResource.Meta.fields + ['metrics'];
+    class Meta(BaseMeta): # set Meta to the public API Meta
+        queryset = Photo.objects.all().order_by('-created_at')
+        fields = ['caption', 'streamable', 'created_at', 'metrics'];
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
-        authentication = api.auth.ServerAuthentication()
-        authorization = Authorization()
-        serializer = SnapSerializer(formats=['json', 'jpeg'])
-        filtering = dict(api.base_v1.resources.PhotoResource.Meta.filtering, **{
+        filtering = {
             'event': ['exact'],
             'streamable': ['exact'],
             'created_at': ALL,
-        })
+        }
 
     def dehydrate(self, bundle):
 
@@ -71,7 +65,7 @@ class PhotoResource(api.utils.MultipartResource, api.base_v1.resources.PhotoReso
     def obj_create(self, bundle, **kwargs):
         try:
             # make sure the image is in the request
-            img = Image.open(cStringIO.StringIO(bundle.data['image'].read()))
+            img = Image.open(StringIO(bundle.data['image'].read()))
             snapimg = SnapImage(img)
         except KeyError as key:
             raise BadRequest('Missing field: ' + str(key))

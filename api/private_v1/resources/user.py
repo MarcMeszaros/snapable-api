@@ -8,19 +8,17 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
 
-from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, NotFound
 from tastypie import fields, utils
-from tastypie.resources import ALL, ModelResource
+from tastypie.resources import ALL
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie import http
 
 # snapable
-from .meta import Meta as BaseMeta
+from .meta import BaseMeta, BaseModelResource
 from data.models import Account, AccountUser, Package, PasswordNonce, User
 
-
-class UserResource(ModelResource):
+class UserResource(BaseModelResource):
 
     # the accounts the user belongs to
     # seems to break on post
@@ -164,7 +162,7 @@ class UserResource(ModelResource):
 
         Relies on ``Resource.dispatch`` for the heavy-lifting.
         """
-        if ('nonce' in kwargs.keys()):
+        if 'nonce' in kwargs:
             nonce = PasswordNonce.objects.get(nonce=kwargs['nonce'])
             user = User.objects.get(pk=nonce.user_id)
             kwargs['pk'] = user.id

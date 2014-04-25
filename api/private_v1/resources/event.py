@@ -15,24 +15,19 @@ from django.core.paginator import Paginator, InvalidPage
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from tastypie import fields, http
-from tastypie.authorization import Authorization
 from tastypie.resources import ALL
-from uuidfield import UUIDField
 
 # snapable
-import api.auth
-import api.base_v1.resources
 import settings
 
-from account import AccountResource
-from api.utils.serializers import SnapSerializer
+from .meta import BaseMeta, BaseModelResource
 from data.models import Event, Location, Photo, User
 from worker import app, event
 
-class EventResource(api.base_v1.resources.EventResource):
+class EventResource(BaseModelResource):
 
     # relations
-    account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
+    account = fields.ForeignKey('api.private_v1.resources.AccountResource', 'account', help_text='Account resource')
     addons = fields.ManyToManyField('api.private_v1.resources.EventAddonResource', 'eventaddon_set', null=True, full=True)
     addresses = fields.ToManyField('api.private_v1.resources.AddressResource', 'location_set', null=True, full=True)
     cover = fields.ForeignKey('api.private_v1.resources.PhotoResource', 'cover', null=True)
@@ -45,16 +40,32 @@ class EventResource(api.base_v1.resources.EventResource):
     start = fields.DateTimeField(attribute='start_at')
     end = fields.DateTimeField(attribute='end_at')
 
-    class Meta(api.base_v1.resources.EventResource.Meta): # set Meta to the public API Meta
-        fields = api.base_v1.resources.EventResource.Meta.fields + ['uuid', 'created_at', 'cover', 'photo_count', 'are_photos_streamable', 'enabled', 'start', 'end'] # DEPRECATED: enabled, start, end
+    class Meta(BaseMeta): # set Meta to the public API Meta
+        queryset = Event.objects.all()
+        fields = [
+            'start_at', 
+            'end_at', 
+            'tz_offset', 
+            'title', 
+            'url', 
+            'pin', 
+            'is_enabled', 
+            'is_public', 
+            'uuid', 
+            'created_at', 
+            'cover', 
+            'photo_count', 
+            'are_photos_streamable',
+            # DEPRECATED
+            'enabled', 
+            'start', 
+            'end'
+        ]
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         zip_allowed_methods = ['get','post']
-        ordering = api.base_v1.resources.EventResource.Meta.ordering + ['start_at', 'end_at', 'start', 'end'] # DEPRECATED: start, end
-        authentication = api.auth.ServerAuthentication()
-        authorization = Authorization()
-        serializer = SnapSerializer(formats=['json', 'jpeg'])
-        filtering = dict(api.base_v1.resources.EventResource.Meta.filtering, **{
+        ordering = ['start_at', 'end_at', 'start', 'end'] # DEPRECATED: start, end
+        filtering = {
             'is_enabled': ['exact'],
             'account': ['exact'],
             'start_at': ALL,
@@ -66,7 +77,7 @@ class EventResource(api.base_v1.resources.EventResource):
             'enabled': ['exact'],
             'start': ALL,
             'end': ALL,
-        })
+        }
 
     def prepend_urls(self):
         return [
@@ -217,6 +228,12 @@ class EventResource(api.base_v1.resources.EventResource):
             pass
 
         return bundle
+
+    def dehydrate_end_at(self, bundle):
+        return bundle.data['end_at'].strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    def dehydrate_start_at(self, bundle):
+        return bundle.data['start_at'].strftime('%Y-%m-%dT%H:%M:%SZ')
 
     def hydrate(self, bundle):
         ### DEPRECATED/COMPATIBILITY ###
