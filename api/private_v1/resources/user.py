@@ -16,7 +16,9 @@ from tastypie import http
 
 # snapable
 from .meta import BaseMeta, BaseModelResource
-from data.models import Account, AccountUser, Package, PasswordNonce, User
+from .account import AccountResource
+from .event import EventResource
+from data.models import Account, AccountUser, Event, Package, PasswordNonce, User
 
 class UserResource(BaseModelResource):
 
@@ -32,6 +34,8 @@ class UserResource(BaseModelResource):
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         passwordreset_allowed_methods = ['get', 'post', 'patch']
+        accounts_allowed_methods = ['get']
+        events_allowed_methods = ['get']
         filtering = {
             'created_at': ALL,
             'email': ALL,
@@ -110,6 +114,8 @@ class UserResource(BaseModelResource):
         return [
             url(r'^(?P<resource_name>%s)/auth/$' % self._meta.resource_name, self.wrap_view('dispatch_auth'), name="api_dispatch_auth"),
             url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/passwordreset/$' % self._meta.resource_name, self.wrap_view('dispatch_passwordreset'), name="api_dispatch_passwordreset"),
+            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/accounts/$' % self._meta.resource_name, self.wrap_view('dispatch_accounts'), name="api_dispatch_accounts"),
+            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/events/$' % self._meta.resource_name, self.wrap_view('dispatch_events'), name="api_dispatch_events"),
             url(r'^(?P<resource_name>%s)/passwordreset/(?P<nonce>\w+)/$' % self._meta.resource_name, self.wrap_view('dispatch_passwordreset'), name="api_dispatch_passwordreset"),
         ]
 
@@ -170,6 +176,12 @@ class UserResource(BaseModelResource):
             return self.dispatch('detail', request, **kwargs)
         else:
             return self.dispatch('passwordreset', request, **kwargs)
+
+    def dispatch_accounts(self, request, **kwargs):
+        return self.dispatch('accounts', request, **kwargs)
+
+    def dispatch_events(self, request, **kwargs):
+        return self.dispatch('events', request, **kwargs)
 
     def post_passwordreset(self, request, **kwargs):
         """
@@ -267,3 +279,22 @@ class UserResource(BaseModelResource):
 
         else:
             return self.create_response(request, bundle, response_class=http.HttpBadRequest)
+
+    def get_accounts(self, request, **kwargs):
+        resource_uri = '{0}{1}/accounts/'.format(self.get_resource_uri(), kwargs['pk'])
+        user = User.objects.get(pk=kwargs['pk'])
+        objects = user.account_set.all()
+
+        to_be_serialized = self.build_get_list(request, AccountResource(), objects, resource_uri=resource_uri)
+
+        return self.create_response(request, to_be_serialized)
+
+    def get_events(self, request, **kwargs):
+        resource_uri = '{0}{1}/events/'.format(self.get_resource_uri(), kwargs['pk'])
+        user = User.objects.get(pk=kwargs['pk'])
+        accounts = user.account_set.all()
+        objects = Event.objects.filter(account__in=accounts)
+
+        to_be_serialized = self.build_get_list(request, EventResource(), objects, resource_uri=resource_uri)
+
+        return self.create_response(request, to_be_serialized)
