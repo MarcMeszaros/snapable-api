@@ -20,11 +20,13 @@ from .account import AccountResource
 from .event import EventResource
 from data.models import Account, AccountUser, Event, Package, PasswordNonce, User
 
-class UserResource(BaseModelResource):
+class PasswordNonceResource(BaseModelResource):
 
-    # the accounts the user belongs to
-    # seems to break on post
-    #accounts = fields.ToManyField('api.private_v1.resources.AccountResource', 'user', related_name='account', default=None, blank=True, null=True) #attribute=lambda bundle: Account.objects.filter(admin=bundle.obj))
+    class Meta(BaseMeta):
+        queryset = PasswordNonce.objects.all()
+        fields = ['nonce', 'created_at']
+
+class UserResource(BaseModelResource):
 
     created_at = fields.DateTimeField(attribute='created_at', readonly=True, help_text='When the user was created. (UTC)')
 
@@ -52,14 +54,13 @@ class UserResource(BaseModelResource):
             bundle.data['password_iterations'] = pass_parts[0]
             bundle.data['password_salt'] = pass_parts[1]
 
+        ### DEPRECATED/COMPATIBILITY ###
         # get the accounts the user belongs to
         json_accounts = []
         for account in bundle.obj.account_set.all():
             json_accounts.append('/private_v1/account/{0}/'.format(account.id))
-
         bundle.data['accounts'] = json_accounts
 
-        ### DEPRECATED/COMPATIBILITY ###
         bundle.data['billing_zip'] = '00000'
         bundle.data['terms'] = True
         bundle.data['creation_date'] = bundle.obj.created_at
@@ -105,12 +106,8 @@ class UserResource(BaseModelResource):
 
         return bundle
 
-    # should use prepend_url, but only works with tastypie v0.9.12+
-    # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584
+    #### custom endpoints ####
     def prepend_urls(self):
-        """
-        Using override_url
-        """
         return [
             url(r'^(?P<resource_name>%s)/auth/$' % self._meta.resource_name, self.wrap_view('dispatch_auth'), name="api_dispatch_auth"),
             url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/passwordreset/$' % self._meta.resource_name, self.wrap_view('dispatch_passwordreset'), name="api_dispatch_passwordreset"),
@@ -120,12 +117,6 @@ class UserResource(BaseModelResource):
         ]
 
     def dispatch_auth(self, request, **kwargs):
-        """
-        A view for handling the various HTTP methods (GET/POST/PUT/DELETE) on
-        a single resource.
-
-        Relies on ``Resource.dispatch`` for the heavy-lifting.
-        """
         try:
             # get the header data
             x_snap_user = request.META['HTTP_X_SNAP_USER']
@@ -162,12 +153,6 @@ class UserResource(BaseModelResource):
             raise BadRequest('Invalid email/password hash combination in header x-SNAP-User')
 
     def dispatch_passwordreset(self, request, **kwargs):
-        """
-        A view for handling the various HTTP methods (GET/POST/PUT/DELETE) on
-        a single resource.
-
-        Relies on ``Resource.dispatch`` for the heavy-lifting.
-        """
         if 'nonce' in kwargs:
             nonce = PasswordNonce.objects.get(nonce=kwargs['nonce'])
             user = User.objects.get(pk=nonce.user_id)
@@ -182,6 +167,34 @@ class UserResource(BaseModelResource):
 
     def dispatch_events(self, request, **kwargs):
         return self.dispatch('events', request, **kwargs)
+
+    def get_passwordreset(self, request, **kwargs):
+        resource_uri = '{0}{1}/passwordreset/'.format(self.get_resource_uri(), kwargs['pk'])
+        user = User.objects.get(pk=kwargs['pk'])
+        objects = PasswordNonce.objects.filter(user=user.id, valid=True)
+
+        to_be_serialized = self.build_get_list(request, PasswordNonceResource(), objects, resource_uri=resource_uri)
+
+        return self.create_response(request, to_be_serialized)
+
+    def get_accounts(self, request, **kwargs):
+        resource_uri = '{0}{1}/accounts/'.format(self.get_resource_uri(), kwargs['pk'])
+        user = User.objects.get(pk=kwargs['pk'])
+        objects = user.account_set.all()
+
+        to_be_serialized = self.build_get_list(request, AccountResource(), objects, resource_uri=resource_uri)
+
+        return self.create_response(request, to_be_serialized)
+
+    def get_events(self, request, **kwargs):
+        resource_uri = '{0}{1}/events/'.format(self.get_resource_uri(), kwargs['pk'])
+        user = User.objects.get(pk=kwargs['pk'])
+        accounts = user.account_set.all()
+        objects = Event.objects.filter(account__in=accounts)
+
+        to_be_serialized = self.build_get_list(request, EventResource(), objects, resource_uri=resource_uri)
+
+        return self.create_response(request, to_be_serialized)
 
     def post_passwordreset(self, request, **kwargs):
         """
@@ -209,31 +222,6 @@ class UserResource(BaseModelResource):
             raise BadRequest('Invalid URL. Must be of type http(s)://*.snapable.com')
 
         return http.HttpCreated(location=location)
-
-    def get_passwordreset(self, request, **kwargs):
-        user = User.objects.get(pk=kwargs['pk'])
-
-        objects = PasswordNonce.objects.filter(user=user.id, valid=True)
-        sorted_objects = self.apply_sorting(objects, options=request.GET)
-
-        paginator = self._meta.paginator_class(request.GET, sorted_objects)
-        to_be_serialized = paginator.page()
-
-        # Dehydrate the bundles in preparation for serialization.
-        bundles = [self.build_bundle(obj=obj) for obj in sorted_objects]
-
-        nonces = []
-        for bundle in bundles:
-            nonces += [{
-                'nonce': bundle.obj.nonce,
-                'created_at': bundle.obj.created_at,
-            }]
-
-        to_be_serialized['objects'] = nonces
-
-        #to_be_serialized['objects'] = [self.full_dehydrate(bundle) for bundle in bundles]
-        return self.create_response(request, to_be_serialized)
-
 
     def patch_passwordreset(self, request, **kwargs):
         basic_bundle = self.build_bundle(request=request)
@@ -280,21 +268,3 @@ class UserResource(BaseModelResource):
         else:
             return self.create_response(request, bundle, response_class=http.HttpBadRequest)
 
-    def get_accounts(self, request, **kwargs):
-        resource_uri = '{0}{1}/accounts/'.format(self.get_resource_uri(), kwargs['pk'])
-        user = User.objects.get(pk=kwargs['pk'])
-        objects = user.account_set.all()
-
-        to_be_serialized = self.build_get_list(request, AccountResource(), objects, resource_uri=resource_uri)
-
-        return self.create_response(request, to_be_serialized)
-
-    def get_events(self, request, **kwargs):
-        resource_uri = '{0}{1}/events/'.format(self.get_resource_uri(), kwargs['pk'])
-        user = User.objects.get(pk=kwargs['pk'])
-        accounts = user.account_set.all()
-        objects = Event.objects.filter(account__in=accounts)
-
-        to_be_serialized = self.build_get_list(request, EventResource(), objects, resource_uri=resource_uri)
-
-        return self.create_response(request, to_be_serialized)
