@@ -37,7 +37,6 @@ lenna_*test*
 ###########
 *.pem
 .vagrant*
-vagrant
 
 # Saltstack #
 #############

@@ -1,20 +1,11 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-Vagrant.require_version ">= 1.4.1"
+Vagrant.require_version ">= 1.5"
 
 Vagrant.configure("2") do |config|
-  # All Vagrant configuration is done here. The most common configuration
-  # options are documented and commented below. For a complete reference,
-  # please see the online documentation at vagrantup.com.
-
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "precise64"
-  #config.vm.box = "trusty64"
-
-  # The url from where the 'config.vm.box' box will be fetched if it
-  # doesn't already exist on the user's system.
-  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
-  #config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+  config.vm.box = "ubuntu/trusty64"
+  config.ssh.forward_agent = true
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -27,19 +18,8 @@ Vagrant.configure("2") do |config|
     config.vm.hostname = "api"
     config.vm.network :private_network, ip: "192.168.56.101"
 
-    # copy ssh keys
-    config.vm.provision "shell", inline: "mkdir -p /root/.ssh"
-    config.vm.provision "shell", inline: "cat /vagrant/salt/key/known_hosts >> /root/.ssh/known_hosts"
-    config.vm.provision "shell", inline: "cp /vagrant/salt/key/id_deployment /root/.ssh/id_rsa"
-    config.vm.provision "shell", inline: "cp /vagrant/salt/key/id_deployment.pub /root/.ssh/id_rsa.pub"
-    config.vm.provision "shell", inline: "chmod 0600 /root/.ssh/id_rsa"
-
     # install python-git (required for saltstack gitfs)
-    config.vm.provision "shell", inline: "apt-get update"
-    config.vm.provision "shell", inline: "apt-get -y install python-software-properties"
-    config.vm.provision "shell", inline: "apt-add-repository ppa:nikicat/salt-depends"
-    config.vm.provision "shell", inline: "apt-get update"
-    config.vm.provision "shell", inline: "apt-get -y install python-git"
+    config.vm.provision :shell, :path => "vagrant/salt_dependencies.sh"
 
     config.vm.provision :salt do |salt|
       salt.install_master = true
@@ -57,28 +37,17 @@ Vagrant.configure("2") do |config|
     end
 
     # run salt/bootstrap
-    config.vm.provision :shell, inline: "salt-run fileserver.update" # force refresh the gitfs states
-    config.vm.provision :shell, inline: "echo 'Running salt.highstate... (may take several minutes)'; salt '*' state.highstate"
-    config.vm.provision :shell, :path => "script/vagrant_api_bootstrap.sh"
+    config.vm.provision :shell, :path => "vagrant/mysql.sh"
+    config.vm.provision :shell, :path => "vagrant/salt_bootstrap.sh"
+    config.vm.provision :shell, :path => "vagrant/api_bootstrap.sh"
   end
 
   config.vm.define :worker do |worker|
     config.vm.hostname = "worker"
     config.vm.network :private_network, ip: "192.168.56.102"
 
-    # copy ssh keys
-    config.vm.provision "shell", inline: "mkdir -p /root/.ssh"
-    config.vm.provision "shell", inline: "cat /vagrant/salt/key/known_hosts >> /root/.ssh/known_hosts"
-    config.vm.provision "shell", inline: "cp /vagrant/salt/key/id_deployment /root/.ssh/id_rsa"
-    config.vm.provision "shell", inline: "cp /vagrant/salt/key/id_deployment.pub /root/.ssh/id_rsa.pub"
-    config.vm.provision "shell", inline: "chmod 0600 /root/.ssh/id_rsa"
-
     # install python-git (required for saltstack gitfs)
-    config.vm.provision "shell", inline: "apt-get update"
-    config.vm.provision "shell", inline: "apt-get -y install python-software-properties"
-    config.vm.provision "shell", inline: "apt-add-repository ppa:nikicat/salt-depends"
-    config.vm.provision "shell", inline: "apt-get update"
-    config.vm.provision "shell", inline: "apt-get -y install python-git"
+    config.vm.provision :shell, :path => "vagrant/salt_dependencies.sh"
 
     config.vm.provision :salt do |salt|
       salt.install_master = true
@@ -96,9 +65,8 @@ Vagrant.configure("2") do |config|
     end
 
     # run salt/bootstrap
-    config.vm.provision :shell, inline: "salt-run fileserver.update" # force refresh the gitfs states
-    config.vm.provision :shell, inline: "echo 'Running salt.highstate... (may take several minutes)'; salt '*' state.highstate"
-    config.vm.provision :shell, inline: "rabbitmq-plugins enable rabbitmq_management && service rabbitmq-server restart"
+    config.vm.provision :shell, :path => "vagrant/salt_bootstrap.sh"
+    config.vm.provision :shell, :path => "vagrant/worker_bootstrap.sh"
   end
 
 end
