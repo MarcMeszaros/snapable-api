@@ -25,7 +25,7 @@ nbproject/*
 build/*
 docs/build/*
 *\.pyc
-/static/*
+/static-www/*
 
 # Testing #
 ###########

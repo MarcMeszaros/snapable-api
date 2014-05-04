@@ -91,7 +91,7 @@ DATABASES = {
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static-www')
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth', # Admin
@@ -144,7 +144,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'formatter': 'verbose',
-            'filename': os.path.join(PROJECT_PATH, 'logs', 'requests.log'),
+            'filename': os.path.join(BASE_DIR, 'logs', 'requests.log'),
             'when': 'D',
             'interval': 1,
             'backupCount': 14,
@@ -257,7 +257,7 @@ GRAPPELLI_ADMIN_TITLE = 'Snapable'
 
 #### Import Local Settings #####
 try:
-    os.path.isfile(os.path.join(PROJECT_PATH, 'settings_local.py'))
+    os.path.isfile(os.path.join(BASE_DIR, 'settings_local.py'))
     from settings_local import *
 except Exception as e:
     pass
