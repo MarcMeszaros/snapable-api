@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 dpkg-query -l mysql-server > /dev/null 2>&1
 INSTALLED=$?

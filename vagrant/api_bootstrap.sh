@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/bash
+set -e # exit on error
 
 # setup the snapable api code
 if [ ! -f ~/api_bootstrap ]; then
@@ -16,6 +17,12 @@ if [ ! -f ~/api_bootstrap ]; then
 
     touch ~/api_bootstrap
 else
+    echo ""
+    echo "+-----------------+"
+    echo "| Update Snapable |"
+    echo "+-----------------+"
+    echo ""
+    su - vagrant -c '~/snap_api/bin/python ~/snap_api/api/manage.py syncdb'
     su - vagrant -c '~/snap_api/bin/python ~/snap_api/api/manage.py migrate api'
     su - vagrant -c '~/snap_api/bin/python ~/snap_api/api/manage.py migrate data'
 fi

@@ -3,24 +3,19 @@
 Vagrant.require_version ">= 1.5"
 
 Vagrant.configure("2") do |config|
-  # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "ubuntu/trusty64"
   config.ssh.forward_agent = true
 
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
+  # Provider-specific configuration
   config.vm.provider :virtualbox do |vb|
-    # Use VBoxManage to customize the VM. For example to change memory:
-    vb.customize ["modifyvm", :id, "--memory", "512"]
+    vb.customize ["modifyvm", :id, "--memory", "1024"]
   end
 
   config.vm.define :api do |api|
     config.vm.hostname = "api"
     config.vm.network :private_network, ip: "192.168.56.101"
 
-    # install python-git (required for saltstack gitfs)
     config.vm.provision :shell, :path => "vagrant/salt_dependencies.sh"
-
     config.vm.provision :salt do |salt|
       salt.install_master = true
       salt.master_config = "salt/master"
@@ -29,7 +24,6 @@ Vagrant.configure("2") do |config|
 
       salt.master_key = "salt/key/master.pem"
       salt.master_pub = "salt/key/master.pub"
-
       salt.minion_key = "salt/key/api.pem"
       salt.minion_pub = "salt/key/api.pub"
 
@@ -46,9 +40,7 @@ Vagrant.configure("2") do |config|
     config.vm.hostname = "worker"
     config.vm.network :private_network, ip: "192.168.56.102"
 
-    # install python-git (required for saltstack gitfs)
     config.vm.provision :shell, :path => "vagrant/salt_dependencies.sh"
-
     config.vm.provision :salt do |salt|
       salt.install_master = true
       salt.master_config = "salt/master"
@@ -57,7 +49,6 @@ Vagrant.configure("2") do |config|
 
       salt.master_key = "salt/key/master.pem"
       salt.master_pub = "salt/key/master.pub"
-
       salt.minion_key = "salt/key/worker.pem"
       salt.minion_pub = "salt/key/worker.pub"
 

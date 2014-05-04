@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 if [ ! -f ~/salt_dependencies ]; then
     echo ""
