@@ -1,26 +1,25 @@
 ## CORE (REQUIRED to be stable packages) ##
 gunicorn>=18.0,<19.0                                        # python 3
-Django>=1.6.2,<1.7                                          # python 3
+Django>=1.6.3,<1.7                                          # python 3
 django-tastypie==0.11.0                                     # python 3
-PyMySQL>=0.6.1,<0.7.0                                       # python 3
-pyrax>=1.6.3,<1.7                                           # python 2 x
+PyMySQL>=0.6.2,<0.7.0                                       # python 3
+pyrax>=1.7.3,<1.8                                           # python 2 x
 South>=0.8.4,<1.0                                           # python 3
-Pillow>=2.3.0,<3.0                                          # python 3
-celery[redis]>=3.1.8,<3.2                                   # python 3
+Pillow>=2.4.0,<3.0                                          # python 3
+celery[redis]>=3.1.11,<3.2                                  # python 3
 
 ## SECONDARY (SHOULD be stable packages) ##
-django-grappelli>=2.5.1,<2.6                                # python 3
+django-grappelli>=2.5.3,<2.6                                # python 3
 jsonfield>=0.9.20,<0.10                                     # python 3
-django-uuidfield>=0.4.0                                     # python 2 x
+django-uuidfield>=0.5.0                                     # python 3
 setproctitle>=1.1.8,<2.0                                    # python 3
-gevent>=1.0,<2.0                                            # python 2 x
-pytz>=2013.9                                                # python 3
+pytz>=2014.2                                                # python 3
 #python-dateutil>=2.2                                        # python 3
 MonthDelta>=1.0b,<2.0                                       # python 3
-raven>=4.0.4,<5.0                                           # python 3
+raven>=4.2.1,<5.0                                           # python 3
 bcrypt>=1.0.2                                               # python 3
 
 ## Third-Party Services ##
-stripe>=1.12.0,<2.0                                         # python 3
-sendwithus>=1.0.11                                          # python 2 x
-newrelic>=2.10.1.9                                          # python 3
+stripe>=1.14.0,<2.0                                         # python 3
+sendwithus>=1.0.14                                          # python 2 x
+newrelic>=2.18.1.15                                         # python 3

@@ -1,14 +1,10 @@
 # django/tastypie/libs
 from tastypie import fields
-from tastypie.authorization import Authorization
 from tastypie.validation import Validation
 
 # snapable
-import api.auth
-import api.base_v1.resources
-
-from data.models import Event
-from event import EventResource
+from .meta import BaseMeta, BaseModelResource
+from data.models import Location
 
 class LocationValidation(Validation):
     def is_valid(self, bundle, request=None):
@@ -23,16 +19,15 @@ class LocationValidation(Validation):
 
         return errors
 
-class LocationResource(api.base_v1.resources.AddressResource):
+class LocationResource(BaseModelResource):
 
-    event = fields.ToOneField(EventResource, 'event', null=True)
+    event = fields.ToOneField('api.partner_v1.resources.EventResource', 'event', null=True)
 
-    class Meta(api.base_v1.resources.AddressResource.Meta): # set Meta to the public API Meta
-        fields = api.base_v1.resources.AddressResource.Meta.fields + ['address', 'lat', 'lng']
+    class Meta(BaseMeta): # set Meta to the public API Meta
+        queryset = Location.objects.all()
+        fields = ['address', 'lat', 'lng']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
-        authentication = api.auth.DatabaseAuthentication()
-        authorization = api.auth.DatabaseAuthorization()
         validation = LocationValidation()
         filtering = {
             'event': ['exact'],

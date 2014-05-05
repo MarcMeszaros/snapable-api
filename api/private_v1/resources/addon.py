@@ -1,12 +1,9 @@
-from tastypie import fields
-from tastypie.resources import ModelResource
+# snapable
+from .meta import BaseMeta, BaseModelResource
 from data.models import Addon
 
-class AddonResource(ModelResource):
+class AddonResource(BaseModelResource):
 
-    class Meta:
+    class Meta(BaseMeta):
         queryset = Addon.objects.all()
         fields = ['title', 'description', 'price', 'enabled']
-        list_allowed_methods = ['get']
-        detail_allowed_methods = ['get']
-        always_return_data = True

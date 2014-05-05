@@ -1,64 +1,66 @@
-import api.auth
-import api.base_v1.resources
+# python
 import re
 
+# django/tastypie/libs
 from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
 
-from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, NotFound
 from tastypie import fields, utils
 from tastypie.resources import ALL
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie import http
 
-from data.models import Account, AccountUser, Package, PasswordNonce, User
+# snapable
+from .meta import BaseMeta, BaseModelResource
+from .account import AccountResource
+from .event import EventResource
+from data.models import Account, AccountUser, Event, Package, PasswordNonce, User
 
-class UserResource(api.base_v1.resources.UserResource):
+class PasswordNonceResource(BaseModelResource):
 
-    # the accounts the user belongs to
-    # seems to break on post
-    #accounts = fields.ToManyField('api.private_v1.resources.AccountResource', 'user', related_name='account', default=None, blank=True, null=True) #attribute=lambda bundle: Account.objects.filter(admin=bundle.obj))
+    class Meta(BaseMeta):
+        queryset = PasswordNonce.objects.all()
+        fields = ['nonce', 'created_at']
+
+class UserResource(BaseModelResource):
 
     created_at = fields.DateTimeField(attribute='created_at', readonly=True, help_text='When the user was created. (UTC)')
 
-    class Meta(api.base_v1.resources.UserResource.Meta): # set Meta to the public API Meta
-        fields = api.base_v1.resources.UserResource.Meta.fields + []
+    class Meta(BaseMeta): # set Meta to the public API Meta
+        queryset = User.objects.all()
+        fields = ['email', 'first_name', 'last_name', 'caption', 'streamable', 'created_at']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         passwordreset_allowed_methods = ['get', 'post', 'patch']
-        authentication = api.auth.ServerAuthentication()
-        authorization = api.auth.ServerAuthorization()
-        filtering = dict(api.base_v1.resources.UserResource.Meta.filtering, **{
+        accounts_allowed_methods = ['get']
+        events_allowed_methods = ['get']
+        filtering = {
             'created_at': ALL,
-        })
+            'email': ALL,
+        }
 
     def dehydrate(self, bundle):
         db_pass = bundle.obj.password.split('$', 1)
 
         # various data based on db_pass type 
-        if db_pass[0] == 'bcrypt':
-            bundle.data['password_algorithm'] = db_pass[0]
-            bundle.data['password_data'] = db_pass[1]
-        
-        elif db_pass[0] == 'pbkdf2_sha256':
+        if db_pass[0] == 'pbkdf2_sha256':
             pass_parts = db_pass[1].split('$')
 
             bundle.data['password_algorithm'] = db_pass[0]
             bundle.data['password_iterations'] = pass_parts[0]
             bundle.data['password_salt'] = pass_parts[1]
 
+        ### DEPRECATED/COMPATIBILITY ###
         # get the accounts the user belongs to
         json_accounts = []
         for account in bundle.obj.account_set.all():
-            json_accounts.append('/private_v1/account/'+str(account.id)+'/')
-
+            json_accounts.append('/private_v1/account/{0}/'.format(account.id))
         bundle.data['accounts'] = json_accounts
 
-        ### DEPRECATED/COMPATIBILITY ###
         bundle.data['billing_zip'] = '00000'
         bundle.data['terms'] = True
         bundle.data['creation_date'] = bundle.obj.created_at
@@ -68,20 +70,14 @@ class UserResource(api.base_v1.resources.UserResource):
 
     def hydrate(self, bundle):
 
-        if 'password' in bundle.data.keys():
+        password_keys = ['password_algorithm', 'password_iterations', 'password_salt', 'password_hash']
+
+        if 'password' in bundle.data:
             bundle.obj.set_password(bundle.data['password'])
-        elif (
-                'password_algorithm' in bundle.data.keys() or 
-                'password_iterations' in bundle.data.keys() or 
-                'password_salt' in bundle.data.keys() or 
-                'password_hash' in bundle.data.keys()
-            ):
+        elif all(key in bundle.data for key in password_keys):
             try:
                 password = []
                 password.append(bundle.data['password_algorithm'])
-                
-                # if bundle.data['password_algorithm'] == 'bcrypt':
-                #    password.append(bundle.data['password_data'])
 
                 if bundle.data['password_algorithm'] == 'pbkdf2_sha256':
                     password.append(bundle.data['password_iterations'])
@@ -110,25 +106,17 @@ class UserResource(api.base_v1.resources.UserResource):
 
         return bundle
 
-    # should use prepend_url, but only works with tastypie v0.9.12+
-    # seems related to this bug: https://github.com/toastdriven/django-tastypie/issues/584
+    #### custom endpoints ####
     def prepend_urls(self):
-        """
-        Using override_url
-        """
         return [
             url(r'^(?P<resource_name>%s)/auth/$' % self._meta.resource_name, self.wrap_view('dispatch_auth'), name="api_dispatch_auth"),
             url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/passwordreset/$' % self._meta.resource_name, self.wrap_view('dispatch_passwordreset'), name="api_dispatch_passwordreset"),
+            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/accounts/$' % self._meta.resource_name, self.wrap_view('dispatch_accounts'), name="api_dispatch_accounts"),
+            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/events/$' % self._meta.resource_name, self.wrap_view('dispatch_events'), name="api_dispatch_events"),
             url(r'^(?P<resource_name>%s)/passwordreset/(?P<nonce>\w+)/$' % self._meta.resource_name, self.wrap_view('dispatch_passwordreset'), name="api_dispatch_passwordreset"),
         ]
 
     def dispatch_auth(self, request, **kwargs):
-        """
-        A view for handling the various HTTP methods (GET/POST/PUT/DELETE) on
-        a single resource.
-
-        Relies on ``Resource.dispatch`` for the heavy-lifting.
-        """
         try:
             # get the header data
             x_snap_user = request.META['HTTP_X_SNAP_USER']
@@ -145,11 +133,7 @@ class UserResource(api.base_v1.resources.UserResource):
             pass_data = {}
 
             # various data based on db_pass type
-            if db_pass[0] == 'bcrypt':
-                pass_data['password_algorithm'] = db_pass[0]
-                pass_data['password_data'] = db_pass[1]
-
-            elif db_pass[0] == 'pbkdf2_sha256':
+            if db_pass[0] == 'pbkdf2_sha256':
                 pass_parts = db_pass[1].split('$')
 
                 pass_data['password_algorithm'] = db_pass[0]
@@ -169,13 +153,7 @@ class UserResource(api.base_v1.resources.UserResource):
             raise BadRequest('Invalid email/password hash combination in header x-SNAP-User')
 
     def dispatch_passwordreset(self, request, **kwargs):
-        """
-        A view for handling the various HTTP methods (GET/POST/PUT/DELETE) on
-        a single resource.
-
-        Relies on ``Resource.dispatch`` for the heavy-lifting.
-        """
-        if ('nonce' in kwargs.keys()):
+        if 'nonce' in kwargs:
             nonce = PasswordNonce.objects.get(nonce=kwargs['nonce'])
             user = User.objects.get(pk=nonce.user_id)
             kwargs['pk'] = user.id
@@ -183,6 +161,40 @@ class UserResource(api.base_v1.resources.UserResource):
             return self.dispatch('detail', request, **kwargs)
         else:
             return self.dispatch('passwordreset', request, **kwargs)
+
+    def dispatch_accounts(self, request, **kwargs):
+        return self.dispatch('accounts', request, **kwargs)
+
+    def dispatch_events(self, request, **kwargs):
+        return self.dispatch('events', request, **kwargs)
+
+    def get_passwordreset(self, request, **kwargs):
+        resource_uri = '{0}{1}/passwordreset/'.format(self.get_resource_uri(), kwargs['pk'])
+        user = User.objects.get(pk=kwargs['pk'])
+        objects = PasswordNonce.objects.filter(user=user.id, valid=True)
+
+        to_be_serialized = self.build_get_list(request, PasswordNonceResource(), objects, resource_uri=resource_uri)
+
+        return self.create_response(request, to_be_serialized)
+
+    def get_accounts(self, request, **kwargs):
+        resource_uri = '{0}{1}/accounts/'.format(self.get_resource_uri(), kwargs['pk'])
+        user = User.objects.get(pk=kwargs['pk'])
+        objects = user.account_set.all()
+
+        to_be_serialized = self.build_get_list(request, AccountResource(), objects, resource_uri=resource_uri)
+
+        return self.create_response(request, to_be_serialized)
+
+    def get_events(self, request, **kwargs):
+        resource_uri = '{0}{1}/events/'.format(self.get_resource_uri(), kwargs['pk'])
+        user = User.objects.get(pk=kwargs['pk'])
+        accounts = user.account_set.all()
+        objects = Event.objects.filter(account__in=accounts)
+
+        to_be_serialized = self.build_get_list(request, EventResource(), objects, resource_uri=resource_uri)
+
+        return self.create_response(request, to_be_serialized)
 
     def post_passwordreset(self, request, **kwargs):
         """
@@ -203,59 +215,13 @@ class UserResource(api.base_v1.resources.UserResource):
         # get the user
         user = User.objects.get(pk=kwargs['pk'])
 
-        # create the passwordnonce and save
-        passnonce = PasswordNonce()
-        passnonce.user = user
-        passnonce.valid = True
-        passnonce.save()
-
         # whitelist check for url
         if ('url' in bundle.data.keys() and re.match('https?://(.+\.)?snapable\.com', bundle.data['url']) != None):
-            # load in the templates
-            plaintext = get_template('passwordreset_email.txt')
-            html = get_template('passwordreset_email.html')
-
-            # setup the template context variables
-            resetUrl = bundle.data['url']+passnonce.nonce
-            d = Context({'reset_url': resetUrl })
-
-            # build the email
-            subject, from_email, to = 'Snapable: Password Reset', 'support@snapable.com', [user.email]
-            text_content = plaintext.render(d)
-            html_content = html.render(d)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-
+            user.send_password_reset(bundle.data['url'])
         elif ('url' in bundle.data.keys()):
             raise BadRequest('Invalid URL. Must be of type http(s)://*.snapable.com')
 
         return http.HttpCreated(location=location)
-
-    def get_passwordreset(self, request, **kwargs):
-        user = User.objects.get(pk=kwargs['pk'])
-
-        objects = PasswordNonce.objects.filter(user=user.id, valid=True)
-        sorted_objects = self.apply_sorting(objects, options=request.GET)
-
-        paginator = self._meta.paginator_class(request.GET, sorted_objects)
-        to_be_serialized = paginator.page()
-
-        # Dehydrate the bundles in preparation for serialization.
-        bundles = [self.build_bundle(obj=obj) for obj in sorted_objects]
-
-        nonces = []
-        for bundle in bundles:
-            nonces += [{
-                'nonce': bundle.obj.nonce,
-                'created_at': bundle.obj.created_at,
-            }]
-
-        to_be_serialized['objects'] = nonces
-
-        #to_be_serialized['objects'] = [self.full_dehydrate(bundle) for bundle in bundles]
-        return self.create_response(request, to_be_serialized)
-
 
     def patch_passwordreset(self, request, **kwargs):
         basic_bundle = self.build_bundle(request=request)
@@ -281,7 +247,7 @@ class UserResource(api.base_v1.resources.UserResource):
         deserialized = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
 
         if deserialized['nonce'] is not None and deserialized['password'] is not None:
-        
+
             try:
                 passnonce = PasswordNonce.objects.get(user=bundle.obj, valid=True, nonce=deserialized['nonce'])
                 passnonce.valid = False # invalidate the nonce so it can't be used again
@@ -301,3 +267,4 @@ class UserResource(api.base_v1.resources.UserResource):
 
         else:
             return self.create_response(request, bundle, response_class=http.HttpBadRequest)
+

@@ -25,7 +25,7 @@ nbproject/*
 build/*
 docs/build/*
 *\.pyc
-/static/*
+/static-www/*
 
 # Testing #
 ###########
@@ -37,7 +37,6 @@ lenna_*test*
 ###########
 *.pem
 .vagrant*
-vagrant
 
 # Saltstack #
 #############

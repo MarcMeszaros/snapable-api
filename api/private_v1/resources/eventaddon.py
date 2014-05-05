@@ -1,16 +1,17 @@
+# django/tastypie/libs
 from tastypie import fields
-from tastypie.resources import ALL, ModelResource
+from tastypie.resources import ALL
+
+# snapable
+from .meta import BaseMeta, BaseModelResource
 from data.models import EventAddon
 
-from addon import AddonResource
-from event import EventResource
+class EventAddonResource(BaseModelResource):
 
-class EventAddonResource(ModelResource):
+    event = fields.ForeignKey('api.private_v1.resources.EventResource', 'event')
+    addon = fields.ForeignKey('api.private_v1.resources.AddonResource', 'addon', full=True)
 
-    event = fields.ForeignKey(EventResource, 'event')
-    addon = fields.ForeignKey(AddonResource, 'addon', full=True)
-
-    class Meta:
+    class Meta(BaseMeta):
         queryset = EventAddon.objects.all()
         fields = ['quantity', 'paid']
         list_allowed_methods = ['get', 'post']

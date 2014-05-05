@@ -1,13 +1,20 @@
+# python
+import re
+
 # django/tastypie/libs
 import bcrypt
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.hashers import (check_password, make_password, is_password_usable)
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
 import admin
+from data.models import PasswordNonce
 
 class UserManager(BaseUserManager):
 
@@ -88,6 +95,35 @@ class User(AbstractBaseUser):
 
     def get_short_name(self):
         return self.first_name
+
+    def send_password_reset(self, url):
+        
+        # whitelist check for url
+        if re.match('https?://(.+\.)?snapable\.com', url) != None:
+            # create the passwordnonce and save
+            passnonce = PasswordNonce()
+            passnonce.user = self
+            passnonce.valid = True
+            passnonce.save()
+
+            # load in the templates
+            plaintext = get_template('passwordreset_email.txt')
+            html = get_template('passwordreset_email.html')
+
+            # setup the template context variables
+            resetUrl = '{0}{1}'.format(url, passnonce.nonce)
+            d = Context({'reset_url': resetUrl })
+
+            # build the email
+            subject, from_email, to = 'Snapable: Password Reset', 'support@snapable.com', [self.email]
+            text_content = plaintext.render(d)
+            html_content = html.render(d)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+        else:
+            raise BadRequest('Invalid URL. Must be of type http(s)://*.snapable.com')
 
     @staticmethod
     def generate_password(raw_password, hasher='pbkdf2_sha256'):

@@ -2,19 +2,13 @@
 from tastypie import fields
 
 # snapable
-import api.auth
-import api.base_v1.resources
+from .meta import BaseMeta, BaseModelResource
+from data.models import Account
 
-from data.models import Account, User
-from user import UserResource
-
-class AccountResource(api.base_v1.resources.AccountResource):
+class AccountResource(BaseModelResource):
 
     users = fields.ManyToManyField('api.partner_v1.resources.UserResource', 'users')
 
-    class Meta(api.base_v1.resources.AccountResource.Meta):
+    class Meta(BaseMeta):
+        queryset = Account.objects.all()
         fields = ['resource_uri']
-        list_allowed_methods = ['get']
-        detail_allowed_methods = ['get']
-        authentication = api.auth.DatabaseAuthentication()
-        authorization = api.auth.DatabaseAuthorization()

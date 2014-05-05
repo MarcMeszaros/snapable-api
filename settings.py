@@ -1,127 +1,28 @@
-import os
+"""
+Django settings for web project.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.6/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/1.6/ref/settings/
+"""
 from datetime import timedelta
 
-# get the project path
-PROJECT_PATH = os.path.dirname(__file__)
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import os
+BASE_DIR = os.path.dirname(__file__)
+PROJECT_PATH = BASE_DIR # deprecated
 
-# custom import for mysql
-import pymysql
-pymysql.install_as_MySQLdb()
-
-# explicitly set debug to false
-DEBUG = False
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'snapabledb',            # Or path to database file if using sqlite3.
-        'USER': 'snapableusr',           # Not used with sqlite3.
-        'PASSWORD': 'snapable12345',     # Not used with sqlite3.
-        'HOST': '192.168.56.101',        # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
-}
-
-# Local time zone for this installation. Choices can be found here:
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-# although not all choices may be available on all operating systems.
-# On Unix systems, a value of None will cause Django to use the same
-# timezone as the operating system.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
-TIME_ZONE = 'UTC'
-
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
-
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
-USE_I18N = False
-
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale.
-USE_L10N = False
-
-# If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
-
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
-
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
-
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
-
-# URL prefix for static files.
-# Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/static/'
-
-# Additional locations of static files
-STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
-
-# List of finder classes that know how to find static files in
-# various locations.
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
-
-# Make this unique, and don't share it with anybody.
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '***REMOVED***'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    #'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    #'django.template.loaders.eggs.Loader',
-)
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+TEMPLATE_DEBUG = False
+ALLOWED_HOSTS = ['.snapable.com']
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth', # Admin
-    'django.contrib.messages.context_processors.messages', # Admin
-    'django.core.context_processors.request',
-)
-
-MIDDLEWARE_CLASSES = (
-    'django.middleware.gzip.GZipMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware', # Admin
-    #'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware', # Admin
-    'django.contrib.messages.middleware.MessageMiddleware', # Admin
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.http.ConditionalGetMiddleware', # Adds 'Content-Length' header
-
-    # snapable
-    'api.utils.middleware.RequestLoggingMiddleware',
-)
-
-ROOT_URLCONF = 'urls'
-
-# Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'wsgi.application'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
-
+# Application definition
 INSTALLED_APPS = (
     # core apps for snapable
     'data',
@@ -141,6 +42,61 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+)
+
+MIDDLEWARE_CLASSES = (
+    'django.middleware.gzip.GZipMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware', # Admin
+    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # Admin
+    'django.contrib.messages.middleware.MessageMiddleware', # Admin
+    # Uncomment the next line for simple clickjacking protection:
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware', # Adds 'Content-Length' header
+
+    # snapable
+    'api.utils.middleware.RequestLoggingMiddleware',
+)
+
+ROOT_URLCONF = 'urls'
+WSGI_APPLICATION = 'wsgi.application'
+
+# User
+AUTH_USER_MODEL = 'data.User'
+
+# Internationalization
+# https://docs.djangoproject.com/en/1.6/topics/i18n/
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+# custom import for mysql
+import pymysql
+pymysql.install_as_MySQLdb()
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'snapabledb',            # Or path to database file if using sqlite3.
+        'USER': 'snapableusr',           # Not used with sqlite3.
+        'PASSWORD': 'snapable12345',     # Not used with sqlite3.
+        'HOST': '192.168.56.101',        # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+    }
+}
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.6/howto/static-files/
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static-www')
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth', # Admin
+    'django.contrib.messages.context_processors.messages', # Admin
+    'django.core.context_processors.request',
 )
 
 # See http://docs.djangoproject.com/en/dev/topics/logging for
@@ -188,7 +144,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'formatter': 'verbose',
-            'filename': os.path.join(PROJECT_PATH, 'logs', 'requests.log'),
+            'filename': os.path.join(BASE_DIR, 'logs', 'requests.log'),
             'when': 'D',
             'interval': 1,
             'backupCount': 14,
@@ -243,10 +199,6 @@ PASSWORD_HASHERS = (
     #'django.contrib.auth.hashers.BCryptPasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 )
-
-##### Django 1.5+ requires this #####
-AUTH_USER_MODEL = 'data.User'
-ALLOWED_HOSTS = ['.snapable.com']
 
 ##### Email #####
 EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
@@ -305,7 +257,7 @@ GRAPPELLI_ADMIN_TITLE = 'Snapable'
 
 #### Import Local Settings #####
 try:
-    os.path.isfile(os.path.join(PROJECT_PATH, 'settings_local.py'))
+    os.path.isfile(os.path.join(BASE_DIR, 'settings_local.py'))
     from settings_local import *
 except Exception as e:
     pass

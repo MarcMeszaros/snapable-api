@@ -1,27 +1,14 @@
 # python
 import re
 
-from datetime import datetime, timedelta
-from decimal import Decimal
-
 # django/tastypie/libs
-import pytz
-
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.core.paginator import Paginator, InvalidPage
 from django.db.models import Q
-from django.http import HttpResponse, Http404
 from tastypie import fields
-from tastypie.authorization import Authorization
 from tastypie.resources import ALL
 from tastypie.validation import Validation
 
 # snapable
-import api.auth
-import api.base_v1.resources
-
-from account import AccountResource
-from api.utils.serializers import SnapSerializer
+from .meta import BaseMeta, BaseModelResource
 from data.models import Account, Event, Guest, Location, Photo, User
 
 class EventValidation(Validation):
@@ -55,24 +42,22 @@ class EventValidation(Validation):
 
         return errors
 
-class EventResource(api.base_v1.resources.EventResource):
+class EventResource(BaseModelResource):
 
     # relations
-    account = fields.ForeignKey(AccountResource, 'account', help_text='Account resource')
+    account = fields.ForeignKey('api.partner_v1.resources.AccountResource', 'account', help_text='Account resource')
     locations = fields.ToManyField('api.partner_v1.resources.LocationResource', 'location_set', null=True, full=True) 
 
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
 
-    class Meta(api.base_v1.resources.EventResource.Meta):
-        fields = api.base_v1.resources.EventResource.Meta.fields + ['photo_count']
+    class Meta(BaseMeta):
+        queryset = Event.objects.all()
+        fields = ['start_at', 'end_at', 'tz_offset', 'title', 'url', 'pin', 'is_enabled', 'is_public', 'photo_count']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
-        authentication = api.auth.DatabaseAuthentication()
-        authorization = api.auth.DatabaseAuthorization()
         validation = EventValidation()
-        serializer = SnapSerializer(formats=['json', 'jpeg'])
-        filtering = dict(api.base_v1.resources.EventResource.Meta.filtering, **{
+        filtering = {
             'enabled': ['exact'],
             'account': ['exact'],
             'start': ALL,
@@ -80,7 +65,13 @@ class EventResource(api.base_v1.resources.EventResource):
             'title': ALL,
             'url': ALL,
             'q': ['exact'],
-        })
+        }
+
+    def dehydrate_end_at(self, bundle):
+        return bundle.data['end_at'].strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    def dehydrate_start_at(self, bundle):
+        return bundle.data['start_at'].strftime('%Y-%m-%dT%H:%M:%SZ')
 
     def obj_create(self, bundle, **kwargs):
         bundle = super(EventResource, self).obj_create(bundle, **kwargs)
