@@ -22,14 +22,13 @@ import time
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.0'
+needs_sphinx = '1.2'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
   'sphinx.ext.autodoc',
-  'sphinxcontrib.httpdomain',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -112,7 +111,6 @@ pygments_style = 'sphinx'
 # To find out the index name for a specific index, look at the HTML file name. 
 # For example, the Python module index has the name 'py-modindex'.
 html_domain_indices = [
-    'http-routingtable',
 ]
 
 
@@ -225,7 +223,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'Snapable.tex', u'Snapable Documentation',
+  ('index', 'Snapable.tex', u'Snapable API Documentation',
    u'Marc Meszaros', 'manual'),
 ]
 

@@ -4,8 +4,7 @@
   <h1>{{ docstitle|e }}</h1>
   <p>
     Welcome! This is
-    {% block description %}the documentation for {{ project|e }}
-    {{ release|e }}{% if last_updated %}, last updated {{ last_updated|e }}{% endif %}{% endblock %}.
+    {% block description %}the documentation for the {{ project|e }}{% endblock %}.
   </p>
   {% block tables %}
     <p><strong>Parts of the documentation:</strong></p>
@@ -16,7 +15,7 @@
            <!--<span class="linkdescr">or <a href="{{ pathto("whatsnew/index") }}">all "What's new" documents</a></span>--></p>
         <p class="biglink"><a class="biglink" href="{{ pathto("tutorials/index") }}">Tutorials</a><br/>
            <span class="linkdescr">code samples and snippets</span></p>
-        <p class="biglink"><a class="biglink" href="/console/">API Console</a><br/>
+        <p class="biglink"><a class="biglink" href="https://developers.snapable.com/console/">API Console</a><br/>
            <span class="linkdescr">try out the API</span></p>
       </td><td width="50%">
         <p class="biglink"><a class="biglink" href="{{ pathto("resources/index") }}">API Resources</a><br/>
@@ -25,6 +24,11 @@
            <span class="linkdescr">who are you?</span></p>
       </td></tr>
     </table>
+
+    <p><strong>Endpoint Documentation:</strong></p>
+    <ul>
+      <li><a href="resources/partner_v1.html" target="_blank">Partner API (v1)</a></li>
+    </ul>
 
     <p><strong>Indices and tables:</strong></p>
     <table class="contentstable" align="center"><tr>

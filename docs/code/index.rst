@@ -1,7 +1,7 @@
-Internal Code Documentation
-===========================
+Code Documentation
+==================
 
-Internal documentation for the Snapable API code...
+Internal documentation for the Snapable API code.
 
 .. toctree::
     :maxdepth: 1
