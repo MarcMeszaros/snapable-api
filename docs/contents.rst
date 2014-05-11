@@ -14,9 +14,6 @@ Table of Contents
 
 .. only:: code
 
-Internal Documentation
-======================
-
 .. toctree::
     :numbered:
     :maxdepth: 2

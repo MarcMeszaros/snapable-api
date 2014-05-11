@@ -1,5 +1,0 @@
-## CORE (REQUIRED to be stable packages) ##
-Sphinx>=1.2.2,<2.0                                          # python 3
-
-## SECONDARY (SHOULD be stable packages) ##
-sphinxcontrib-httpdomain>=1.2.1,<2.0                        # python 3
