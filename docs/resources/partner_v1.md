@@ -183,11 +183,35 @@ Create an event. The event url must be unique.
                 "url": "awesome-event"
             }
 
-### Get Event [GET]
+## Get Event [GET]
 Details about a specific event.
+
++ Parameters
+    + id (required, integer, `1`) ... The event id
+    + size = `orig` (optional, string, `crop`) ... Specify the image size to return.
+        This parameter is only useful if using `image/jpeg` with the `Accept` header.
+        + Values
+            + `orig`
+            + `crop`
+            + `<H>x<W>`
+
++ Request Metadata
+    + Headers
+
+            Accept: application/json
 
 + Response 200
     [Event][]
+
++ Request Binary Image Data
+    + Headers
+
+            Accept: image/jpeg
+
++ Response 200 (image/jpeg)
+    + Body
+
+            <Binary Image Data>
 
 ### Update Event [PATCH]
 Update an event. The event url must be unique.
@@ -205,7 +229,7 @@ Update an event. The event url must be unique.
                 "tz_offset": "-300"
             }
 
-+ Response 200 (application/json)
++ Response 202 (application/json)
     + Body
 
             {
@@ -230,7 +254,7 @@ Deletes the specified event and related data (photos, guests, etc.).
 + Response 204
 
 # Group Guests
-An *event* typically has many guest. Information about guest is used throught Snapable
+An *event* typically has many guests. Information about guests is used throught Snapable
 to provide context. When a photo is taken, and the guest 
 has opted to provide basic information, this information can be displayed with the
 photo. An example would be to provide the guest name to give them credit for the
@@ -238,6 +262,105 @@ photo.
 
 A guest should only be able to upload photos and should not be able to delete photos
 or edit event details.
+
+## Guest List [/guest/]
+
++ Model (application/json)
+    + Body
+
+            {
+                "meta": {
+                    "limit": 50,
+                    "next": null,
+                    "offset": 0,
+                    "previous": null,
+                    "total_count": 3
+                },
+                "objects": [
+                    {
+                        "email": "gob@example.com",
+                        "event": "/partner_v1/event/1/",
+                        "name": "GOB",
+                        "resource_uri": "/partner_v1/guest/3/"
+                    },
+                    {
+                        "email": "lindsay@example.com",
+                        "event": "/partner_v1/event/1/",
+                        "name": "Lindsay Bluth Fünke",
+                        "resource_uri": "/partner_v1/guest/4/"
+                    },
+                    {
+                        "email": "buster@example.com",
+                        "event": "/partner_v1/event/1/",
+                        "name": "Buster Bluth",
+                        "resource_uri": "/partner_v1/guest/5/"
+                    }
+                ]
+            }
+
+### Get Guests [GET]
+
++ Response 200
+    [Guest List][]
+
+### Create Guest [POST]
+
++ Request (application/json)
+    + Body
+
+            {
+                "event": "/partner_v1/event/1/",
+                "email": "gob@example.com",
+                "name": "GOB"
+            }
+
++ Response 201 (application/json)
+    + Body
+
+            {
+                "email": "gob@example.com",
+                "event": "/partner_v1/event/1/",
+                "name": "GOB",
+                "resource_uri": "/partner_v1/guest/3/"
+            }
+
+## Guest [/guest/{id}/]
+
++ Parameters
+    + id (required, integer, `1`) ... The guest id
+
++ Model (application/json)
+    + Body
+
+            {
+                "email": "gob@example.com",
+                "event": "/partner_v1/event/1/",
+                "name": "GOB",
+                "resource_uri": "/partner_v1/guest/3/"
+            }
+
+### Get Guest [GET]
+
++ Response 200
+    [Guest][]
+
+### Update Guest [PATCH]
+
++ Request (application/json)
+    + Body
+
+            {
+                "event": "/partner_v1/event/1/",
+                "email": "gob@example.com",
+                "name": "George Oscar Bluth Jr."
+            }
+
++ Response 202
+    [Guest][]
+
+### Delete Guest [DELETE]
+
++ Response 204
 
 # Group Locations
 The event location is optional but highly recommended. It is required for advanced
