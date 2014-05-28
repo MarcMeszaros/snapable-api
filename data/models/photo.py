@@ -37,7 +37,6 @@ class Photo(models.Model):
             'caption': self.caption,
             'created_at': self.created_at,
             'event': self.event,
-            'metrics': self.metrics,
             'streamable': self.streamable,
         })
 
