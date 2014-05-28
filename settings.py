@@ -74,8 +74,8 @@ USE_L10N = True
 USE_TZ = True
 
 # custom import for mysql
-import pymysql
-pymysql.install_as_MySQLdb()
+#import pymysql
+#pymysql.install_as_MySQLdb()
 
 DATABASES = {
     'default': {
