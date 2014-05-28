@@ -32,32 +32,34 @@ def create_album_zip(event_id):
 
     # establish a connection to the CDN
     cont = None
+    cont_name = '{0}{1}'.format(settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX, (event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
     try:
-        cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+        cont = rackspace.cloud_files.get_container(cont_name)
     except rackspace.pyrax.exceptions.NoSuchContainer as e:
-        cont = rackspace.cloud_files.create_container(settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+        cont = rackspace.cloud_files.create_container(cont_name)
         rackspace.cloud_files.make_container_public(cont.name)
-        Log.i('created a new CDN container: ' + settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX + str(event.pk / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+        Log.i('created a new CDN container: {0}'.format(cont.name))
 
     # (add try IO error block?)
 
     # create tempdir and get the photos
     tempdir = tempfile.mkdtemp(prefix='snap_api_event_{0}_'.format(event_id))
-    photos = event.photo_set.all()
+    photos = event.photo_set.all().values_list('pk', flat=True)
 
-    # loop through all the photos, and save to disk on the worker server
-    for photo in photos:
+    # loop through all the photo ids, and save to disk on the worker server
+    for photo_id in photos:
+        photo = Photo.objects.get(pk=photo_id)
         photo.get_image().img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
 
     # create and upload the zip file
-    zip_path = shutil.make_archive(tempfile.tempdir+"/"+str(event.uuid),'zip', tempdir)
+    zip_path = shutil.make_archive('{0}/{1}'.format(tempfile.tempdir, event.uuid), 'zip', tempdir)
     zip_obj = cont.upload_file(zip_path)
 
     # cleanup
     os.remove(zip_path)
     shutil.rmtree(tempdir)
 
-    zip_cdn_url = cont.cdn_uri + "/" + str(event.uuid) + ".zip"
+    zip_cdn_url = '{0}/{1}.zip'.format(cont.cdn_uri, event.uuid)
 
     # mail zip url
 
