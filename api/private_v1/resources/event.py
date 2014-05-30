@@ -36,7 +36,9 @@ class EventResource(BaseModelResource):
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
 
     # DEPRECATED
+    # old "enabled" flag (2013-10-22)
     enabled = fields.BooleanField(attribute='is_enabled')
+    # old start/end date (2013-10-22)
     start = fields.DateTimeField(attribute='start_at')
     end = fields.DateTimeField(attribute='end_at')
 
@@ -237,16 +239,6 @@ class EventResource(BaseModelResource):
 
     def hydrate(self, bundle):
         ### DEPRECATED/COMPATIBILITY ###
-        # old start/end date (2013-10-22)
-        if 'start' in bundle.data:
-            bundle.data['start_at'] = bundle.data['start']
-        if 'end' in bundle.data:
-            bundle.data['end_at'] = bundle.data['end']
-
-        # convert the "enabled" flag (2013-10-22)
-        if 'enabled' in bundle.data:
-            bundle.obj.is_enabled = bundle.data['enabled']
-
         # convert the old type "public" flag (2013-10-22)
         if 'public' in bundle.data:
             bundle.obj.is_public = bundle.data['public']
