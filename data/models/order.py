@@ -227,7 +227,6 @@ class Order(models.Model):
             recipient={'address': self.user.email},
             email_data=email_data
         )
-        Log.i('email send status: {0}'.format(r.status_code))
 
     def send_email_with_discount(self, discount=None):
         Log.deprecated('Order.send_email_with_discount() is deprecated, use Order.send_email() instead')
