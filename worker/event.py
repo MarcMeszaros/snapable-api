@@ -21,6 +21,7 @@ import settings
 
 from data.models import Event, Photo, AccountUser
 from utils import rackspace
+from utils.loggers import Log
 
 @app.task
 def create_album_zip(event_id):
