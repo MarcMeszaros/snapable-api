@@ -161,7 +161,12 @@ LOGGING = {
             'handlers': ['null'],
             'propagate': False,
         },
-        'celery': {
+        'celery.task': {
+            'handlers': ['console', 'sentry'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'celery.worker': {
             'handlers': ['console', 'sentry'],
             'level': 'WARNING',
             'propagate': True,

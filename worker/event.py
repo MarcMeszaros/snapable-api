@@ -48,8 +48,11 @@ def create_album_zip(event_id):
 
     # loop through all the photo ids, and save to disk on the worker server
     for photo_id in photos:
-        photo = Photo.objects.get(pk=photo_id)
-        photo.get_image().img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
+        try:
+            photo = Photo.objects.get(pk=photo_id)
+            photo.get_image().img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
+        except AttributeError as e:
+            Log.e('missing attribute')
 
     # create and upload the zip file
     zip_path = shutil.make_archive('{0}/{1}'.format(tempfile.tempdir, event.uuid), 'zip', tempdir)
