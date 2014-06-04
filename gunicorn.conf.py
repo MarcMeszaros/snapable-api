@@ -1,13 +1,4 @@
 import multiprocessing
-import os
-import socket
-
-# get the folder path
-PROJECT_PATH = os.path.dirname(__file__)
-
-# create the 'logs' folder(s) if it doesn't already exist
-if not os.path.exists(os.path.join(PROJECT_PATH, 'logs')):
-    os.makedirs(os.path.join(PROJECT_PATH, 'logs'))
 
 # the gunicorn parameters
 cfg_port = '8000' # the port we should bind to
