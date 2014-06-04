@@ -183,7 +183,7 @@ class EventAdminDetails(object):
                 'title',
                 'url',
                 ('start_at', 'end_at', 'tz_offset'),
-                ('cover', 'are_photos_streamable'),
+                ('cover', 'is_public', 'are_photos_streamable'),
                 ('pin', 'created_at'),
             ),
         }),

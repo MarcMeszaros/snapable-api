@@ -4,6 +4,7 @@
 logs/*
 #*.sql
 #*.sqlite
+*.rdb
 
 # OS generated files #
 ######################

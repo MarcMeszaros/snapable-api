@@ -52,7 +52,7 @@ class DatabaseAuthentication(Authentication):
 
     def is_authenticated(self, request, **kwargs):
         # check for the environment variable to skip auth
-        if os.environ.get('SNAP_AUTHENTICATION', 'True') in ['False', 'false']:
+        if os.environ.get('SNAP_AUTHENTICATION', 'true').lower()[0] == 'f':
             return True
 
         try:

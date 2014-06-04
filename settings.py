@@ -29,7 +29,7 @@ INSTALLED_APPS = (
     'api',
     'admin',
     # third-party libraries/apps
-    'raven.contrib.django',
+    'raven.contrib.django.raven_compat',
     'tastypie',
     'south',
 
@@ -140,16 +140,6 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'raven.contrib.django.handlers.SentryHandler',
         },
-        'file.requests': {
-            'level': 'INFO',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'formatter': 'verbose',
-            'filename': os.path.join(BASE_DIR, 'logs', 'requests.log'),
-            'when': 'D',
-            'interval': 1,
-            'backupCount': 14,
-            'utc': True,
-        },
     },
     'loggers': {
         'django': {
@@ -159,7 +149,7 @@ LOGGING = {
         },
         'django.request': {
             'handlers': ['console', 'sentry'],
-            'level': 'WARNING',
+            'level': 'ERROR',
             'propagate': True,
         },
         'django.db.backend': {
@@ -171,7 +161,12 @@ LOGGING = {
             'handlers': ['null'],
             'propagate': False,
         },
-        'celery': {
+        'celery.task': {
+            'handlers': ['console', 'sentry'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'celery.worker': {
             'handlers': ['console', 'sentry'],
             'level': 'WARNING',
             'propagate': True,
@@ -187,7 +182,7 @@ LOGGING = {
             'propagate': True,
         },
         'snapable.request': {
-            'handlers': ['console.requests', 'file.requests'],
+            'handlers': ['console.requests'],
             'level': 'INFO',
             'propagate': False,
         },

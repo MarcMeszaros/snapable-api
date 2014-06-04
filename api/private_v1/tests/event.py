@@ -33,6 +33,24 @@ class Private_v1__EventResourceTest(ResourceTestCase):
             'tz_offset': 0,
         }
 
+        self.old_date_data = {
+            'are_photos_streamable': True,
+            'end': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time() + 60*60)),
+            'is_public': False,
+            'start': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+            'title': 'Wedding Republic & Snapable Office Party',
+            'url': 'wr-snap-party',
+        }
+
+        self.patch_data = {
+            'are_photos_streamable': True,
+            'end_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(time.time() + 60*60)),
+            'is_public': False,
+            'start_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            'title': 'Wedding Republic & Snapable Office Party',
+            'url': 'wr-snap-party',
+        }
+
     def get_credentials(self, method, uri):
         return ServerAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
 
@@ -119,3 +137,37 @@ class Private_v1__EventResourceTest(ResourceTestCase):
 
         # the second should be the first event url
         self.assertEqual(self.deserialize(resp_get)['objects'][1]['url'], self.event_1.url)
+
+    def test_put_event(self):
+        uri_put = '/private_v1/event/{0}/'.format(self.event_1.pk)
+        resp = self.api_client.put(uri_put, data=self.patch_data, format='json', authentication=self.get_credentials('PUT', uri_put))
+
+        event = Event.objects.get(pk=self.event_1.pk)
+        event_start = event.start_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+        self.assertEqual(event_start, self.patch_data['start_at'])
+
+        # deprecated code test
+        resp = self.api_client.put(uri_put, data=self.old_date_data, format='json', authentication=self.get_credentials('PUT', uri_put))
+
+        event = Event.objects.get(pk=self.event_1.pk)
+        event_start = event.start_at.strftime('%Y-%m-%d %H:%M:%S')
+
+        self.assertEqual(event_start, self.old_date_data['start'])
+
+    def test_patch_event(self):
+        uri_patch = '/private_v1/event/{0}/'.format(self.event_1.pk)
+        resp = self.api_client.patch(uri_patch, data=self.patch_data, format='json', authentication=self.get_credentials('PATCH', uri_patch))
+
+        event = Event.objects.get(pk=self.event_1.pk)
+        event_start = event.start_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+        self.assertEqual(event_start, self.patch_data['start_at'])
+
+        # deprecated code test
+        resp = self.api_client.patch(uri_patch, data=self.old_date_data, format='json', authentication=self.get_credentials('PATCH', uri_patch))
+
+        event = Event.objects.get(pk=self.event_1.pk)
+        event_start = event.start_at.strftime('%Y-%m-%d %H:%M:%S')
+
+        self.assertEqual(event_start, self.old_date_data['start'])
