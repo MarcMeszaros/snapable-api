@@ -16,13 +16,13 @@ setproctitle>=1.1.8,<2.0                                    # python 3
 pytz>=2014.3                                                # python 3
 #python-dateutil>=2.2                                        # python 3
 MonthDelta>=1.0b,<2.0                                       # python 3
-raven>=4.2.3,<5.0                                           # python 3
+raven>=5.0.0,<6.0                                           # python 3
 bcrypt>=1.0.2                                               # python 3
 
 ## Third-Party Services ##
-stripe>=1.15.1,<2.0                                         # python 3
+stripe>=1.16.0,<2.0                                         # python 3
 sendwithus>=1.0.14                                          # python 2 x
-newrelic>=2.18.1.15                                         # python 3
+newrelic>=2.20.0.17                                         # python 3
 
 ## API DOCUMENTATION ##
 Sphinx>=1.2.2,<2.0                                          # python 3
