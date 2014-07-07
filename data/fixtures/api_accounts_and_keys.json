@@ -4,7 +4,7 @@
     "pk": 1, 
     "model": "api.apiaccount", 
     "fields": {
-        "company": "Snapable",
+        "company": "Partner",
         "created": "2012-08-02T00:00:00Z",
         "email": "marc@snapable.com"
     }
@@ -17,9 +17,32 @@
         "account": 1,
         "created": "2012-08-01T00:00:00Z",
         "enabled": 1,
+        "key": "key123_partner",
+        "secret": "sec123_partner",
+        "version": "partner_v1"
+    }
+},
+
+{
+    "pk": 2, 
+    "model": "api.apiaccount", 
+    "fields": {
+        "company": "Snapable",
+        "created": "2012-08-02T00:00:00Z",
+        "email": "marc@snapable.com"
+    }
+},
+
+{
+    "pk": 2,
+    "model": "api.apikey",
+    "fields": {
+        "account": 2,
+        "created": "2012-08-01T00:00:00Z",
+        "enabled": 1,
         "key": "key123",
         "secret": "sec123",
-        "version": "partner_v1"
+        "version": "private_v1"
     }
 },
 

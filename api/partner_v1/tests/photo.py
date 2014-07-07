@@ -6,7 +6,7 @@ from django.conf import settings
 from tastypie.test import ResourceTestCase, TestApiClient
 
 # snapable
-from api.auth.db_v1 import DatabaseAuthentication
+from api.auth import DatabaseAuthentication
 from api.models import ApiAccount
 from api.utils.serializers import MultipartSerializer
 from data.models import Event, Photo
@@ -18,8 +18,8 @@ class Partner_v1__PhotoResourceTest(ResourceTestCase):
         super(Partner_v1__PhotoResourceTest, self).setUp()
         # we need a custom serializer for multipart uploads
         self.api_client = TestApiClient(serializer=MultipartSerializer())
-        self.api_key = 'key123'
-        self.api_secret = 'sec123'
+        self.api_key = 'key123_partner'
+        self.api_secret = 'sec123_partner'
 
         self.api_account_1 = ApiAccount.objects.all()[0]
         self.events = Event.objects.filter(account__api_account=self.api_account_1)
