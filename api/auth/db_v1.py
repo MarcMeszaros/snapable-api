@@ -126,6 +126,10 @@ class DatabaseAuthorization(Authorization):
         if api_key.enabled == False:
             raise Unauthorized('This API key is unauthorized.')
 
+        # private API account, allowed to access all objects
+        if api_key.version[:7] == 'private':
+            return object_list
+
         # filter objects as required
         if isinstance(object_list[0], data.models.Account):
             return object_list.filter(api_account=api_key.account)
@@ -144,7 +148,7 @@ class DatabaseAuthorization(Authorization):
 
     def read_detail(self, object_list, bundle):
         # allow schema to be read
-        if bundle.request.path.split('/')[-2] == 'schema':
+        if 'schema' in bundle.request.path and bundle.request.path.split('/')[-2] == 'schema':
             return True
 
         # check if authorized to access the API
@@ -155,6 +159,10 @@ class DatabaseAuthorization(Authorization):
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
         if api_key.enabled == False:
             raise Unauthorized('This API key is unauthorized.')
+
+        # private API account, allowed to access all objects
+        if api_key.version[:7] == 'private':
+            return True
 
         # filter objects as required
         if isinstance(bundle.obj, data.models.Account):
@@ -188,6 +196,10 @@ class DatabaseAuthorization(Authorization):
         if api_key.enabled == False:
             raise Unauthorized('This API key is unauthorized.')
 
+        # private API account, allowed to access all objects
+        if api_key.version[:7] == 'private':
+            return True
+
         # filter objects as required
         if isinstance(bundle.obj, data.models.Account):
             return matching_api_account(bundle.obj.api_account, api_key.account)
@@ -219,6 +231,10 @@ class DatabaseAuthorization(Authorization):
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
         if api_key.enabled == False:
             raise Unauthorized('This API key is unauthorized.')
+
+        # private API account, allowed to access all objects
+        if api_key.version[:7] == 'private':
+           return True
 
         # filter objects as required
         if isinstance(bundle.obj, data.models.Account):
