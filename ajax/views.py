@@ -8,7 +8,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 
 # snapable
-from api.auth import ServerAuthentication
+from api.auth import DatabaseAuthentication
 from api.private_v1.resources import EventResource, PhotoResource, UserResource
 from data.models import Event, Order, Photo
 
@@ -43,7 +43,7 @@ def total_signups(request, start=0, end=None):
     # sign the API request
     key, secret = settings.APIKEY.items()[0]
     res = UserResource()
-    return res.dispatch_list(ServerAuthentication.sign_request(request, key, secret), **kwargs)
+    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
 
 def past_events(request, start=0, end=None):
     startdate = datetime.utcfromtimestamp(float(start))
@@ -59,7 +59,7 @@ def past_events(request, start=0, end=None):
     # sign the API request
     key, secret = settings.APIKEY.items()[0]
     res = EventResource()
-    return res.dispatch_list(ServerAuthentication.sign_request(request, key, secret), **kwargs)
+    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
 
 def photos_count(request, start=0, end=None):
     startdate = datetime.utcfromtimestamp(float(start))
@@ -75,7 +75,7 @@ def photos_count(request, start=0, end=None):
     # sign the API request
     key, secret = settings.APIKEY.items()[0]
     res = PhotoResource()
-    return res.dispatch_list(ServerAuthentication.sign_request(request, key, secret), **kwargs)
+    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
 
 def upcoming_events(request, start=0, end=None):
     startdate = datetime.utcfromtimestamp(float(start))
@@ -91,7 +91,7 @@ def upcoming_events(request, start=0, end=None):
     # sign the API request
     key, secret = settings.APIKEY.items()[0]
     res = EventResource()
-    return res.dispatch_list(ServerAuthentication.sign_request(request, key, secret), **kwargs)
+    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
 
 def events_with_photo_count(request, photo_count, start=0, end=None):
     startdate = datetime.utcfromtimestamp(float(start))
@@ -108,7 +108,7 @@ def events_with_photo_count(request, photo_count, start=0, end=None):
     # sign the API request
     key, secret = settings.APIKEY.items()[0]
     res = EventResource()
-    return res.dispatch_list(ServerAuthentication.sign_request(request, key, secret), **kwargs)
+    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
 
 def metrics(request, start=0, end=None):
     startdate = datetime.utcfromtimestamp(float(start))

@@ -51,6 +51,11 @@ class DatabaseAuthentication(Authentication):
         signature = hmac.new(api_secret, raw, hashlib.sha1).hexdigest()
         return 'SNAP key="{0}",signature="{1}",nonce="{2}",timestamp="{3}"'.format(api_key, signature, snap_nonce, snap_timestamp)
 
+    @staticmethod
+    def sign_request(request, api_key, api_secret):
+        request.META['HTTP_AUTHORIZATION'] = DatabaseAuthentication.create_signature(api_key, api_secret, request.method, request.path)
+        return request
+
     def is_authenticated(self, request, **kwargs):
         # check for the environment variable to skip auth
         if os.environ.get('SNAP_AUTHENTICATION', 'true').lower()[0] == 'f':
