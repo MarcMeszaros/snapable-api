@@ -23,15 +23,16 @@ import data.models
 
 from api.models import ApiKey
 
-def isAuthorizedApiVersion(request):
+def apiAuthorizationChecks(request):
     auth_params = api.auth.get_auth_params(request)
     api_key = ApiKey.objects.get(key=auth_params['key'])
     version = request.META['PATH_INFO'].strip('/').split('/')[0]
 
-    if version == str(api_key.version) and api_key.enabled:
-        return True
-    else:
-        return False
+    if api_key.enabled == False:
+        raise Unauthorized('This API key is unauthorized.')
+
+    if version != str(api_key.version):
+        raise Unauthorized('Not authorized to access this API.')
 
 def matching_api_account(first, second):
     if first == second:
@@ -106,25 +107,16 @@ class DatabaseAuthorization(Authorization):
 
     def create_detail(self, object_list, bundle):
         # check if authorized to access the API
-        if not isAuthorizedApiVersion(bundle.request):
-            raise Unauthorized('Not authorized to access API.')
-
-        # get the API key
-        api_key = DatabaseAuthentication().get_identifier(bundle.request)
-        if api_key.enabled == False:
-            raise Unauthorized('This API key is unauthorized.')
+        apiAuthorizationChecks(bundle.request)
 
         return True
 
     def read_list(self, object_list, bundle):
         # check if authorized to access the API
-        if not isAuthorizedApiVersion(bundle.request):
-            raise Unauthorized('Not authorized to access API.')
+        apiAuthorizationChecks(bundle.request)
 
         # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
-        if api_key.enabled == False:
-            raise Unauthorized('This API key is unauthorized.')
 
         # private API account, allowed to access all objects
         if api_key.version[:7] == 'private':
@@ -152,13 +144,10 @@ class DatabaseAuthorization(Authorization):
             return True
 
         # check if authorized to access the API
-        if not isAuthorizedApiVersion(bundle.request):
-            raise Unauthorized('Not authorized to access API.')
+        apiAuthorizationChecks(bundle.request)
 
         # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
-        if api_key.enabled == False:
-            raise Unauthorized('This API key is unauthorized.')
 
         # private API account, allowed to access all objects
         if api_key.version[:7] == 'private':
@@ -188,13 +177,10 @@ class DatabaseAuthorization(Authorization):
 
     def update_detail(self, object_list, bundle):
         # check if authorized to access the API
-        if not isAuthorizedApiVersion(bundle.request):
-            raise Unauthorized('Not authorized to access API.')
+        apiAuthorizationChecks(bundle.request)
 
         # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
-        if api_key.enabled == False:
-            raise Unauthorized('This API key is unauthorized.')
 
         # private API account, allowed to access all objects
         if api_key.version[:7] == 'private':
@@ -224,13 +210,10 @@ class DatabaseAuthorization(Authorization):
 
     def delete_detail(self, object_list, bundle):
         # check if authorized to access the API
-        if not isAuthorizedApiVersion(bundle.request):
-            raise Unauthorized('Not authorized to access API.')
+        apiAuthorizationChecks(bundle.request)
 
         # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
-        if api_key.enabled == False:
-            raise Unauthorized('This API key is unauthorized.')
 
         # private API account, allowed to access all objects
         if api_key.version[:7] == 'private':
