@@ -2,11 +2,11 @@
 from tastypie.test import ResourceTestCase
 
 # snapable
-from api.auth.server import ServerAuthentication
+from api.auth import DatabaseAuthentication
 from data.models import Guest
 
 class Private_v1__GuestResourceTest(ResourceTestCase):
-    fixtures = ['packages.json', 'accounts_and_users.json', 'events.json', 'photos.json', 'guests.json']
+    fixtures = ['packages.json', 'api_accounts_and_keys.json', 'accounts_and_users.json', 'events.json', 'photos.json', 'guests.json']
 
     def setUp(self):
         super(Private_v1__GuestResourceTest, self).setUp()
@@ -16,7 +16,7 @@ class Private_v1__GuestResourceTest(ResourceTestCase):
         # Fetch the ``Guest`` object we'll use in testing.
         # Note that we aren't using PKs because they can change depending
         # on what other tests are running.
-        self.guest_1 = Guest.objects.get()
+        self.guest_1 = Guest.objects.all()[0]
 
         self.post_data = {
             'event': '/private_v1/event/1/',
@@ -24,7 +24,7 @@ class Private_v1__GuestResourceTest(ResourceTestCase):
         }
 
     def get_credentials(self, method, uri):
-        return ServerAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
+        return DatabaseAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
 
     def test_get_guest(self):
         uri = '/private_v1/guest/{0}/'.format(self.guest_1.pk)
