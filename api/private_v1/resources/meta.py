@@ -10,7 +10,7 @@ class BaseMeta(object):
     list_allowed_methods = ['get']
     detail_allowed_methods = ['get']
     always_return_data = True
-    authentication = api.auth.ServerAuthentication()
+    authentication = api.auth.DatabaseAuthentication()
     authorization = api.auth.ServerAuthorization()
     serializer = SnapSerializer(formats=['json', 'jpeg'])
 

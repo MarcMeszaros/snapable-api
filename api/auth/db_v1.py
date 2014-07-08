@@ -49,7 +49,7 @@ class DatabaseAuthentication(Authentication):
         snap_timestamp = time.strftime('%s', time.localtime())
         raw = api_key + method + uri + snap_nonce + snap_timestamp
         signature = hmac.new(api_secret, raw, hashlib.sha1).hexdigest()
-        return 'SNAP key="'+api_key+'",signature="'+signature+'",nonce="'+snap_nonce+'",timestamp="'+snap_timestamp+'"'
+        return 'SNAP key="{0}",signature="{1}",nonce="{2}",timestamp="{3}"'.format(api_key, signature, snap_nonce, snap_timestamp)
 
     def is_authenticated(self, request, **kwargs):
         # check for the environment variable to skip auth
@@ -76,10 +76,8 @@ class DatabaseAuthentication(Authentication):
             x_snap_nonce = auth_params['nonce']
             x_snap_timestamp = auth_params['timestamp']
 
-            # create the raw string to hash
+            # create the raw string to hash and calculate hashed value
             raw = key + request_method + request_path + x_snap_nonce + x_snap_timestamp
-
-            # calculate the hash
             hashed = hmac.new(secret, raw, hashlib.sha1)
 
             # calculate time differences
