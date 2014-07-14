@@ -28,7 +28,7 @@ def apiAuthorizationChecks(request):
     api_key = ApiKey.objects.get(key=auth_params['key'])
     version = request.META['PATH_INFO'].strip('/').split('/')[0]
 
-    if api_key.enabled == False:
+    if api_key.is_enabled == False:
         raise Unauthorized('This API key is unauthorized.')
 
     if version != str(api_key.version) and version != 'control_tower':

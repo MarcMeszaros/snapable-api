@@ -34,8 +34,8 @@ class ApiKey(models.Model):
     key = models.CharField(max_length=255, unique=True, db_index=True, help_text='The API key.')
     secret = models.CharField(max_length=255, help_text='The API key secret.')
     version = models.CharField(max_length=25, choices=API_CHOICES, help_text='The API version that the key has access to.')
-    created = models.DateTimeField(auto_now_add=True, help_text='When the API key was created. (UTC)')
-    enabled = models.BooleanField(default=True, help_text='If the API key is enabled.')
+    created_at = models.DateTimeField(auto_now_add=True, help_text='When the API key was created. (UTC)')
+    is_enabled = models.BooleanField(default=True, help_text='If the API key is enabled.')
 
     # permission mask flags
     permission_mask = BitField(flags=(
@@ -51,8 +51,8 @@ class ApiKey(models.Model):
     def __repr__(self):
         return str({
             'account': self.account,
-            'created': self.created,
-            'enabled': self.enabled,
+            'created_at': self.created_at,
+            'is_enabled': self.is_enabled,
             'key': self.key,
             'pk': self.pk,
             'secret': self.secret,
@@ -80,8 +80,8 @@ class ApiKey(models.Model):
         return hashlib.sha256(uuid.uuid4().hex).hexdigest()
 
 class ApiKeyAdmin(admin.ModelAdmin):
-    list_display = ['id', 'key', 'secret', 'version', 'enabled', 'created']
-    readonly_fields = ['id', 'created']
+    list_display = ['id', 'key', 'secret', 'version', 'is_enabled', 'created_at']
+    readonly_fields = ['id', 'created_at']
     search_fields = ['key', 'secret']
     formfield_overrides = {
         BitField: {'widget': BitFieldCheckboxSelectMultiple},
@@ -91,9 +91,9 @@ class ApiKeyAdmin(admin.ModelAdmin):
             'fields': (
                 'id',
                 ('key', 'secret'),
-                ('version', 'enabled'),
+                ('version', 'is_enabled'),
                 'permission_mask',
-                'created',
+                'created_at',
             ),
         }),
         ('Ownership', {
