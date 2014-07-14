@@ -58,9 +58,9 @@ class AccountAdminDetails(object):
         return ','.join([u.email for u in obj.users.all()])
 
 # add the direct admin model
-from accountuser import AccountUserAdminInline
-from event import EventAdminInline
-from order import OrderAdminInline
+from .accountuser import AccountUserAdminInline
+from .event import EventAdminInline
+from .order import OrderAdminInline
 class AccountAdmin(AccountAdminDetails, admin.ModelAdmin):
     inlines = [AccountUserAdminInline, EventAdminInline, OrderAdminInline]
 

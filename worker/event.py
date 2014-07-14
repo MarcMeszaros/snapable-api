@@ -53,7 +53,7 @@ def create_album_zip(event_id):
             photo = Photo.objects.get(pk=photo_id)
             photo.get_image().img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
         except AttributeError as e:
-            Log.e('missing attribute')
+            Log.w('Missing attribute on photo object')
 
     # create and upload the zip file
     zip_path = shutil.make_archive('{0}/{1}'.format(tempfile.tempdir, event.uuid), 'zip', tempdir)

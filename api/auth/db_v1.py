@@ -23,15 +23,16 @@ import data.models
 
 from api.models import ApiKey
 
-def isAuthorizedApiVersion(request):
+def apiAuthorizationChecks(request):
     auth_params = api.auth.get_auth_params(request)
     api_key = ApiKey.objects.get(key=auth_params['key'])
     version = request.META['PATH_INFO'].strip('/').split('/')[0]
 
-    if version == str(api_key.version) and api_key.enabled:
-        return True
-    else:
-        return False
+    if api_key.enabled == False:
+        raise Unauthorized('This API key is unauthorized.')
+
+    if version != str(api_key.version) and version != 'control_tower':
+        raise Unauthorized('Not authorized to access this API.')
 
 def matching_api_account(first, second):
     if first == second:
@@ -48,7 +49,12 @@ class DatabaseAuthentication(Authentication):
         snap_timestamp = time.strftime('%s', time.localtime())
         raw = api_key + method + uri + snap_nonce + snap_timestamp
         signature = hmac.new(api_secret, raw, hashlib.sha1).hexdigest()
-        return 'SNAP key="'+api_key+'",signature="'+signature+'",nonce="'+snap_nonce+'",timestamp="'+snap_timestamp+'"'
+        return 'SNAP key="{0}",signature="{1}",nonce="{2}",timestamp="{3}"'.format(api_key, signature, snap_nonce, snap_timestamp)
+
+    @staticmethod
+    def sign_request(request, api_key, api_secret):
+        request.META['HTTP_AUTHORIZATION'] = DatabaseAuthentication.create_signature(api_key, api_secret, request.method, request.path)
+        return request
 
     def is_authenticated(self, request, **kwargs):
         # check for the environment variable to skip auth
@@ -75,10 +81,8 @@ class DatabaseAuthentication(Authentication):
             x_snap_nonce = auth_params['nonce']
             x_snap_timestamp = auth_params['timestamp']
 
-            # create the raw string to hash
+            # create the raw string to hash and calculate hashed value
             raw = key + request_method + request_path + x_snap_nonce + x_snap_timestamp
-
-            # calculate the hash
             hashed = hmac.new(secret, raw, hashlib.sha1)
 
             # calculate time differences
@@ -106,25 +110,20 @@ class DatabaseAuthorization(Authorization):
 
     def create_detail(self, object_list, bundle):
         # check if authorized to access the API
-        if not isAuthorizedApiVersion(bundle.request):
-            raise Unauthorized('Not authorized to access API.')
-
-        # get the API key
-        api_key = DatabaseAuthentication().get_identifier(bundle.request)
-        if api_key.enabled == False:
-            raise Unauthorized('This API key is unauthorized.')
+        apiAuthorizationChecks(bundle.request)
 
         return True
 
     def read_list(self, object_list, bundle):
         # check if authorized to access the API
-        if not isAuthorizedApiVersion(bundle.request):
-            raise Unauthorized('Not authorized to access API.')
+        apiAuthorizationChecks(bundle.request)
 
         # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
-        if api_key.enabled == False:
-            raise Unauthorized('This API key is unauthorized.')
+
+        # private API account, allowed to access all objects
+        if api_key.version[:7] == 'private':
+            return object_list
 
         # filter objects as required
         if isinstance(object_list[0], data.models.Account):
@@ -144,17 +143,18 @@ class DatabaseAuthorization(Authorization):
 
     def read_detail(self, object_list, bundle):
         # allow schema to be read
-        if bundle.request.path.split('/')[-2] == 'schema':
+        if 'schema' in bundle.request.path and bundle.request.path.split('/')[-2] == 'schema':
             return True
 
         # check if authorized to access the API
-        if not isAuthorizedApiVersion(bundle.request):
-            raise Unauthorized('Not authorized to access API.')
+        apiAuthorizationChecks(bundle.request)
 
         # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
-        if api_key.enabled == False:
-            raise Unauthorized('This API key is unauthorized.')
+
+        # private API account, allowed to access all objects
+        if api_key.version[:7] == 'private':
+            return True
 
         # filter objects as required
         if isinstance(bundle.obj, data.models.Account):
@@ -180,13 +180,14 @@ class DatabaseAuthorization(Authorization):
 
     def update_detail(self, object_list, bundle):
         # check if authorized to access the API
-        if not isAuthorizedApiVersion(bundle.request):
-            raise Unauthorized('Not authorized to access API.')
+        apiAuthorizationChecks(bundle.request)
 
         # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
-        if api_key.enabled == False:
-            raise Unauthorized('This API key is unauthorized.')
+
+        # private API account, allowed to access all objects
+        if api_key.version[:7] == 'private':
+            return True
 
         # filter objects as required
         if isinstance(bundle.obj, data.models.Account):
@@ -212,13 +213,14 @@ class DatabaseAuthorization(Authorization):
 
     def delete_detail(self, object_list, bundle):
         # check if authorized to access the API
-        if not isAuthorizedApiVersion(bundle.request):
-            raise Unauthorized('Not authorized to access API.')
+        apiAuthorizationChecks(bundle.request)
 
         # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
-        if api_key.enabled == False:
-            raise Unauthorized('This API key is unauthorized.')
+
+        # private API account, allowed to access all objects
+        if api_key.version[:7] == 'private':
+           return True
 
         # filter objects as required
         if isinstance(bundle.obj, data.models.Account):

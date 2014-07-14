@@ -7,15 +7,14 @@ from django.conf import settings
 from tastypie.test import ResourceTestCase
 
 # snapable
-from api.auth.server import ServerAuthentication
+from api.auth import DatabaseAuthentication
 from data.models import Order
 
 class Private_v1__OrderResourceTest(ResourceTestCase):
-    fixtures = ['packages.json', 'accounts_and_users.json', 'events.json', 'photos.json', 'orders.json']
+    fixtures = ['packages.json', 'api_accounts_and_keys.json', 'accounts_and_users.json', 'events.json', 'photos.json', 'orders.json']
 
     def setUp(self):
         super(Private_v1__OrderResourceTest, self).setUp()
-        # we need a custom serializer for multipart uploads
         self.api_key = 'key123'
         self.api_secret = 'sec123'
 
@@ -53,7 +52,7 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
         }
 
     def get_credentials(self, method, uri):
-        return ServerAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
+        return DatabaseAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
 
     def test_post_order(self):
         uri = '/private_v1/order/'

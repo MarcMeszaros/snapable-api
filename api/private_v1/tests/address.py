@@ -2,11 +2,11 @@
 from tastypie.test import ResourceTestCase
 
 # snapable
-from api.auth.server import ServerAuthentication
+from api.auth import DatabaseAuthentication
 from data.models import Location
 
 class Private_v1__AddressResourceTest(ResourceTestCase):
-    fixtures = ['packages.json', 'accounts_and_users.json', 'events.json', 'guests.json']
+    fixtures = ['packages.json', 'api_accounts_and_keys.json', 'accounts_and_users.json', 'events.json', 'guests.json']
 
     def setUp(self):
         super(Private_v1__AddressResourceTest, self).setUp()
@@ -26,7 +26,7 @@ class Private_v1__AddressResourceTest(ResourceTestCase):
         }
 
     def get_credentials(self, method, uri):
-        return ServerAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
+        return DatabaseAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
 
     def test_get_addresses(self):
         uri = '/private_v1/address/'

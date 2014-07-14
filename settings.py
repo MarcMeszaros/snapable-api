@@ -74,8 +74,8 @@ USE_L10N = True
 USE_TZ = True
 
 # custom import for mysql
-#import pymysql
-#pymysql.install_as_MySQLdb()
+import pymysql
+pymysql.install_as_MySQLdb()
 
 DATABASES = {
     'default': {
@@ -261,8 +261,7 @@ except Exception as e:
 import stripe
 stripe.api_key = STRIPE_KEY_SECRET
 
-# set debug defaults
-if DEBUG:
-    APIKEY = {
-        'key123': 'sec123',
-    }
+# set API keys for AJAX
+APIKEY = {
+    'key123': 'sec123',
+}

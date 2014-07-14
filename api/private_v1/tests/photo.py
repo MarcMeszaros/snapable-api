@@ -7,11 +7,11 @@ from django.conf import settings
 from tastypie.test import ResourceTestCase, TestApiClient
 
 # snapable
-from api.auth.server import ServerAuthentication
+from api.auth import DatabaseAuthentication
 from api.utils.serializers import MultipartSerializer
 
 class Private_v1__PhotoResourceTest(ResourceTestCase):
-    fixtures = ['packages.json', 'accounts_and_users.json', 'events.json', 'photos.json']
+    fixtures = ['packages.json','api_accounts_and_keys.json', 'accounts_and_users.json', 'events.json', 'photos.json']
 
     def setUp(self):
         super(Private_v1__PhotoResourceTest, self).setUp()
@@ -36,7 +36,7 @@ class Private_v1__PhotoResourceTest(ResourceTestCase):
         }
 
     def get_credentials(self, method, uri):
-        return ServerAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
+        return DatabaseAuthentication.create_signature(self.api_key, self.api_secret, method, uri)
 
     def test_post_photo(self):
         uri = '/private_v1/photo/'

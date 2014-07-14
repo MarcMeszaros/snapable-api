@@ -2,7 +2,7 @@
 from tastypie.test import ResourceTestCase
 
 # snapable
-from api.auth.db_v1 import DatabaseAuthentication
+from api.auth import DatabaseAuthentication
 from api.models import ApiAccount
 from data.models import Guest
 
@@ -11,8 +11,8 @@ class Partner_v1__GuestResourceTest(ResourceTestCase):
 
     def setUp(self):
         super(Partner_v1__GuestResourceTest, self).setUp()
-        self.api_key = 'key123'
-        self.api_secret = 'sec123'
+        self.api_key = 'key123_partner'
+        self.api_secret = 'sec123_partner'
 
         self.api_account_1 = ApiAccount.objects.all()[0]
         self.guests = Guest.objects.filter(event__account__api_account=self.api_account_1)

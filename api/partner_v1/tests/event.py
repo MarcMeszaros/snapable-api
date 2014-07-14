@@ -5,7 +5,7 @@ import time
 from tastypie.test import ResourceTestCase
 
 # snapable
-from api.auth.db_v1 import DatabaseAuthentication
+from api.auth import DatabaseAuthentication
 from api.models import ApiAccount
 from data.models import Account, Event
 
@@ -14,8 +14,8 @@ class Partner_v1__EventResourceTest(ResourceTestCase):
 
     def setUp(self):
         super(Partner_v1__EventResourceTest, self).setUp()
-        self.api_key = 'key123'
-        self.api_secret = 'sec123'
+        self.api_key = 'key123_partner'
+        self.api_secret = 'sec123_partner'
 
         self.api_account_1 = ApiAccount.objects.all()[0]
         self.accounts = self.api_account_1.account_set.all()

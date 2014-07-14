@@ -11,8 +11,8 @@ class Partner_v1__AccountResourceTest(ResourceTestCase):
 
     def setUp(self):
         super(Partner_v1__AccountResourceTest, self).setUp()
-        self.api_key = 'key123'
-        self.api_secret = 'sec123'
+        self.api_key = 'key123_partner'
+        self.api_secret = 'sec123_partner'
 
         self.api_account_1 = ApiAccount.objects.all()[0]
         self.accounts = Account.objects.filter(api_account=self.api_account_1)
