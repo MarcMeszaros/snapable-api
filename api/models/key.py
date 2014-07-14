@@ -3,6 +3,8 @@ import hashlib
 import uuid
 
 # django/tastypie/libs
+from bitfield import BitField
+from bitfield.forms import BitFieldCheckboxSelectMultiple
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -34,6 +36,14 @@ class ApiKey(models.Model):
     version = models.CharField(max_length=25, choices=API_CHOICES, help_text='The API version that the key has access to.')
     created = models.DateTimeField(auto_now_add=True, help_text='When the API key was created. (UTC)')
     enabled = models.BooleanField(default=True, help_text='If the API key is enabled.')
+
+    # permission mask flags
+    permission_mask = BitField(flags=(
+        ('read', 'Read'),
+        ('write', 'Write'),
+    ),
+    default=['read', 'write'],
+    help_text='What permissions this API key has on data in the system.')
 
     def __str__(self):
         return '{0} ({1})'.format(self.key, self.account.company)
@@ -73,14 +83,16 @@ class ApiKeyAdmin(admin.ModelAdmin):
     list_display = ['id', 'key', 'secret', 'version', 'enabled', 'created']
     readonly_fields = ['id', 'created']
     search_fields = ['key', 'secret']
+    formfield_overrides = {
+        BitField: {'widget': BitFieldCheckboxSelectMultiple},
+    }
     fieldsets = (
         (None, {
             'fields': (
                 'id',
-                'key', 
-                'secret',
-                'version',
-                'enabled',
+                ('key', 'secret'),
+                ('version', 'enabled'),
+                'permission_mask',
                 'created',
             ),
         }),

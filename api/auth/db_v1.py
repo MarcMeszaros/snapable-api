@@ -103,23 +103,30 @@ class DatabaseAuthentication(Authentication):
 
     # Optional but recommended
     def get_identifier(self, request):
+        # check for the environment variable to skip auth
         auth_params = api.auth.get_auth_params(request)
         return ApiKey.objects.get(key=auth_params['key'])
 
 class DatabaseAuthorization(Authorization):
 
     def create_detail(self, object_list, bundle):
-        # check if authorized to access the API
+        # check if authorized to access the API and get the API key
         apiAuthorizationChecks(bundle.request)
+        api_key = DatabaseAuthentication().get_identifier(bundle.request)
 
-        return True
+        if api_key.permission_mask.write:
+            return True
+        else:
+            raise Unauthorized('Not authorized to create resource.')
 
     def read_list(self, object_list, bundle):
-        # check if authorized to access the API
+        # check if authorized to access the API and get the API key
         apiAuthorizationChecks(bundle.request)
-
-        # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
+
+        # no read permission, return empty list
+        if not api_key.permission_mask.read:
+            raise Unauthorized('Not authorized to read resource.')
 
         # private API account, allowed to access all objects
         if api_key.version[:7] == 'private':
@@ -146,11 +153,13 @@ class DatabaseAuthorization(Authorization):
         if 'schema' in bundle.request.path and bundle.request.path.split('/')[-2] == 'schema':
             return True
 
-        # check if authorized to access the API
+        # check if authorized to access the API and get the API key
         apiAuthorizationChecks(bundle.request)
-
-        # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
+
+        # no read permission, return false
+        if not api_key.permission_mask.read:
+            raise Unauthorized('Not authorized to read resource.')
 
         # private API account, allowed to access all objects
         if api_key.version[:7] == 'private':
@@ -176,14 +185,16 @@ class DatabaseAuthorization(Authorization):
             raise Unauthorized('Not authorized to access resource.')
 
     def update_list(self, object_list, bundle):
-        return [] # No update of lists
+        raise Unauthorized('Bulk updates are not permitted.') # No update of lists
 
     def update_detail(self, object_list, bundle):
-        # check if authorized to access the API
+        # check if authorized to access the API and get the API key
         apiAuthorizationChecks(bundle.request)
-
-        # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
+
+        # no write permission, return false
+        if not api_key.permission_mask.write:
+            raise Unauthorized('Not authorized to update resource.')
 
         # private API account, allowed to access all objects
         if api_key.version[:7] == 'private':
@@ -209,14 +220,16 @@ class DatabaseAuthorization(Authorization):
             raise Unauthorized('Not authorized to access resource.')
 
     def delete_list(self, object_list, bundle):
-        return [] # No delete of lists
+        raise Unauthorized('Bulk deletes are not permitted.') # No delete of lists
 
     def delete_detail(self, object_list, bundle):
-        # check if authorized to access the API
+        # check if authorized to access the API and get the API key
         apiAuthorizationChecks(bundle.request)
-
-        # get the API key
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
+
+        # no write permission, return false
+        if not api_key.permission_mask.write:
+            raise Unauthorized('Not authorized to delete resource.')
 
         # private API account, allowed to access all objects
         if api_key.version[:7] == 'private':
