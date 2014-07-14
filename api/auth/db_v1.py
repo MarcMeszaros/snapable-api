@@ -31,7 +31,7 @@ def apiAuthorizationChecks(request):
     if api_key.enabled == False:
         raise Unauthorized('This API key is unauthorized.')
 
-    if version != str(api_key.version):
+    if version != str(api_key.version) and version != 'control_tower':
         raise Unauthorized('Not authorized to access this API.')
 
 def matching_api_account(first, second):
