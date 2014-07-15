@@ -10,7 +10,6 @@ from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
 import admin
-from api.models import ApiAccount
 
 @python_2_unicode_compatible
 class ApiKey(models.Model):
@@ -28,7 +27,7 @@ class ApiKey(models.Model):
     )
 
     # relations
-    account = models.ForeignKey(ApiAccount)
+    account = models.ForeignKey('ApiAccount')
 
     # regular fields
     key = models.CharField(max_length=255, unique=True, db_index=True, help_text='The API key.')
@@ -79,10 +78,16 @@ class ApiKey(models.Model):
     def generate_secret():
         return hashlib.sha256(uuid.uuid4().hex).hexdigest()
 
-class ApiKeyAdmin(admin.ModelAdmin):
+#===== Admin =====#
+# base details for direct and inline admin models
+class ApiKeyAdminDetails(object):
     list_display = ['id', 'key', 'secret', 'version', 'is_enabled', 'created_at']
     readonly_fields = ['id', 'created_at']
     search_fields = ['key', 'secret']
+    raw_id_fields = ['account']
+    related_lookup_fields = {
+        'fk': ['account', 'cover'],
+    }
     formfield_overrides = {
         BitField: {'widget': BitFieldCheckboxSelectMultiple},
     }
@@ -104,5 +109,12 @@ class ApiKeyAdmin(admin.ModelAdmin):
         }),
     )
 
+class ApiKeyAdmin(ApiKeyAdminDetails, admin.ModelAdmin):
+    pass
+
 admin.site.register(ApiKey, ApiKeyAdmin)
+
+# add the inline admin model
+class ApiKeyAdminInline(ApiKeyAdminDetails, admin.StackedInline):
+    model = ApiKey
 

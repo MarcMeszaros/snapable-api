@@ -27,7 +27,11 @@ class ApiAccount(models.Model):
             'pk': self.pk,
         })
 
+#===== Admin =====#
+from .key import ApiKeyAdminInline
 class ApiAccountAdmin(admin.ModelAdmin):
+    inlines = [ApiKeyAdminInline]
+
     list_display = ['id', 'email', 'company', 'created_at']
     readonly_fields = ['id', 'created_at']
     search_fields = ['email', 'company']
