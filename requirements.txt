@@ -12,6 +12,8 @@ celery[redis]==3.1.12                                       # python 3
 django-grappelli>=2.5.3                                     # python 3
 jsonfield>=0.9.20,<0.10                                     # python 3
 django-uuidfield>=0.5.0                                     # python 3
+#django-bitfield>=1.7.0                                      # python 3
+git+https://github.com/habfast/django-bitfield.git@patch-1#egg=django-bitfield
 setproctitle>=1.1.8                                         # python 3
 pytz>=2014.3                                                # python 3
 #python-dateutil>=2.2                                        # python 3

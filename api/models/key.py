@@ -3,12 +3,13 @@ import hashlib
 import uuid
 
 # django/tastypie/libs
+from bitfield import BitField
+from bitfield.forms import BitFieldCheckboxSelectMultiple
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
 import admin
-from api.models import ApiAccount
 
 @python_2_unicode_compatible
 class ApiKey(models.Model):
@@ -26,14 +27,22 @@ class ApiKey(models.Model):
     )
 
     # relations
-    account = models.ForeignKey(ApiAccount)
+    account = models.ForeignKey('ApiAccount')
 
     # regular fields
     key = models.CharField(max_length=255, unique=True, db_index=True, help_text='The API key.')
     secret = models.CharField(max_length=255, help_text='The API key secret.')
     version = models.CharField(max_length=25, choices=API_CHOICES, help_text='The API version that the key has access to.')
-    created = models.DateTimeField(auto_now_add=True, help_text='When the API key was created. (UTC)')
-    enabled = models.BooleanField(default=True, help_text='If the API key is enabled.')
+    created_at = models.DateTimeField(auto_now_add=True, help_text='When the API key was created. (UTC)')
+    is_enabled = models.BooleanField(default=True, help_text='If the API key is enabled.')
+
+    # permission mask flags
+    permission_mask = BitField(flags=(
+        ('read', 'Read'),
+        ('write', 'Write'),
+    ),
+    default=['read', 'write'],
+    help_text='What permissions this API key has on data in the system.')
 
     def __str__(self):
         return '{0} ({1})'.format(self.key, self.account.company)
@@ -41,8 +50,8 @@ class ApiKey(models.Model):
     def __repr__(self):
         return str({
             'account': self.account,
-            'created': self.created,
-            'enabled': self.enabled,
+            'created_at': self.created_at,
+            'is_enabled': self.is_enabled,
             'key': self.key,
             'pk': self.pk,
             'secret': self.secret,
@@ -69,19 +78,27 @@ class ApiKey(models.Model):
     def generate_secret():
         return hashlib.sha256(uuid.uuid4().hex).hexdigest()
 
-class ApiKeyAdmin(admin.ModelAdmin):
-    list_display = ['id', 'key', 'secret', 'version', 'enabled', 'created']
-    readonly_fields = ['id', 'created']
+#===== Admin =====#
+# base details for direct and inline admin models
+class ApiKeyAdminDetails(object):
+    list_display = ['id', 'key', 'secret', 'version', 'is_enabled', 'created_at']
+    readonly_fields = ['id', 'created_at']
     search_fields = ['key', 'secret']
+    raw_id_fields = ['account']
+    related_lookup_fields = {
+        'fk': ['account', 'cover'],
+    }
+    formfield_overrides = {
+        BitField: {'widget': BitFieldCheckboxSelectMultiple},
+    }
     fieldsets = (
         (None, {
             'fields': (
                 'id',
-                'key', 
-                'secret',
-                'version',
-                'enabled',
-                'created',
+                ('key', 'secret'),
+                ('version', 'is_enabled'),
+                'permission_mask',
+                'created_at',
             ),
         }),
         ('Ownership', {
@@ -92,5 +109,12 @@ class ApiKeyAdmin(admin.ModelAdmin):
         }),
     )
 
+class ApiKeyAdmin(ApiKeyAdminDetails, admin.ModelAdmin):
+    pass
+
 admin.site.register(ApiKey, ApiKeyAdmin)
+
+# add the inline admin model
+class ApiKeyAdminInline(ApiKeyAdminDetails, admin.StackedInline):
+    model = ApiKey
 
