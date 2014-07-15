@@ -38,10 +38,12 @@ class ApiKey(models.Model):
 
     # permission mask flags
     permission_mask = BitField(flags=(
+        ('create', 'Create'),
         ('read', 'Read'),
-        ('write', 'Write'),
+        ('update', 'Update'),
+        ('delete', 'Delete'),
     ),
-    default=['read', 'write'],
+    default=['create', 'read', 'update', 'delete'],
     help_text='What permissions this API key has on data in the system.')
 
     def __str__(self):
@@ -117,4 +119,4 @@ admin.site.register(ApiKey, ApiKeyAdmin)
 # add the inline admin model
 class ApiKeyAdminInline(ApiKeyAdminDetails, admin.StackedInline):
     model = ApiKey
-
+    extra = 0
