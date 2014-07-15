@@ -114,7 +114,7 @@ class DatabaseAuthorization(Authorization):
         apiAuthorizationChecks(bundle.request)
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
 
-        if api_key.permission_mask.write:
+        if api_key.permission_mask.create:
             return True
         else:
             raise Unauthorized('Not authorized to create resource.')
@@ -192,8 +192,8 @@ class DatabaseAuthorization(Authorization):
         apiAuthorizationChecks(bundle.request)
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
 
-        # no write permission, return false
-        if not api_key.permission_mask.write:
+        # no update permission, return false
+        if not api_key.permission_mask.update:
             raise Unauthorized('Not authorized to update resource.')
 
         # private API account, allowed to access all objects
@@ -227,8 +227,8 @@ class DatabaseAuthorization(Authorization):
         apiAuthorizationChecks(bundle.request)
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
 
-        # no write permission, return false
-        if not api_key.permission_mask.write:
+        # no delete permission, return false
+        if not api_key.permission_mask.delete:
             raise Unauthorized('Not authorized to delete resource.')
 
         # private API account, allowed to access all objects
