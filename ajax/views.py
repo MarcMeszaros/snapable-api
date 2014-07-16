@@ -45,6 +45,22 @@ def total_signups(request, start=0, end=None):
     res = UserResource()
     return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
 
+def total_actives(request, start=0, end=None):
+    startdate = datetime.utcfromtimestamp(float(start))
+    enddate = datetime.utcnow()
+    if end is not None:
+        enddate = datetime.utcfromtimestamp(float(end))
+
+    kwargs = {
+        'last_login__gte': startdate.strftime('%Y-%m-%dT%H:%M:%SZ'),
+        'last_login__lte': enddate.strftime('%Y-%m-%dT%H:%M:%SZ'),
+    }
+
+    # sign the API request
+    key, secret = settings.APIKEY.items()[0]
+    res = UserResource()
+    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
+
 def past_events(request, start=0, end=None):
     startdate = datetime.utcfromtimestamp(float(start))
     enddate = datetime.utcnow()

@@ -13,6 +13,7 @@ $(document).ready(function(){
 // simple wrapper to call all the metric update functions
 function update_metrics() {
     metric_signups();
+    metric_actives();
     past_events();
     photos_count();
     upcoming_events();
@@ -28,6 +29,15 @@ function metric_signups() {
         $('#metric-signups .value').hide();
         $('#metric-signups .value').html(json.meta.total_count);
         $('#metric-signups .value').fadeIn();
+    });
+}
+
+function metric_actives() {
+    var start = get_unix_start();
+    $.getJSON('ajax/total_actives/'+start, function(json){
+        $('#metric-actives .value').hide();
+        $('#metric-actives .value').html(json.meta.total_count);
+        $('#metric-actives .value').fadeIn();
     });
 }
 
