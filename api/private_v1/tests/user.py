@@ -74,6 +74,7 @@ class Private_v1__UserResourceTest(ResourceTestCase):
             'email',
             'first_name',
             'last_name',
+            'last_login',
             'password_algorithm',
             'password_iterations',
             'password_salt',
@@ -98,6 +99,7 @@ class Private_v1__UserResourceTest(ResourceTestCase):
             'email',
             'first_name',
             'last_name',
+            'last_login',
             'resource_uri',
             'terms',
         ])
