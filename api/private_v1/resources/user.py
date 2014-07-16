@@ -1,5 +1,6 @@
 # python
 import re
+from datetime import datetime
 
 # django/tastypie/libs
 from django.conf.urls import url
@@ -32,7 +33,7 @@ class UserResource(BaseModelResource):
 
     class Meta(BaseMeta): # set Meta to the public API Meta
         queryset = User.objects.all()
-        fields = ['email', 'first_name', 'last_name', 'caption', 'streamable', 'created_at']
+        fields = ['email', 'first_name', 'last_name', 'caption', 'streamable', 'created_at', 'last_login']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         passwordreset_allowed_methods = ['get', 'post', 'patch']
@@ -41,6 +42,7 @@ class UserResource(BaseModelResource):
         filtering = {
             'created_at': ALL,
             'email': ALL,
+            'last_login': ALL,
         }
 
     def dehydrate(self, bundle):
@@ -143,6 +145,9 @@ class UserResource(BaseModelResource):
 
             # if the db password hash and the one in the header match, display the user details
             if pass_data['password_hash'] == user_details[1]:
+                # update the last login info, and save the user
+                user.last_login = datetime.utcnow()
+                user.save()
                 return self.dispatch('detail', request, **kwargs)
             else:
                 raise BadRequest('Invalid email/password hash combination in header x-SNAP-User')
