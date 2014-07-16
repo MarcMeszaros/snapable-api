@@ -128,8 +128,8 @@ class DatabaseAuthorization(Authorization):
         if not api_key.permission_mask.read:
             raise Unauthorized('Not authorized to read resource.')
 
-        # private API account, allowed to access all objects
-        if api_key.version[:7] == 'private':
+        # empty list or private API account, allowed to access all objects
+        if len(object_list) <= 0 or api_key.version[:7] == 'private':
             return object_list
 
         # filter objects as required
