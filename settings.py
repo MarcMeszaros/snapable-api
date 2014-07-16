@@ -250,6 +250,11 @@ CELERYBEAT_SCHEDULE = {
 ##### Admin #####
 GRAPPELLI_ADMIN_TITLE = 'Snapable'
 
+# set API keys for AJAX
+APIKEY = {
+    'key123': 'sec123',
+}
+
 #### Import Local Settings #####
 try:
     os.path.isfile(os.path.join(BASE_DIR, 'settings_local.py'))
@@ -260,8 +265,3 @@ except Exception as e:
 # setup stripe
 import stripe
 stripe.api_key = STRIPE_KEY_SECRET
-
-# set API keys for AJAX
-APIKEY = {
-    'key123': 'sec123',
-}
