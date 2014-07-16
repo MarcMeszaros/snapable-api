@@ -43,6 +43,11 @@ class Event(models.Model):
     are_photos_watermarked = models.BooleanField(default=False, help_text='Should a watermark be applied to non-original images.')
 
     # virtual properties #
+    # return the number of guests related to this event
+    @property
+    def guest_count(self):
+        return self.guest_set.count()
+
     # return the number of photos related to this event
     @property
     def photo_count(self):
@@ -168,7 +173,7 @@ class UpcomingEventListFilter(admin.SimpleListFilter):
 # base details for direct and inline admin models
 class EventAdminDetails(object):
     exclude = ['access_count', 'are_photos_watermarked']
-    list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'is_enabled', 'created_at']
+    list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'guest_count', 'is_enabled', 'created_at']
     list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
     readonly_fields = ['id', 'pin', 'created_at']
     search_fields = ['title', 'url']
