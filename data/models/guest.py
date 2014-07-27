@@ -16,7 +16,7 @@ class Guest(models.Model):
 
     name = models.CharField(max_length=255, help_text='The guest name.')
     email = models.CharField(max_length=255, help_text='The guest email address.')
-    invited = models.BooleanField(default=False, help_text='If the guest has been invited.')
+    is_invited = models.BooleanField(default=False, help_text='If the guest has been invited.')
     created_at = models.DateTimeField(auto_now_add=True, help_text='The guest timestamp.')
 
     # virtual properties #
@@ -33,13 +33,13 @@ class Guest(models.Model):
             'created_at': self.created_at,
             'email': self.email,
             'event': self.event,
-            'invited': self.invited,
+            'is_invited': self.is_invited,
             'name': self.name,
             'photo_count': self.photo_count,
         })
 
 class GuestAdmin(admin.ModelAdmin):
-    list_display = ['id', 'email', 'name', 'invited', 'created_at']
+    list_display = ['id', 'email', 'name', 'is_invited', 'created_at']
     readonly_fields = ['id', 'created_at', 'event']
     search_fields = ['email', 'name']
     fieldsets = (
@@ -48,7 +48,7 @@ class GuestAdmin(admin.ModelAdmin):
                 'id',
                 'email', 
                 'name',
-                'invited',
+                'is_invited',
                 'created_at',
             ),
         }),
