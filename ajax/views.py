@@ -25,6 +25,18 @@ def _event_photo_count_avg(start, end):
     else:
         return 0
 
+def _event_guest_count_avg(start, end):
+    events = Event.objects.filter(end_at__gte=start, end_at__lte=end)
+    guest_sum = 0
+    for event in events:
+        guest_sum += event.guest_count
+
+    # avoid division by 0
+    if len(events) > 0:
+        return float(guest_sum) / len(events)
+    else:
+        return 0
+
 ### Actual Functions ###
 def index(request):
     return HttpResponse("You're looking at ajax index.")
@@ -136,7 +148,8 @@ def metrics(request, start=0, end=None):
 
     response_data = {
         'metrics': {
-            'avg': _event_photo_count_avg(startdate, enddate),
+            'avg_photos_per_event': _event_photo_count_avg(startdate, enddate),
+            'avg_guests_per_event': _event_guest_count_avg(startdate, enddate),
             'orders': orders_metrics,
         }
     }
