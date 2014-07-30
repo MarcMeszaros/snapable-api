@@ -19,7 +19,7 @@ from uuidfield import UUIDField
 # snapable
 import settings
 
-from data.models import Event, Photo, AccountUser
+from data.models import AccountUser, Event, Guest, Photo 
 from utils import rackspace
 from utils.loggers import Log
 
@@ -87,3 +87,11 @@ def create_album_zip(event_id):
 
     # remove (expire) lock
     app.backend.expire('event:{0}:create_album_zip'.format(event_id), 30)
+
+@app.task
+def email_guests(event_id):
+    event = Event.objects.get(pk=event_id)
+    guests = event.guest_set.filter(is_invited=False)
+
+    for guest in guests:
+        guest.send_email()

@@ -112,6 +112,10 @@ class Event(models.Model):
         from worker import event
         event.create_album_zip.delay(self.pk)
 
+    def send_invites(self):
+        from worker import event
+        event.email_guests.delay(self.pk)
+
 #===== Admin =====#
 class UpcomingEventListFilter(admin.SimpleListFilter):
     title = 'Upcoming'
@@ -203,7 +207,7 @@ class EventAdminDetails(object):
 # base details for direct and inline admin models
 from location import LocationAdminInline
 class EventAdmin(EventAdminDetails, admin.ModelAdmin):
-    actions = ['create_event_photo_zip']
+    actions = ['create_event_photo_zip', 'send_event_invites']
     inlines = [LocationAdminInline]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -222,6 +226,11 @@ class EventAdmin(EventAdminDetails, admin.ModelAdmin):
         for event in queryset.iterator():
             event.create_zip()
         self.message_user(request, "Successfully scheduled zip archive creation.")
+
+    def send_event_invites(self, request, queryset):
+        for event in queryset.iterator():
+            event.send_invites()
+        self.message_user(request, "Successfully sent the event invites.")
 
 
 admin.site.register(Event, EventAdmin)
