@@ -85,6 +85,7 @@ class EventResource(BaseModelResource):
         return [
             url(r'^(?P<resource_name>%s)/search/$' % self._meta.resource_name, self.wrap_view('get_search'), name="api_get_search"),
             url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/zip/$' % self._meta.resource_name, self.wrap_view('dispatch_zip'), name="api_dispatch_zip"),
+            url(r'^(?P<resource_name>%s)/(?P<pk>\d+)/invites/$' % self._meta.resource_name, self.wrap_view('dispatch_invites'), name="api_dispatch_invites"),
         ]
 
     def get_search(self, request, **kwargs):
@@ -124,6 +125,9 @@ class EventResource(BaseModelResource):
 
     def dispatch_zip(self, request, **kwargs):
         return self.dispatch('zip', request, **kwargs)
+
+    def dispatch_invites(self, request, **kwargs):
+        return self.dispatch('invites', request, **kwargs)
 
     def post_zip(self, request, **kwargs):
         self.method_check(request, allowed=['post'])
@@ -173,6 +177,27 @@ class EventResource(BaseModelResource):
             return http.HttpNotFound()
         except pyrax.exceptions.NoSuchObject:
             return http.HttpNotFound()
+
+
+    def post_invites(self, request, **kwargs):
+        ### start copied from tasytpie ###
+        if django.VERSION >= (1, 4):
+            body = request.body
+        else:
+            body = request.raw_post_data
+        deserialized = self.deserialize(request, body, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        deserialized = self.alter_deserialized_detail_data(request, deserialized)
+        bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized), request=request)
+        ## start custom code ##
+        try:
+            event_obj = Event.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return http.HttpNotFound()
+        except MultipleObjectsReturned:
+            return http.HttpMultipleChoices("More than one resource is found at this URI.")
+        else:
+            event.email_guests.delay(kwargs['pk'], bundle.data['message'])
+            return http.HttpAccepted()
 
     def apply_filters(self, request, applicable_filters):
         # check if the filter is there
