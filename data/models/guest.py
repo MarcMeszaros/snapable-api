@@ -61,6 +61,11 @@ class Guest(models.Model):
         msg.attach_alternative(html_content, "text/html")
         msg.send()
 
+        # set the invited flag
+        self.is_invited = True
+        self.save()
+
+
 #===== Admin =====#
 # base details for direct and inline admin models
 class GuestAdminDetails(object):

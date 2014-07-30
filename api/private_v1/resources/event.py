@@ -66,6 +66,7 @@ class EventResource(BaseModelResource):
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         zip_allowed_methods = ['get','post']
+        invites_allowed_methods = ['post']
         ordering = ['start_at', 'end_at', 'start', 'end'] # DEPRECATED: start, end
         filtering = {
             'is_enabled': ['exact'],
