@@ -1,5 +1,8 @@
 # django/tastypie/libs
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
+from django.template.loader import get_template
+from django.template import Context
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
@@ -38,7 +41,29 @@ class Guest(models.Model):
             'photo_count': self.photo_count,
         })
 
-class GuestAdmin(admin.ModelAdmin):
+    def send_email(self, message=''):
+        # load in the templates
+        plaintext = get_template('guest_invite.txt')
+        html = get_template('guest_invite.html')
+
+        # setup the template context variables
+        d = Context({
+            'message': message,
+            'toname': self.name,
+            'fromname': self.event.account.users.all()[0].name,
+        })
+
+        # build the email
+        subject, from_email, to = 'At {0} use Snapable!'.format(self.event.title), 'robot@snapable.com', [self.email]
+        text_content = plaintext.render(d)
+        html_content = html.render(d)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+
+#===== Admin =====#
+# base details for direct and inline admin models
+class GuestAdminDetails(object):
     list_display = ['id', 'email', 'name', 'is_invited', 'created_at']
     readonly_fields = ['id', 'created_at', 'event']
     search_fields = ['email', 'name']
@@ -59,5 +84,13 @@ class GuestAdmin(admin.ModelAdmin):
             )
         }),
     )
+
+class GuestAdmin(GuestAdminDetails, admin.ModelAdmin):
+    actions = ['send_email_invite']
+
+    def send_email_invite(self, request, queryset):
+        for guest in queryset.iterator():
+            guest.send_email()
+        self.message_user(request, "Successfully sent email.")
 
 admin.site.register(Guest, GuestAdmin)
