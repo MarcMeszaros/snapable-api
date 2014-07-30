@@ -15,6 +15,7 @@ from django.core.paginator import Paginator, InvalidPage
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from tastypie import fields, http
+from tastypie.utils import dict_strip_unicode_keys
 from tastypie.resources import ALL
 
 # snapable
