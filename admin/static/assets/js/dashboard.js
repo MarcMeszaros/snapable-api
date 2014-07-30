@@ -82,8 +82,13 @@ function metrics() {
     $.getJSON('ajax/metrics/'+start, function(json){
         // average photo
         $('#metric-avg-event-photos .value').hide();
-        $('#metric-avg-event-photos .value').html(json.metrics.avg.toFixed(2));
+        $('#metric-avg-event-photos .value').html(json.metrics.avg_photos_per_event.toFixed(2));
         $('#metric-avg-event-photos .value').fadeIn();
+
+        // average guests
+        $('#metric-avg-event-guests .value').hide();
+        $('#metric-avg-event-guests .value').html(json.metrics.avg_guests_per_event.toFixed(2));
+        $('#metric-avg-event-guests .value').fadeIn();
 
         // revenue
         var net_revenue = json.metrics.orders.amount__sum - json.metrics.orders.amount_refunded__sum;
