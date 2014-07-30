@@ -112,9 +112,9 @@ class Event(models.Model):
         from worker import event
         event.create_album_zip.delay(self.pk)
 
-    def send_invites(self):
+    def send_invites(self, message=''):
         from worker import event
-        event.email_guests.delay(self.pk)
+        event.email_guests.delay(self.pk, message)
 
 #===== Admin =====#
 class UpcomingEventListFilter(admin.SimpleListFilter):

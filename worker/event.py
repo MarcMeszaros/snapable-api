@@ -89,9 +89,9 @@ def create_album_zip(event_id):
     app.backend.expire('event:{0}:create_album_zip'.format(event_id), 30)
 
 @app.task
-def email_guests(event_id):
+def email_guests(event_id, message=''):
     event = Event.objects.get(pk=event_id)
     guests = event.guest_set.filter(is_invited=False)
 
     for guest in guests:
-        guest.send_email()
+        guest.send_email(message)
