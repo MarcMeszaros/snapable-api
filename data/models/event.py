@@ -43,6 +43,11 @@ class Event(models.Model):
     are_photos_watermarked = models.BooleanField(default=False, help_text='Should a watermark be applied to non-original images.')
 
     # virtual properties #
+    # return the number of guests related to this event
+    @property
+    def guest_count(self):
+        return self.guest_set.count()
+
     # return the number of photos related to this event
     @property
     def photo_count(self):
@@ -107,6 +112,10 @@ class Event(models.Model):
         from worker import event
         event.create_album_zip.delay(self.pk)
 
+    def send_invites(self, message=''):
+        from worker import event
+        event.email_guests.delay(self.pk, message)
+
 #===== Admin =====#
 class UpcomingEventListFilter(admin.SimpleListFilter):
     title = 'Upcoming'
@@ -168,7 +177,7 @@ class UpcomingEventListFilter(admin.SimpleListFilter):
 # base details for direct and inline admin models
 class EventAdminDetails(object):
     exclude = ['access_count', 'are_photos_watermarked']
-    list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'is_enabled', 'created_at']
+    list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'guest_count', 'is_enabled', 'created_at']
     list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
     readonly_fields = ['id', 'pin', 'created_at']
     search_fields = ['title', 'url']
@@ -198,7 +207,7 @@ class EventAdminDetails(object):
 # base details for direct and inline admin models
 from location import LocationAdminInline
 class EventAdmin(EventAdminDetails, admin.ModelAdmin):
-    actions = ['create_event_photo_zip']
+    actions = ['create_event_photo_zip', 'send_event_invites']
     inlines = [LocationAdminInline]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -217,6 +226,11 @@ class EventAdmin(EventAdminDetails, admin.ModelAdmin):
         for event in queryset.iterator():
             event.create_zip()
         self.message_user(request, "Successfully scheduled zip archive creation.")
+
+    def send_event_invites(self, request, queryset):
+        for event in queryset.iterator():
+            event.send_invites()
+        self.message_user(request, "Successfully sent the event invites.")
 
 
 admin.site.register(Event, EventAdmin)

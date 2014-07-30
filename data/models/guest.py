@@ -1,5 +1,8 @@
 # django/tastypie/libs
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
+from django.template.loader import get_template
+from django.template import Context
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
@@ -16,7 +19,7 @@ class Guest(models.Model):
 
     name = models.CharField(max_length=255, help_text='The guest name.')
     email = models.CharField(max_length=255, help_text='The guest email address.')
-    invited = models.BooleanField(default=False, help_text='If the guest has been invited.')
+    is_invited = models.BooleanField(default=False, help_text='If the guest has been invited.')
     created_at = models.DateTimeField(auto_now_add=True, help_text='The guest timestamp.')
 
     # virtual properties #
@@ -33,13 +36,40 @@ class Guest(models.Model):
             'created_at': self.created_at,
             'email': self.email,
             'event': self.event,
-            'invited': self.invited,
+            'is_invited': self.is_invited,
             'name': self.name,
             'photo_count': self.photo_count,
         })
 
-class GuestAdmin(admin.ModelAdmin):
-    list_display = ['id', 'email', 'name', 'invited', 'created_at']
+    def send_email(self, message=''):
+        # load in the templates
+        plaintext = get_template('guest_invite.txt')
+        html = get_template('guest_invite.html')
+
+        # setup the template context variables
+        d = Context({
+            'message': message,
+            'toname': self.name,
+            'fromname': self.event.account.users.all()[0].name,
+        })
+
+        # build the email
+        subject, from_email, to = 'At {0} use Snapable!'.format(self.event.title), 'robot@snapable.com', [self.email]
+        text_content = plaintext.render(d)
+        html_content = html.render(d)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+
+        # set the invited flag
+        self.is_invited = True
+        self.save()
+
+
+#===== Admin =====#
+# base details for direct and inline admin models
+class GuestAdminDetails(object):
+    list_display = ['id', 'email', 'name', 'is_invited', 'created_at']
     readonly_fields = ['id', 'created_at', 'event']
     search_fields = ['email', 'name']
     fieldsets = (
@@ -48,7 +78,7 @@ class GuestAdmin(admin.ModelAdmin):
                 'id',
                 'email', 
                 'name',
-                'invited',
+                'is_invited',
                 'created_at',
             ),
         }),
@@ -59,5 +89,13 @@ class GuestAdmin(admin.ModelAdmin):
             )
         }),
     )
+
+class GuestAdmin(GuestAdminDetails, admin.ModelAdmin):
+    actions = ['send_email_invite']
+
+    def send_email_invite(self, request, queryset):
+        for guest in queryset.iterator():
+            guest.send_email()
+        self.message_user(request, "Successfully sent email.")
 
 admin.site.register(Guest, GuestAdmin)

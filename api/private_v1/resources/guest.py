@@ -10,14 +10,24 @@ class GuestResource(BaseModelResource):
 
     event = fields.ForeignKey('api.private_v1.resources.EventResource', 'event')
 
+    # DEPRECATED
+    # old "invited" flag (2014-07-16)
+    invited = fields.BooleanField(attribute='is_invited', default=False)
+
     class Meta(BaseMeta): # set Meta to the public API Meta
         queryset = Guest.objects.all()
-        fields = ['name', 'email', 'invited']
+        fields = [
+            'name', 'email', 'is_invited',
+            # DEPRECATED
+            'invited',
+        ]
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         filtering = {
             'event': ['exact'],
             'email': ALL,
+            'is_invited': ALL,
+            # DEPRECATED
             'invited': ALL,
         }
 

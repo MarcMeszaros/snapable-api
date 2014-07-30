@@ -1,21 +1,21 @@
 ## CORE (REQUIRED to be stable packages) ##
-gunicorn==19.0.0                                            # python 3
+gunicorn==19.1.0                                            # python 3
 Django==1.6.5                                               # python 3
 django-tastypie==0.11.1                                     # python 3
 PyMySQL==0.6.2                                              # python 3
-pyrax==1.8.1                                                # python 2 x
+pyrax==1.9.0                                                # python 2 x
 South==1.0                                                  # python 3
 Pillow==2.4.0                                               # python 3
-celery[redis]==3.1.12                                       # python 3
+celery[redis]==3.1.13                                       # python 3
 
 ## SECONDARY (SHOULD be stable packages) ##
 django-grappelli>=2.5.3                                     # python 3
-jsonfield>=0.9.20,<0.10                                     # python 3
+jsonfield>=0.9.22                                           # python 3
 django-uuidfield>=0.5.0                                     # python 3
 #django-bitfield>=1.7.0                                      # python 3
 git+https://github.com/habfast/django-bitfield.git@patch-1#egg=django-bitfield
 setproctitle>=1.1.8                                         # python 3
-pytz>=2014.3                                                # python 3
+pytz>=2014.4                                                # python 3
 #python-dateutil>=2.2                                        # python 3
 MonthDelta>=1.0b,<2.0                                       # python 3
 raven>=5.0.0                                                # python 3

@@ -1,0 +1,18 @@
+{% if toname %}
+{{ toname }}, \n\n
+{% endif %}
+
+{{ fromname }} has sent you this message:
+
+{% if message %}{{ message }}{% endif %}
+
+What is Snapable?
+
+By downloading the Snapable app, you can take photos at the event and share them 
+the organizer, allowing them and everyone at the event to get a full view of what 
+happened during the event and get the ones they like best printed to display with 
+pride.
+
+Find out more at http://snapable.com
+
+(c) 2014 Snapable. All rights reserved.
