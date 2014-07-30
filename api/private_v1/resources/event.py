@@ -182,7 +182,7 @@ class EventResource(BaseModelResource):
 
     def post_invites(self, request, **kwargs):
         ### start copied from tasytpie ###
-        body = request.raw_post_data
+        body = request.body
         deserialized = self.deserialize(request, body, format=request.META.get('CONTENT_TYPE', 'application/json'))
         deserialized = self.alter_deserialized_detail_data(request, deserialized)
         bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized), request=request)
