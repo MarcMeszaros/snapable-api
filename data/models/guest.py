@@ -102,11 +102,17 @@ class GuestAdminDetails(object):
 
 
 class GuestAdmin(GuestAdminDetails, admin.ModelAdmin):
-    actions = ['send_email_invite']
+    actions = ['send_email_invite', 'reset_email_invite_flag']
 
     def send_email_invite(self, request, queryset):
         for guest in queryset.iterator():
             guest.send_email()
+        self.message_user(request, "Successfully sent email.")
+
+    def reset_email_invite_flag(self, request, queryset):
+        for guest in queryset.iterator():
+            guest.is_invited = False
+            guest.save()
         self.message_user(request, "Successfully sent email.")
 
 admin.site.register(Guest, GuestAdmin)
