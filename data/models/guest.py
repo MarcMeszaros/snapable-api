@@ -69,9 +69,10 @@ class Guest(models.Model):
 #===== Admin =====#
 # base details for direct and inline admin models
 class GuestAdminDetails(object):
-    list_display = ['id', 'email', 'name', 'is_invited', 'created_at']
+    list_display = ['id', 'email', 'name', 'is_invited', 'created_at', 'event_id', 'event_title', 'event_url']
+    list_select_related = ['event']
     readonly_fields = ['id', 'created_at', 'event']
-    search_fields = ['email', 'name']
+    search_fields = ['email', 'name', '=event__pk', '^event__title', '^event__url']
     fieldsets = (
         (None, {
             'fields': (
@@ -89,6 +90,16 @@ class GuestAdminDetails(object):
             )
         }),
     )
+
+    def event_id(self, object):
+        return object.event.pk
+
+    def event_title(self, object):
+        return object.event.title
+
+    def event_url(self, object):
+        return object.event.url
+
 
 class GuestAdmin(GuestAdminDetails, admin.ModelAdmin):
     actions = ['send_email_invite']
