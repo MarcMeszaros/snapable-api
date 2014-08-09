@@ -26,7 +26,7 @@ class Photo(models.Model):
     guest = models.ForeignKey('Guest', null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The guest who took the photo.')
 
     caption = models.CharField(max_length=255, blank=True, help_text='The photo caption.')
-    streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
+    is_streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
     created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text='The photo timestamp.')
 
     def __str__(self):
@@ -37,7 +37,7 @@ class Photo(models.Model):
             'caption': self.caption,
             'created_at': self.created_at,
             'event': self.event,
-            'streamable': self.streamable,
+            'is_streamable': self.is_streamable,
         })
 
     # override built-in delete function
@@ -148,7 +148,7 @@ class Photo(models.Model):
 # base details for direct and inline admin models
 class PhotoAdminDetails(object):
     exclude = ['metrics']
-    list_display = ['id', 'event', 'caption', 'streamable', 'created_at']
+    list_display = ['id', 'event', 'caption', 'is_streamable', 'created_at']
     list_display_links = ['id', 'event']
     readonly_fields = ['id', 'event', 'created_at']
     search_fields = ['caption']
@@ -157,7 +157,7 @@ class PhotoAdminDetails(object):
             'fields': (
                 'id',
                 'caption',
-                'streamable',
+                'is_streamable',
                 'created_at',
             )
         }),

@@ -4,7 +4,7 @@
         "name": "Free",
         "short_name": "free",
         "amount": 0,
-        "enabled": true,
+        "is_enabled": true,
         "items": {
             "addons": [], 
             "features": ["guest_reminders", "slideshow", "table_cards"], 
@@ -20,7 +20,7 @@
         "name": "Standard", 
         "short_name": "standard", 
         "amount": 7900, 
-        "enabled": false, 
+        "is_enabled": false, 
         "items": {
             "features": ["guest_reminders", "storage_12months", "table_cards"],
             "addons": [],
@@ -37,7 +37,7 @@
         "name": "Standard", 
         "short_name": "standard", 
         "amount": 4900, 
-        "enabled": true, 
+        "is_enabled": true, 
         "items": {
             "features": ["guest_reminders", "storage_12months", "table_cards"],
             "addons": [],

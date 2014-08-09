@@ -58,10 +58,10 @@ class EventResource(BaseModelResource):
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         validation = EventValidation()
         filtering = {
-            'enabled': ['exact'],
+            'is_enabled': ['exact'],
             'account': ['exact'],
-            'start': ALL,
-            'end': ALL,
+            'start_at': ALL,
+            'end_at': ALL,
             'title': ALL,
             'url': ALL,
             'q': ['exact'],

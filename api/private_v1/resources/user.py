@@ -176,7 +176,7 @@ class UserResource(BaseModelResource):
     def get_passwordreset(self, request, **kwargs):
         resource_uri = '{0}{1}/passwordreset/'.format(self.get_resource_uri(), kwargs['pk'])
         user = User.objects.get(pk=kwargs['pk'])
-        objects = PasswordNonce.objects.filter(user=user.id, valid=True)
+        objects = PasswordNonce.objects.filter(user=user.id, is_valid=True)
 
         to_be_serialized = self.build_get_list(request, PasswordNonceResource(), objects, resource_uri=resource_uri)
 
@@ -254,8 +254,8 @@ class UserResource(BaseModelResource):
         if deserialized['nonce'] is not None and deserialized['password'] is not None:
 
             try:
-                passnonce = PasswordNonce.objects.get(user=bundle.obj, valid=True, nonce=deserialized['nonce'])
-                passnonce.valid = False # invalidate the nonce so it can't be used again
+                passnonce = PasswordNonce.objects.get(user=bundle.obj, is_valid=True, nonce=deserialized['nonce'])
+                passnonce.is_valid = False  # invalidate the nonce so it can't be used again
                 passnonce.save()
 
                 bundle.obj.set_password(deserialized['password'])
@@ -272,4 +272,3 @@ class UserResource(BaseModelResource):
 
         else:
             return self.create_response(request, bundle, response_class=http.HttpBadRequest)
-

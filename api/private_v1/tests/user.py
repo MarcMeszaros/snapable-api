@@ -5,6 +5,7 @@ from tastypie.test import ResourceTestCase
 from api.auth import DatabaseAuthentication
 from data.models import PasswordNonce, User
 
+
 class Private_v1__UserResourceTest(ResourceTestCase):
     fixtures = ['packages.json', 'api_accounts_and_keys.json', 'accounts_and_users.json', 'events.json', 'guests.json']
 
@@ -88,7 +89,7 @@ class Private_v1__UserResourceTest(ResourceTestCase):
 
         # make sure the resource was created
         self.assertHttpCreated(resp)
-        
+
         # test to make sure all the keys are in the response
         self.assertKeys(self.deserialize(resp), [
             'accounts',
@@ -113,7 +114,7 @@ class Private_v1__UserResourceTest(ResourceTestCase):
         # update the password
         put_uri = '/private_v1/user/{0}/passwordreset/'.format(user_before.pk)
         put_data = {
-            'nonce' : nonce.nonce,
+            'nonce': nonce.nonce,
             'password': 'my1337password',
         }
 

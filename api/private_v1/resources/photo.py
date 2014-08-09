@@ -27,15 +27,21 @@ class PhotoResource(api.utils.MultipartResource, BaseModelResource):
 
     created_at = fields.DateTimeField(attribute='created_at', readonly=True, help_text='The photo timestamp. (UTC)')
 
+    # DEPRECATED
+    # old "streamable" flag (2014-07-16)
+    streamable = fields.BooleanField(attribute='is_streamable', default=True)
+
     class Meta(BaseMeta): # set Meta to the public API Meta
         queryset = Photo.objects.all().order_by('-created_at')
-        fields = ['caption', 'streamable', 'created_at', 'metrics'];
+        fields = ['caption', 'is_streamable', 'created_at', 'metrics', 'streamable']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']
         filtering = {
             'event': ['exact'],
-            'streamable': ['exact'],
             'created_at': ALL,
+            'is_streamable': ['exact'],
+            # DEPRECATED
+            'streamable': ['exact'],
         }
 
     def dehydrate(self, bundle):
@@ -74,7 +80,7 @@ class PhotoResource(api.utils.MultipartResource, BaseModelResource):
         photo = bundle.obj
 
         # set the value of the event streamable value
-        photo.streamable = photo.event.are_photos_streamable
+        photo.is_streamable = photo.event.are_photos_streamable
         photo.save()
 
         # try and watermark

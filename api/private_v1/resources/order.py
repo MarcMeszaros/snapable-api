@@ -44,9 +44,13 @@ class OrderResource(BaseModelResource):
 
     amount = fields.IntegerField(attribute='amount', readonly=True, help_text='The amount of the order.')
 
+    # DEPRECATED
+    # old "paid" flag (2014-08-04)
+    paid = fields.BooleanField(attribute='is_paid', default=False)
+
     class Meta(BaseMeta):
         queryset = Order.objects.all()
-        fields = ['amount_refunded', 'created_at', 'charge_id', 'items', 'paid', 'coupon']
+        fields = ['amount_refunded', 'created_at', 'charge_id', 'items', 'is_paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
         account_allowed_methods = ['post']
