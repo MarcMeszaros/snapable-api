@@ -1,6 +1,7 @@
 # django/tastypie/libs
 from PIL import Image, ImageEnhance
 
+
 class SnapImage(object):
     """
     A helper class that wraps the PIL Image class with useful Snapable
@@ -9,7 +10,7 @@ class SnapImage(object):
 
     def __init__(self, image=None):
         # read the opject into the wrapper
-        if image != None :
+        if image is not None:
             self._img = image
             self._img.load()
         else:
@@ -34,7 +35,7 @@ class SnapImage(object):
             # The crop rectangle, as a (left, upper, right, lower)-tuple.
             self._img = self._img.crop(box=box)
 
-        except Exception as e:
+        except Exception:
             return False
 
     def crop_square(self):
@@ -46,10 +47,9 @@ class SnapImage(object):
         # y > x
         else:
             top = (self.size[1] - self.size[0]) / 2
-            crop_box = (0 , top, self.size[0], top + self.size[0])
+            crop_box = (0, top, self.size[0], top + self.size[0])
 
         return self.crop(box=crop_box)
-
 
     def resize(self, size):
         if self.rotate_upright():
@@ -57,7 +57,7 @@ class SnapImage(object):
                 # get the size param
                 self._img = self._img.resize(size, Image.ANTIALIAS)
                 return True
-            except Exception as e:
+            except Exception:
                 return False
 
     def rotate_upright(self):
@@ -73,7 +73,7 @@ class SnapImage(object):
                 self._img = self._img.rotate(90, expand=True)
 
             return True
-        except Exception as e:
+        except Exception:
             return False
 
     def watermark(self, watermark, opacity=0.75, resize=0.5, corner=2):
@@ -124,6 +124,5 @@ class SnapImage(object):
             self._img = Image.composite(layer, self._img, layer)
 
             return True
-        except Exception as e:
-            print e
+        except Exception:
             return False
