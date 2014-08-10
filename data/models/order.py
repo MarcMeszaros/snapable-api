@@ -73,16 +73,6 @@ class Order(models.Model):
     is_paid = models.BooleanField(default=False, help_text='If the order has been paid for.')
     coupon = models.CharField(max_length=255, null=True, default=None, choices=COUPON_CHOICES, help_text='The coupon code used in the order.')
 
-    @property
-    def paid(self):
-        Log.deprecated('Order.paid is deprecated, use Order.is_paid')
-        return self.is_paid
-
-    @paid.setter
-    def paid(self, value):
-        Log.deprecated('Order.paid is deprecated, use Order.is_paid')
-        self.is_paid = value
-
     def __str__(self):
         return u'{0} - ${1:.2f} {2} ({3})'.format(self.pk, (self.amount - self.amount_refunded)/100.0, self.charge_id, self.coupon)
 
