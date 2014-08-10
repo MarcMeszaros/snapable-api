@@ -19,7 +19,7 @@ from utils.loggers import Log
 
 @python_2_unicode_compatible
 class Order(models.Model):
-    
+
     # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
@@ -229,7 +229,7 @@ class Order(models.Model):
         )
 
     def send_email_with_discount(self, discount=None):
-        Log.deprecated('Order.send_email_with_discount() is deprecated, use Order.send_email() instead')
+        Log.deprecated('Order.send_email_with_discount() is deprecated, use Order.send_email() instead', stacklevel=2)
         self.send_email()
 
 #===== Admin =====#
