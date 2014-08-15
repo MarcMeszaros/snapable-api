@@ -66,7 +66,7 @@ def create_album_zip(event_id):
     # & cont.cdn_uri isn't None 
     cdn_uri = cont.cdn_uri
     if cdn_uri is None:
-        if settings.DEBUG:
+        if 'dev' in settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX:
             cdn_uri = 'http://75e4c45674cfdf4884a0-6f5bbb6cfffb706c990262906f266b0c.r28.cf1.rackcdn.com'
         else:
             cdn_uri = 'http://23e8b3af054c2e288358-8328cee55d412b3e5ad38ec5882590af.r11.cf1.rackcdn.com'
