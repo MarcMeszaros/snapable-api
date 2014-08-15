@@ -17,11 +17,10 @@ from django.template.loader import get_template
 from uuidfield import UUIDField
 
 # snapable
-import settings
-
 from data.models import AccountUser, Event, Guest, Photo 
 from utils import rackspace
 from utils.loggers import Log
+
 
 @app.task
 def create_album_zip(event_id):
@@ -63,16 +62,23 @@ def create_album_zip(event_id):
     os.remove(zip_path)
     shutil.rmtree(tempdir)
 
-    zip_cdn_url = '{0}/{1}.zip'.format(cont.cdn_uri, event.uuid)
-
+    # TODO remove this 'if' hack once pyrax starts behaving
+    # & cont.cdn_uri isn't None 
+    cdn_uri = cont.cdn_uri
+    if cdn_uri is None:
+        if 'dev' in settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX:
+            cdn_uri = 'http://23e8b3af054c2e288358-8328cee55d412b3e5ad38ec5882590af.r11.cf1.rackcdn.com'
+        else:
+            cdn_uri = 'http://75e4c45674cfdf4884a0-6f5bbb6cfffb706c990262906f266b0c.r28.cf1.rackcdn.com'
     # mail zip url
+    zip_cdn_url = '{0}/{1}.zip'.format(cdn_uri, event.uuid)
 
     # load in the templates
     plaintext = get_template('zip_url.txt')
     html = get_template('zip_url.html')
 
     # setup the template context variables
-    d = Context({ 'zip_url': zip_cdn_url })
+    d = Context({'zip_url': zip_cdn_url})
 
     # build the email
     email = AccountUser.objects.get(account_id=event.account_id).user.email
@@ -87,6 +93,7 @@ def create_album_zip(event_id):
 
     # remove (expire) lock
     app.backend.expire('event:{0}:create_album_zip'.format(event_id), 30)
+
 
 @app.task
 def email_guests(event_id, message=''):

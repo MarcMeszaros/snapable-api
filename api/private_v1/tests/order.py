@@ -1,14 +1,9 @@
-# python
-import os
-import re
-
 # django/tastypie
-from django.conf import settings
 from tastypie.test import ResourceTestCase
 
 # snapable
 from api.auth import DatabaseAuthentication
-from data.models import Order
+
 
 class Private_v1__OrderResourceTest(ResourceTestCase):
     fixtures = ['packages.json', 'api_accounts_and_keys.json', 'accounts_and_users.json', 'events.json', 'photos.json', 'orders.json']
@@ -71,6 +66,7 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
             'coupon',
             'created_at',
             'items',
+            'is_paid',
             'paid',
             'payment_gateway_invoice_id',
             'price',
@@ -85,7 +81,6 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
     def test_post_order_account(self):
         uri = '/private_v1/order/account/'
         resp = self.api_client.post(uri, data=self.post_account, format='json', authentication=self.get_credentials('POST', uri))
-        data = self.deserialize(resp)
 
         # make sure the resource was created
         self.assertHttpCreated(resp)
@@ -104,10 +99,11 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
             'event',
             'first_name',
             'items',
+            'is_paid',
             'last_name',
             'lat',
             'lng',
-            #'paid',
+            'paid',
             'password',
             'price',
             'resource_uri',

@@ -26,7 +26,7 @@ class Package(models.Model):
     short_name = models.CharField(max_length=255, help_text='The package short name.')
     name = models.CharField(max_length=255, help_text='The package long name.')
     amount = models.IntegerField(help_text='The package price. (CENTS)')
-    enabled = models.BooleanField(help_text='If the package is enabled.')
+    is_enabled = models.BooleanField(help_text='If the package is enabled.')
     items = JSONField(help_text='The items included in the package.')
     interval = models.CharField(max_length=5, null=True, default=None, blank=True, choices=INTERVAL_CHOICES, help_text='The interval type for the package. (NULL/day/month/year)') # day, month, year
     interval_count = models.IntegerField(default=0, help_text='The interval count for the package if the interval field isn\'t null.')
@@ -38,22 +38,22 @@ class Package(models.Model):
     def __repr__(self):
         return str({
             'amount': self.amount,
-            'enabled': self.enabled,
             'interval': self.interval,
             'interval_count': self.interval_count,
+            'is_enabled': self.is_enabled,
             'name': self.name,
             'short_name': self.short_name,
         })
 
 class PackageAdmin(admin.ModelAdmin):
-    list_display = ['id', 'short_name', 'name', 'amount', 'enabled']
+    list_display = ['id', 'short_name', 'name', 'amount', 'is_enabled']
     readonly_fields = ['id']
     search_fields = ['short_name', 'name']
     fieldsets = (
         (None, {
             'fields': (
                 'id',
-                'enabled',
+                'is_enabled',
                 'name', 
                 'short_name',
                 'amount',

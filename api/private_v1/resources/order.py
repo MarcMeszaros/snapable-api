@@ -44,9 +44,13 @@ class OrderResource(BaseModelResource):
 
     amount = fields.IntegerField(attribute='amount', readonly=True, help_text='The amount of the order.')
 
+    # DEPRECATED
+    # old "paid" flag (2014-08-04)
+    paid = fields.BooleanField(attribute='is_paid', default=False)
+
     class Meta(BaseMeta):
         queryset = Order.objects.all()
-        fields = ['amount_refunded', 'created_at', 'charge_id', 'items', 'paid', 'coupon']
+        fields = ['amount_refunded', 'created_at', 'charge_id', 'items', 'is_paid', 'coupon']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'patch']
         account_allowed_methods = ['post']
@@ -181,9 +185,6 @@ class OrderResource(BaseModelResource):
     def obj_create(self, bundle, **kwargs):
         bundle = super(OrderResource, self).obj_create(bundle, **kwargs)
 
-        # receipt items
-        discount_list = list()
-
         # get the package
         package = None
         if 'package' in bundle.obj.items:
@@ -193,14 +194,6 @@ class OrderResource(BaseModelResource):
         discount = 0
         if 'discount' in bundle.data and bundle.data['discount'] >= 0:
             discount = bundle.data['discount']
-            # if there is a coupon code
-            if 'coupon' in bundle.data:
-                item = {'name': 'Discount (coupon: "{0}")'.format(bundle.data['coupon']), 'amount': -discount}
-            # no coupon code, just add generic discount line
-            else:
-                item = {'name': 'Discount', 'amount': -discount}
-
-            discount_list.append(item)
 
         # set the actual total
         bundle.obj.calculate(discount=discount)
@@ -238,6 +231,6 @@ class OrderResource(BaseModelResource):
             account.save()
 
         ## send the receipt ##
-        bundle.obj.send_email_with_discount(discount=discount_list)
+        bundle.obj.send_email()
 
         return bundle

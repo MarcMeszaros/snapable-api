@@ -15,14 +15,14 @@ class PasswordNonce(models.Model):
     user = models.ForeignKey('User')
 
     nonce = models.CharField(max_length=255, unique=True, help_text="The password nonce.")
-    valid = models.BooleanField(default=False, help_text='If the nonce is still valid.')
+    is_valid = models.BooleanField(default=False, help_text='If the nonce is still valid.')
     created_at = models.DateTimeField(auto_now_add=True, help_text='When the nonce was created. (UTC)')
 
     def __unicode__(self):
         return str({
             'created_at': self.created_at,
             'nonce': self.nonce,
-            'valid': self.valid,
+            'is_valid': self.is_valid,
         })
 
     def save(self, *args, **kwargs):

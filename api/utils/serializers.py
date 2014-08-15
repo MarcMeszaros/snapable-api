@@ -2,15 +2,12 @@
 import mimetypes
 
 # django/tastypie/libs
-from django.conf import settings
-from PIL import Image
 import tastypie.exceptions
 import tastypie.http
 from tastypie.serializers import Serializer
 
 # snapable
 from data.models import Event, Photo
-from data.images import SnapImage
 
 
 class SnapSerializer(Serializer):
@@ -20,6 +17,9 @@ class SnapSerializer(Serializer):
     content_types = dict(Serializer.content_types, **{
         'jpeg': 'image/jpeg',
     })
+
+    def format_datetime(self, data):
+        return data.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def to_jpeg(self, bundle, options=None):
         size = 'crop'
@@ -33,9 +33,9 @@ class SnapSerializer(Serializer):
             try:
                 snapimg = photo.get_image(size)
                 return snapimg.img.tobytes('jpeg', 'RGB')
-            except Exception as e:
+            except Exception:
                 #photo.delete() # is there really a point to keep metadata for something without a photo
-                photo.streamable = False
+                photo.is_streamable = False
                 photo.save()
                 raise tastypie.exceptions.ImmediateHttpResponse(tastypie.http.HttpNotFound())
         elif isinstance(bundle.obj, Event):
@@ -44,7 +44,7 @@ class SnapSerializer(Serializer):
                 size = bundle.request.GET['size']
 
             # event cover it is set
-            if (bundle.obj.cover != None):
+            if (bundle.obj.cover is not None):
                 snapimg = bundle.obj.cover.get_image(size)
 
                 if snapimg is None:
@@ -72,6 +72,7 @@ class SnapSerializer(Serializer):
         """
         data = []
         return data
+
 
 class MultipartSerializer(Serializer):
     """
@@ -110,7 +111,7 @@ class MultipartSerializer(Serializer):
                 L.append('Content-Disposition: form-data; name="%s"' % key)
                 L.append('')
                 L.append(fields[key])
-            
+
         L.append('--' + boundary + '--')
         L.append('')
         body = CRLF.join(L)
@@ -119,7 +120,6 @@ class MultipartSerializer(Serializer):
     @staticmethod
     def get_content_type(filename):
         return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-
 
     def to_multipart(self, data, options=None):
         body = MultipartSerializer.encode_multipart_formdata(MultipartSerializer.boundary, data)

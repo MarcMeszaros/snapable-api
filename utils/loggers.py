@@ -2,7 +2,7 @@ import inspect
 import logging
 import os
 import traceback
-import warnings
+
 
 class Log:
     """
@@ -47,7 +47,9 @@ class Log:
         extra = dict() if extra is None else extra
 
         # get the frame that called this function, and generate the traceback
-        frame = inspect.currentframe().f_back # get the frame one level up from here
+        frame = inspect.currentframe() # get the frame
+        for i in xrange(1, stacklevel + 1):
+            frame = frame.f_back
         co = frame.f_code # the code object
         pathname = os.path.normcase(co.co_filename) # the full path
         func = co.co_name # the function name
