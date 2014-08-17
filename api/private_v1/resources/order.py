@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 # django/tastypie/libs
 import django
 import pytz
-import stripe
 
 from django.conf.urls import url
 from monthdelta import MonthDelta
@@ -15,14 +14,13 @@ from tastypie.utils import dict_strip_unicode_keys
 from tastypie.validation import Validation
 
 # snapable
-import api.auth
-
 from .meta import BaseMeta, BaseModelResource
 from .account import AccountResource
 from .address import AddressResource
 from .event import EventResource
 from .user import UserResource
 from data.models import Account, AccountAddon, Event, EventAddon, Package, Order, User
+
 
 class OrderValidation(Validation):
     def is_valid(self, bundle, request=None):
@@ -36,6 +34,7 @@ class OrderValidation(Validation):
                 errors[key] = 'Missing field'
 
         return errors
+
 
 class OrderResource(BaseModelResource):
 
@@ -69,12 +68,6 @@ class OrderResource(BaseModelResource):
         return bundle
 
     def hydrate(self, bundle):
-        if 'total_price' in bundle.data:
-            bundle.data['amount'] = bundle.data['total_price']
-
-        if 'payment_gateway_invoice_id' in bundle.data:
-            bundle.data['charge_id'] = bundle.data['payment_gateway_invoice_id']
-
         # check the items data if it's set
         if 'items' in bundle.data:
             # get a handle on the items
@@ -190,17 +183,12 @@ class OrderResource(BaseModelResource):
         if 'package' in bundle.obj.items:
             package = Package.objects.get(pk=bundle.obj.items['package'])
 
-        # add discount
-        discount = 0
-        if 'discount' in bundle.data and bundle.data['discount'] >= 0:
-            discount = bundle.data['discount']
-
         # set the actual total
-        bundle.obj.calculate(discount=discount)
+        bundle.obj.calculate()
         bundle.obj.save()
 
-        if 'stripeToken' in bundle.data:         
-            if bundle.obj.charge(bundle.data['stripeToken']) == False:
+        if 'stripeToken' in bundle.data:
+            if not bundle.obj.charge(bundle.data['stripeToken']):
                 raise ImmediateHttpResponse('Error processing Credit Card')
 
         if 'event' in bundle.data:

@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
+# python
+import re
+
 # django/libs
 import stripe
 from django.conf import settings
-from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
-from django.template.loader import get_template
-from django.template import Context
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
@@ -15,7 +16,7 @@ import utils.sendwithus
 from accountaddon import AccountAddon
 from eventaddon import EventAddon
 from package import Package
-from utils.loggers import Log
+
 
 @python_2_unicode_compatible
 class Order(models.Model):
@@ -25,42 +26,25 @@ class Order(models.Model):
         app_label = 'data'
 
     # the choices for the interval field
-    COUPON_CHOICES = (
-        ('201bride', '201bride (-$10)'), # 1000, // added: 2013-03-26; valid_until: TBD
-        ('adorii', 'adorii (-$49)'), # 4900, // added: 2013-01-24; valid_until: TBD
-        ('adorii5986', 'adorii5986 (-$49)'), # 4900, // added: 2013-02-06; valid_until: TBD
-        ('bespoke', 'bespoke (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('betheman', 'betheman (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('bridaldetective', 'bridaldetective (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('budgetsavvy', 'budgetsavvy (-$10)'), # 1000, // added: 2013-02-26; valid_until: TBD
-        ('enfianced', 'enfianced (-$10)'),# 1000, // added: 2013-01-31; valid_until: TBD
-        ('gbg', 'gbg (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('nonprofitedu', 'nonprofitedu (-$49)'), # 4900, // added: 2014-02-20; valid_until: TBD
-        ('poptastic', 'poptastic (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('smartbride', 'smartbride (-$10)'), # 1000, // added: 2013-01-31; valid_until: TBD
-        ('snaptrial2013', 'snaptrial2013 (-$49)'), # 4900, // added: 2013-03-14; valid_until: TBD
-        ('snaptrial2014', 'snaptrial2014 (-$49)'), # 4900, // added: 2014-02-20; valid_until: TBD
-        ('weddingful5986', 'weddingful5986 (-$49)'), # 4900, // added: 2013-02-06; valid_until: TBD
-        ('wr2013', 'wr2013 (-$10)'), # 1000, // added: 2013-01-17; valid_until: TBD
-    )
-    COUPON_PRICES = {
-        '201bride': 1000,
-        'adorii': 4900,
-        'adorii5986': 4900,
-        'bespoke': 1000,
-        'betheman': 1000,
-        'bridaldetective': 1000,
-        'budgetsavvy': 1000,
-        'enfianced': 1000,
-        'gbg': 1000,
-        'nonprofitedu': 4900,
-        'poptastic': 1000,
-        'smartbride': 1000,
-        'snaptrial2013': 4900,
-        'snaptrial2014': 4900,
-        'weddingful5986': 4900,
-        'wr2013': 1000,
-    }
+    # name should contain the [value] in cents
+    COUPON_CHOICES = [
+        ('201bride', '201bride -¢[1000]'),  # added 2013-03-26
+        ('adorii', 'adorii -¢[4900]'),  # added 2013-01-24
+        ('adorii5986', 'adorii5986 -¢[4900]'),  # added 2013-02-06
+        ('bespoke', 'bespoke -¢[1000]'),  # added 2013-01-31
+        ('betheman', 'betheman -¢[1000]'),  # added 2013-01-31
+        ('bridaldetective', 'bridaldetective -¢[1000]'),  # added 2013-01-31
+        ('budgetsavvy', 'budgetsavvy -¢[1000]'),  # added 2013-02-26
+        ('enfianced', 'enfianced -¢[1000]'),  # added 2013-01-31
+        ('gbg', 'gbg -¢[1000]'),  # added 2013-01-31
+        ('nonprofitedu', 'nonprofitedu -¢[4900]'),  # added 2014-02-20
+        ('poptastic', 'poptastic -¢[1000]'),  # added 2013-01-31
+        ('smartbride', 'smartbride -¢[1000]'),  # added 2013-01-31
+        ('snaptrial2013', 'snaptrial2013 -¢[4900]'),  # added 2013-03-14
+        ('snaptrial2014', 'snaptrial2014 -¢[4900]'),  # added 2014-02-20
+        ('weddingful5986', 'weddingful5986 -¢[4900]'),  # added 2013-02-06
+        ('wr2013', 'wr2013 -¢[1000]'),  # added 2013-01-17
+    ]
 
     account = models.ForeignKey('Account', help_text='The account that the order is for.')
     user = models.ForeignKey('User', null=True, help_text='The user that made the order.')
@@ -86,6 +70,13 @@ class Order(models.Model):
             'is_paid': self.is_paid,
         })
 
+    def get_coupon_discount(self):
+        try:
+            dictionary = dict(self.COUPON_CHOICES)
+            return abs(int(re.search('\[(\d+)\]$', dictionary[self.coupon]).group(1)))
+        except KeyError:
+            return 0
+
     def calculate(self, discount=0):
         total = 0
 
@@ -106,8 +97,11 @@ class Order(models.Model):
                 addon = EventAddon.objects.get(pk=event_addon)
                 total += addon.amount
 
+        if discount <= 0 and self.coupon:
+            discount = self.get_coupon_discount()
+
         # update the amount
-        #if not self.paid:
+        #if not self.is_paid:
         self.amount = total - discount
 
 
@@ -130,14 +124,13 @@ class Order(models.Model):
 
                 # charge the card
                 charge = stripe.Charge.create(
-                    amount=self.amount, # in cents
+                    amount=self.amount,  # in cents
                     currency=settings.STRIPE_CURRENCY,
                     customer=self.user.stripe_customer_id
                 )
-
             else:
                 charge = stripe.Charge.create(
-                    amount=self.amount, # amount in cents, again
+                    amount=self.amount,  # amount in cents, again
                     currency=settings.STRIPE_CURRENCY,
                     card=stripe_token,
                     description='Charge to {0}'.format(self.user.email)
@@ -164,7 +157,6 @@ class Order(models.Model):
             return True
         except:
             return False
-            #raise ImmediateHttpResponse('Error processing Credit Card')
 
     def send_email(self):
         receipt_items = list()
@@ -178,37 +170,19 @@ class Order(models.Model):
             receipt_items.append(item)
 
         # add the coupons
-        if self.coupon in self.COUPON_PRICES:
+        if self.coupon:
             description = 'Discount (coupon: {0})'.format(self.coupon)
-            amount_str = utils.currency.cents_to_str(-self.COUPON_PRICES[self.coupon])
+            amount_str = utils.currency.cents_to_str(-self.get_coupon_discount())
             discount = {'name': description, 'description': description, 'amount': amount_str}
             receipt_items.append(discount)
 
         ## send the receipt ##
-        # load in the templates
-        plaintext = get_template('receipt.txt')
-        html = get_template('receipt.html')
-
-        # setup the template context variables
-        d = Context({
-            'items': receipt_items,
-            'total': utils.currency.cents_to_str(self.amount),
-        })
-
-        # build the email
-        subject, from_email, to = 'Your Snapable order has been processed', 'support@snapable.com', [self.user.email]
-        text_content = plaintext.render(d)
-        html_content = html.render(d)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
-        msg.attach_alternative(html_content, "text/html")
-        #msg.send()
-
         # sendwithus
         email_data = {
             'order': {
                 'total': utils.currency.cents_to_str(self.amount),
                 'lines': receipt_items,
-                #'created_at': self.created_at,
+                'created_at': self.created_at,
             }
         }
 
@@ -218,9 +192,6 @@ class Order(models.Model):
             email_data=email_data
         )
 
-    def send_email_with_discount(self, discount=None):
-        Log.deprecated('Order.send_email_with_discount() is deprecated, use Order.send_email() instead', stacklevel=2)
-        self.send_email()
 
 #===== Admin =====#
 # base details for direct and inline admin models
@@ -233,7 +204,7 @@ class OrderAdminDetails(object):
         (None, {
             'fields': (
                 'id',
-                ('charge_id', 'coupon'), 
+                ('charge_id', 'coupon'),
                 ('amount', 'amount_refunded'),
                 'items',
                 'is_paid',
@@ -248,6 +219,7 @@ class OrderAdminDetails(object):
         }),
     )
 
+
 # add the direct admin model
 class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
     actions = ['send_email']
@@ -259,6 +231,7 @@ class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
         self.message_user(request, "Successfully sent receipt emails.")
 
 admin.site.register(Order, OrderAdmin)
+
 
 # add the inline admin model
 class OrderAdminInline(OrderAdminDetails, admin.StackedInline):
