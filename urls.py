@@ -2,9 +2,12 @@ from django.conf.urls import patterns, include, url
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
-# apis
+# other endpoints
 import admin
 import ajax
+import hooks
+
+# apis
 import api.partner_v1
 import api.private_v1
 
@@ -23,6 +26,9 @@ urlpatterns = patterns('',
     (r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     (r'^control_tower/', include(admin.site.urls)),
     (r'^control_tower/ajax/', include(ajax.urls)),
+
+    # handle webhooks
+    (r'^hooks/', include(hooks.urls)),
 
     ## define all the API versions here ##
     # public APIs
