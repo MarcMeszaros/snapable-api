@@ -105,7 +105,7 @@ class Order(models.Model):
         self.amount = total - discount
 
 
-    def charge(self, stripe_token):
+    def charge(self, stripe_token=None):
         if self.is_paid or self.amount < 50:
             return False
 
@@ -222,13 +222,23 @@ class OrderAdminDetails(object):
 
 # add the direct admin model
 class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
-    actions = ['send_email']
+    actions = ['charge', 'send_email']
 
     def send_email(self, request, queryset):
         for order in queryset.iterator():
             order.send_email()
 
-        self.message_user(request, "Successfully sent receipt emails.")
+        self.message_user(request, 'Successfully sent receipt emails.')
+
+    def charge(self, request, queryset):
+        success = True
+        for order in queryset.iterator():
+            success = success and order.charge()
+
+        if success:
+            self.message_user(request, 'Sent charge requests')
+        else:
+            self.message_user(request, 'Some charges failed')
 
 admin.site.register(Order, OrderAdmin)
 
