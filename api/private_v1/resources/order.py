@@ -194,7 +194,7 @@ class OrderResource(BaseModelResource):
         if 'event' in bundle.data:
             event_resource = EventResource()
             event = event_resource.get_via_uri(bundle.data['event'], request=bundle.request)
-            event.enabled = True
+            event.is_enabled = True
             event.save()
 
         # update the account
