@@ -16,7 +16,7 @@ class BaseMeta(object):
 
 class BaseResource(Resource):
 
-    # based on https://github.com/toastdriven/django-tastypie/blob/master/tastypie/resources.py#L1254
+    # based on https://github.com/toastdriven/django-tastypie/blob/master/tastypie/resources.py#L1276
     def build_get_list(self, request, resource, objects, **kwargs):
         base_bundle = self.build_bundle(request=request)
 
@@ -40,9 +40,12 @@ class BaseResource(Resource):
         to_be_serialized = self.alter_list_data_to_serialize(request, to_be_serialized)
         return to_be_serialized
 
-    # based on https://github.com/toastdriven/django-tastypie/blob/master/tastypie/resources.py#L1283
-    def build_get_detail(self, request, resource, object, **kwargs):
-        print('detail')
+    # based on https://github.com/toastdriven/django-tastypie/blob/master/tastypie/resources.py#L1305
+    def build_get_detail(self, request, obj, **kwargs):
+        bundle = self.build_bundle(obj=obj, request=request)
+        bundle = self.full_dehydrate(bundle)
+        bundle = self.alter_detail_data_to_serialize(request, bundle)
+        return bundle
 
 class BaseModelResource(BaseResource, ModelResource):
     pass
