@@ -105,6 +105,46 @@ class Private_v1__UserResourceTest(ResourceTestCase):
             'terms',
         ])
 
+    def test_password_nonce(self):
+        # setup variables
+        user = User.objects.get(pk=1)
+        password_nonce = PasswordNonce.objects.get(pk=1)
+
+        # get the nonce
+        uri = '/private_v1/user/passwordreset/{0}/'.format(password_nonce.nonce)
+        resp = self.api_client.get(uri, format='json', authentication=self.get_credentials('GET', uri))
+        self.assertValidJSONResponse(resp)
+
+        uri = '/private_v1/user/{0}/passwordreset/'.format(user.pk)
+        resp = self.api_client.get(uri, format='json', authentication=self.get_credentials('GET', uri))
+        self.assertValidJSONResponse(resp)
+
+    def test_password_reset_with_pk(self):
+        # get nonce
+        user_before = User.objects.get(pk=1)
+        nonce = PasswordNonce.objects.get(pk=1)
+        password_before = user_before.password
+
+        # update the password
+        patch_uri = '/private_v1/user/{0}/passwordreset/'.format(user_before.pk)
+        patch_data = {
+            'nonce': nonce.nonce,
+            'password': 'my1337password',
+        }
+
+        # test nonce response
+        patch_resp = self.api_client.patch(patch_uri, data=patch_data, format='json', authentication=self.get_credentials('PATCH', patch_uri))
+        self.assertHttpAccepted(patch_resp)
+
+        # shouldn't work the second time
+        patch_resp = self.api_client.patch(patch_uri, data=patch_data, format='json', authentication=self.get_credentials('PATCH', patch_uri))
+        self.assertHttpNotFound(patch_resp)
+
+        # test password
+        user_after = User.objects.get(pk=1)
+        password_after = user_after.password
+        self.assertNotEqual(password_after, password_before)
+
     def test_password_reset(self):
         # get nonce
         user_before = User.objects.get(pk=1)
@@ -112,18 +152,19 @@ class Private_v1__UserResourceTest(ResourceTestCase):
         password_before = user_before.password
 
         # update the password
-        put_uri = '/private_v1/user/{0}/passwordreset/'.format(user_before.pk)
-        put_data = {
+        patch_uri = '/private_v1/user/passwordreset/'
+        patch_data = {
             'nonce': nonce.nonce,
             'password': 'my1337password',
         }
 
         # test nonce response
-        put_resp = self.api_client.patch(put_uri, data=put_data, format='json', authentication=self.get_credentials('PATCH', put_uri))
-        self.assertHttpAccepted(put_resp)
+        patch_resp = self.api_client.patch(patch_uri, data=patch_data, format='json', authentication=self.get_credentials('PATCH', patch_uri))
+        self.assertHttpAccepted(patch_resp)
 
-        put_resp = self.api_client.patch(put_uri, data=put_data, format='json', authentication=self.get_credentials('PATCH', put_uri))
-        self.assertHttpNotFound(put_resp)
+        # shouldn't work the second time
+        patch_resp = self.api_client.patch(patch_uri, data=patch_data, format='json', authentication=self.get_credentials('PATCH', patch_uri))
+        self.assertHttpNotFound(patch_resp)
 
         # test password
         user_after = User.objects.get(pk=1)
