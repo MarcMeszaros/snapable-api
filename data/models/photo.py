@@ -50,12 +50,26 @@ class Photo(models.Model):
     def _image_name(self, size='orig'):
         return '{0}{1}.jpg'.format(self._image_prefix(), size)
 
-    # override built-in delete function
-    def delete(self):
-        cont = rackspace.cloud_files.get_container(self._container_name())
+    # cleanup image resize files
+    def cleanup_resizes(self):
+        cont = rackspace.cloud_files.get(self._container_name())
 
         # get all files related to this photo (original + resizes)
         images = cont.get_objects(prefix=self._image_prefix())
+
+        # loop through the list and delete them unless in ignore
+        ignore_sizes = ['orig', 'crop']
+        for image in images:
+            image_name = image.name.replace(self._image_prefix(), '').replace('.jpg', '')
+            if image_name not in ignore_sizes:
+                cont.delete_object(image)
+
+    # override built-in delete function
+    def delete(self):
+        cont = rackspace.cloud_files.get(self._container_name())
+
+        # get all files related to this photo (original + resizes)
+        images = cont.list(prefix=self._image_prefix())
 
         # loop through the list and delete them
         for image in images:
@@ -72,7 +86,7 @@ class Photo(models.Model):
         if self.id and self.event:
             #connect to container
             try:
-                cont = rackspace.cloud_files.get_container(self._container_name())
+                cont = rackspace.cloud_files.get(self._container_name())
 
                 # try an get the size wanted
                 try:
@@ -117,9 +131,9 @@ class Photo(models.Model):
         """
         cont = None
         try:
-            cont = rackspace.cloud_files.get_container(self._container_name())
+            cont = rackspace.cloud_files.get(self._container_name())
         except rackspace.pyrax.exceptions.NoSuchContainer as e:
-            cont = rackspace.cloud_files.create_container(self._container_name())
+            cont = rackspace.cloud_files.create(self._container_name())
             Log.i('created a new container: ' + self._container_name())
 
         if not orig:
