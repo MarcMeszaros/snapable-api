@@ -14,6 +14,7 @@ from guest import Guest
 from utils import rackspace
 from utils.loggers import Log
 
+
 @python_2_unicode_compatible
 class Photo(models.Model):
 
@@ -40,12 +41,35 @@ class Photo(models.Model):
             'is_streamable': self.is_streamable,
         })
 
-    # override built-in delete function
-    def delete(self):
-        cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+    def _container_name(self):
+        return '{0}{1}'.format(settings.CLOUDFILES_IMAGES_PREFIX, (self.event.id / settings.CLOUDFILES_EVENTS_PER_CONTAINER))
+
+    def _image_prefix(self):
+        return '{0}/{1}_'.format(self.event.id, self.id)
+
+    def _image_name(self, size='orig'):
+        return '{0}{1}.jpg'.format(self._image_prefix(), size)
+
+    # cleanup image resize files
+    def cleanup_resizes(self):
+        cont = rackspace.cloud_files.get(self._container_name())
 
         # get all files related to this photo (original + resizes)
-        images = cont.get_objects(prefix='{0}/{1}_'.format(self.event.id, self.id))
+        images = cont.get_objects(prefix=self._image_prefix())
+
+        # loop through the list and delete them unless in ignore
+        ignore_sizes = ['orig', 'crop']
+        for image in images:
+            image_name = image.name.replace(self._image_prefix(), '').replace('.jpg', '')
+            if image_name not in ignore_sizes:
+                cont.delete_object(image)
+
+    # override built-in delete function
+    def delete(self):
+        cont = rackspace.cloud_files.get(self._container_name())
+
+        # get all files related to this photo (original + resizes)
+        images = cont.list(prefix=self._image_prefix())
 
         # loop through the list and delete them
         for image in images:
@@ -59,29 +83,29 @@ class Photo(models.Model):
         """
         Get the SnapImage from Cloud Files.
         """
-        if self.id != None and self.event != None:
+        if self.id and self.event:
             #connect to container
             try:
-                cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+                cont = rackspace.cloud_files.get(self._container_name())
 
                 # try an get the size wanted
                 try:
-                    obj = cont.get_object('{0}/{1}_{2}.jpg'.format(self.event.id, self.id, size))
+                    obj = cont.get_object(self._image_name(size))
                     img = Image.open(cStringIO.StringIO(obj.get()))
                     snapimg = SnapImage(img)
 
                     return snapimg
                 except:
                     try:
-                        obj = cont.get_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id))
+                        obj = cont.get_object(self._image_name('crop'))
                         img = Image.open(cStringIO.StringIO(obj.get()))
                         snapimg = SnapImage(img)
                     except rackspace.pyrax.exceptions.NoSuchObject as e:
-                        obj = cont.get_object('{0}/{1}_orig.jpg'.format(self.event.id, self.id))
+                        obj = cont.get_object(self._image_name('crop'))
                         img = Image.open(cStringIO.StringIO(obj.get()))
                         snapimg = SnapImage(img)
                         snapimg.crop_square()
-                        obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), snapimg.img.tobytes('jpeg', 'RGB'))
+                        obj = cont.store_object(self._image_name('crop'), snapimg.img.tobytes('jpeg', 'RGB'))
 
                     # resize the image
                     sizeList = size.split('x')
@@ -89,7 +113,7 @@ class Photo(models.Model):
                     snapimg.resize(sizeTupple)
 
                     # save the new photo size
-                    obj = cont.store_object('{0}/{1}_{2}.jpg'.format(self.event.id, self.id, size), snapimg.img.tobytes('jpeg', 'RGB'))
+                    obj = cont.store_object(self._image_name(size), snapimg.img.tobytes('jpeg', 'RGB'))
                     return snapimg
 
             except rackspace.pyrax.exceptions.NoSuchObject as e:
@@ -100,49 +124,51 @@ class Photo(models.Model):
         else:
             raise Exception('No Photo ID and/or Event ForeignKey specified.')
 
+
     def save_image(self, image, orig=False, watermark=False):
         """
         Save the SnapImage to CloudFiles.
         """
         cont = None
         try:
-            cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+            cont = rackspace.cloud_files.get(self._container_name())
         except rackspace.pyrax.exceptions.NoSuchContainer as e:
-            cont = rackspace.cloud_files.create_container(settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
-            Log.i('created a new container: ' + settings.RACKSPACE_CLOUDFILE_CONTAINER_PREFIX + str(self.event.id / settings.RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER))
+            cont = rackspace.cloud_files.create(self._container_name())
+            Log.i('created a new container: ' + self._container_name())
 
-        if orig == False:
+        if not orig:
             width, height = image.img.size
             size = '{0}x{1}'.format(width, height)
             try:
                 # check the image color mode (convert to RGB as required)
                 if image.mode == 'RGB':
-                    obj = cont.store_object('{0}/{1}_{2}.jpeg'.format(self.event.id, self.id, size), image.img.tobytes('jpeg', 'RGB'))
+                    obj = cont.store_object(self._image_name(size), image.img.tobytes('jpeg', 'RGB'))
                 else:
-                    obj = cont.store_object('{0}/{1}_{2}.jpeg'.format(self.event.id, self.id, size), image.img.convert('RGB').tobytes('jpeg', 'RGB'))
+                    obj = cont.store_object(self._image_name(size), image.img.convert('RGB').tobytes('jpeg', 'RGB'))
             except pyrax.exceptions.NoSuchContainer as e:
                 return None
         else:
             try:
                 # check the image color mode (convert to RGB as required)
                 if image.mode == 'RGB':
-                    obj = cont.store_object('{0}/{1}_orig.jpg'.format(self.event.id, self.id), image.img.tobytes('jpeg', 'RGB'))
+                    obj = cont.store_object(self._image_name(), image.img.tobytes('jpeg', 'RGB'))
                 else:
-                    obj = cont.store_object('{0}/{1}_orig.jpg'.format(self.event.id, self.id), image.img.convert('RGB').tobytes('jpeg', 'RGB'))
+                    obj = cont.store_object(self._image_name(), image.img.convert('RGB').tobytes('jpeg', 'RGB'))
                 image.crop_square()
 
                 # add watermark as required to the crop version
-                if watermark is not None and watermark != False:
+                if watermark:
                     image.watermark(watermark)
 
                 # save the image
                 # check the image color mode (convert to RGB as required)
                 if image.mode == 'RGB':
-                    obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.tobytes('jpeg', 'RGB'))
+                    obj = cont.store_object(self._image_name('crop'), image.img.tobytes('jpeg', 'RGB'))
                 else:
-                    obj = cont.store_object('{0}/{1}_crop.jpg'.format(self.event.id, self.id), image.img.convert('RGB').tobytes('jpeg', 'RGB'))
+                    obj = cont.store_object(self._image_name('crop'), image.img.convert('RGB').tobytes('jpeg', 'RGB'))
             except rackspace.pyrax.exceptions.NoSuchContainer as e:
                 return None
+
 
 #===== Admin =====#
 # base details for direct and inline admin models
@@ -169,6 +195,7 @@ class PhotoAdminDetails(object):
             )
         }),
     )
+
 
 # add the direct admin model
 class PhotoAdmin(PhotoAdminDetails, admin.ModelAdmin):

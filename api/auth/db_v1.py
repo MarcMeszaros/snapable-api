@@ -1,9 +1,8 @@
 # python
-import dateutil.parser
 import hashlib
 import hmac
 import os
-import random
+import pickle
 import time
 
 from datetime import datetime, timedelta
@@ -11,8 +10,6 @@ from datetime import datetime, timedelta
 # django/tastypie/libs
 import pytz
 
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, Unauthorized
@@ -20,25 +17,43 @@ from tastypie.exceptions import BadRequest, Unauthorized
 # snapable
 import api.auth
 import data.models
+import utils
 
 from api.models import ApiKey
 
+
+def get_api_key(key):
+    redis_key = 'api_key_{0}'.format(key)
+    utils.redis.expire(redis_key, 900)  # update the ttl if possible
+    api_redis_string = utils.redis.get(redis_key)  # get the key
+    if api_redis_string:
+        api_key = pickle.loads(api_redis_string)
+        return api_key
+    else:
+        api_key = ApiKey.objects.get(key=key)
+        api_redis_string = pickle.dumps(api_key)
+        utils.redis.setex(redis_key, 900, api_redis_string)
+        return api_key
+
+
 def apiAuthorizationChecks(request):
     auth_params = api.auth.get_auth_params(request)
-    api_key = ApiKey.objects.get(key=auth_params['key'])
+    api_key = get_api_key(auth_params['key'])
     version = request.META['PATH_INFO'].strip('/').split('/')[0]
 
-    if api_key.is_enabled == False:
+    if not api_key.is_enabled:
         raise Unauthorized('This API key is unauthorized.')
 
     if version != str(api_key.version) and version != 'control_tower':
         raise Unauthorized('Not authorized to access this API.')
+
 
 def matching_api_account(first, second):
     if first == second:
         return True
     else:
         raise Unauthorized('Not authorized to access resource.')
+
 
 class DatabaseAuthentication(Authentication):
 
@@ -65,47 +80,46 @@ class DatabaseAuthentication(Authentication):
             # get the Authorization header
             auth = request.META['HTTP_AUTHORIZATION'].strip().split(' ')
             auth_snap = auth[0].lower()
-            
-            # get the request verb and path
-            request_method = request.META['REQUEST_METHOD']
-            request_path = request.path
 
             # get signature info from the Authorization header
             auth_params = api.auth.get_auth_params(request)
 
             # add the parts to proper varibles for signature
-            key = auth_params['key']
-            api_key = ApiKey.objects.get(key=key)
-            secret = str(api_key.secret)
+            api_key = get_api_key(auth_params['key'])
             signature = auth_params['signature']
-            x_snap_nonce = auth_params['nonce']
-            x_snap_timestamp = auth_params['timestamp']
+            snap_nonce = auth_params['nonce']
+            snap_timestamp = auth_params['timestamp']
 
             # create the raw string to hash and calculate hashed value
-            raw = key + request_method + request_path + x_snap_nonce + x_snap_timestamp
-            hashed = hmac.new(secret, raw, hashlib.sha1)
+            raw = api_key.key + request.method + request.path + snap_nonce + snap_timestamp
+            hashed = hmac.new(str(api_key.secret), raw, hashlib.sha1)
 
             # calculate time differences
-            x_snap_datetime = datetime.fromtimestamp(int(x_snap_timestamp), tz=pytz.utc)# parse the date header
+            snap_datetime = datetime.fromtimestamp(int(snap_timestamp), tz=pytz.utc) # parse the date header
             now_datetime = datetime.now(pytz.utc) # current time on server
             pre_now_datetime = now_datetime + timedelta(0, -300) # 5 minutes in the past
             post_now_datetime = now_datetime + timedelta(0, 300) # 5 minutes in the future
 
+            # time check
+            if snap_datetime < pre_now_datetime or snap_datetime > post_now_datetime:
+                raise BadRequest('Timestamp must be within +/- 5mins from Snapable API server clock.')
+
             # if all conditions pass, return true
-            if auth_snap == 'snap' and (x_snap_datetime >= pre_now_datetime and x_snap_datetime <= post_now_datetime) and signature == hashed.hexdigest():
+            if auth_snap == 'snap' and signature == hashed.hexdigest():
                 return True
             else:
-                return False # we failed, return false
-        except KeyError as e:
+                return False  # we failed, return false
+        except KeyError:
             raise BadRequest('Missing authentication param')
-        except ApiKey.DoesNotExist as e:
+        except ApiKey.DoesNotExist:
             raise BadRequest('The API key does not exist')
 
     # Optional but recommended
     def get_identifier(self, request):
         # check for the environment variable to skip auth
         auth_params = api.auth.get_auth_params(request)
-        return ApiKey.objects.get(key=auth_params['key'])
+        return get_api_key(auth_params['key'])
+
 
 class DatabaseAuthorization(Authorization):
 
@@ -185,7 +199,7 @@ class DatabaseAuthorization(Authorization):
             raise Unauthorized('Not authorized to access resource.')
 
     def update_list(self, object_list, bundle):
-        raise Unauthorized('Bulk updates are not permitted.') # No update of lists
+        raise Unauthorized('Bulk updates are not permitted.')
 
     def update_detail(self, object_list, bundle):
         # check if authorized to access the API and get the API key
@@ -220,7 +234,7 @@ class DatabaseAuthorization(Authorization):
             raise Unauthorized('Not authorized to access resource.')
 
     def delete_list(self, object_list, bundle):
-        raise Unauthorized('Bulk deletes are not permitted.') # No delete of lists
+        raise Unauthorized('Bulk deletes are not permitted.')
 
     def delete_detail(self, object_list, bundle):
         # check if authorized to access the API and get the API key
@@ -233,7 +247,7 @@ class DatabaseAuthorization(Authorization):
 
         # private API account, allowed to access all objects
         if api_key.version[:7] == 'private':
-           return True
+            return True
 
         # filter objects as required
         if isinstance(bundle.obj, data.models.Account):
