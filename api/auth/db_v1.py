@@ -81,33 +81,31 @@ class DatabaseAuthentication(Authentication):
             auth = request.META['HTTP_AUTHORIZATION'].strip().split(' ')
             auth_snap = auth[0].lower()
 
-            # get the request verb and path
-            request_method = request.META['REQUEST_METHOD']
-            request_path = request.path
-
             # get signature info from the Authorization header
             auth_params = api.auth.get_auth_params(request)
 
             # add the parts to proper varibles for signature
-            key = auth_params['key']
-            api_key = get_api_key(key)
-            secret = str(api_key.secret)
+            api_key = get_api_key(auth_params['key'])
             signature = auth_params['signature']
-            x_snap_nonce = auth_params['nonce']
-            x_snap_timestamp = auth_params['timestamp']
+            snap_nonce = auth_params['nonce']
+            snap_timestamp = auth_params['timestamp']
 
             # create the raw string to hash and calculate hashed value
-            raw = key + request_method + request_path + x_snap_nonce + x_snap_timestamp
-            hashed = hmac.new(secret, raw, hashlib.sha1)
+            raw = api_key.key + request.method + request.path + snap_nonce + snap_timestamp
+            hashed = hmac.new(str(api_key.secret), raw, hashlib.sha1)
 
             # calculate time differences
-            x_snap_datetime = datetime.fromtimestamp(int(x_snap_timestamp), tz=pytz.utc)# parse the date header
+            snap_datetime = datetime.fromtimestamp(int(snap_timestamp), tz=pytz.utc) # parse the date header
             now_datetime = datetime.now(pytz.utc) # current time on server
             pre_now_datetime = now_datetime + timedelta(0, -300) # 5 minutes in the past
             post_now_datetime = now_datetime + timedelta(0, 300) # 5 minutes in the future
 
+            # time check
+            if snap_datetime < pre_now_datetime or snap_datetime > post_now_datetime:
+                raise BadRequest('Timestamp must be within +/- 5mins from Snapable API server clock.')
+
             # if all conditions pass, return true
-            if auth_snap == 'snap' and (x_snap_datetime >= pre_now_datetime and x_snap_datetime <= post_now_datetime) and signature == hashed.hexdigest():
+            if auth_snap == 'snap' and signature == hashed.hexdigest():
                 return True
             else:
                 return False  # we failed, return false
