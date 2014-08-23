@@ -125,12 +125,12 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'django.utils.log.NullHandler',
         },
-        'console':{
+        'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
-        'console.requests':{
+        'console.requests': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'requests',
@@ -207,12 +207,6 @@ CLOUDFILES_DOWNLOAD_PREFIX = 'dev_downloads_'
 CLOUDFILES_WATERMARK_PREFIX = 'dev_watermark'
 CLOUDFILES_EVENTS_PER_CONTAINER = 10000
 CLOUDFILES_PUBLIC_NETWORK = True
-# deprecated
-RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = CLOUDFILES_IMAGES_PREFIX
-RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX = CLOUDFILES_DOWNLOAD_PREFIX
-RACKSPACE_CLOUDFILE_WATERMARK = CLOUDFILES_WATERMARK_PREFIX
-RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = CLOUDFILES_EVENTS_PER_CONTAINER
-RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = CLOUDFILES_PUBLIC_NETWORK
 
 ##### Redis #####
 REDIS_HOST = '192.168.56.102'
@@ -256,7 +250,7 @@ CELERYBEAT_SCHEDULE = {
         'task': 'worker.passwordnonce.expire',
         'schedule': timedelta(minutes=15),
         #'args': (1440)
-    },
+    }
 }
 
 ##### Admin #####
@@ -277,3 +271,10 @@ except Exception as e:
 # setup stripe
 import stripe
 stripe.api_key = STRIPE_KEY_SECRET
+
+# deprecated (remove once no longer used)
+RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = CLOUDFILES_IMAGES_PREFIX
+RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX = CLOUDFILES_DOWNLOAD_PREFIX
+RACKSPACE_CLOUDFILE_WATERMARK = CLOUDFILES_WATERMARK_PREFIX
+RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = CLOUDFILES_EVENTS_PER_CONTAINER
+RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = CLOUDFILES_PUBLIC_NETWORK
