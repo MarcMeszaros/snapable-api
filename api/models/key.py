@@ -1,5 +1,6 @@
 # python
 import hashlib
+import pickle
 import uuid
 
 # django/tastypie/libs
@@ -10,10 +11,11 @@ from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
 import admin
+import utils
 
 @python_2_unicode_compatible
 class ApiKey(models.Model):
-    
+
     # required to make 'south' migrations work
     class Meta:
         app_label = 'api'
@@ -62,14 +64,15 @@ class ApiKey(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.key:
-            key = ApiKey.generate_key() # generate a key
+            key = ApiKey.generate_key()  # generate a key
             # in the event the key already exists, keep trying new ones
             while (ApiKey.objects.filter(key=key).count() > 0):
                 key = ApiKey.generate_key()
-            self.key = key # set the key in the model
+            self.key = key  # set the key in the model
         if not self.secret:
             self.secret = ApiKey.generate_secret()
-            
+
+        utils.redis.delete('api_key_{0}'.format(self.key))  # delete any cache
         return super(ApiKey, self).save(*args, **kwargs)
 
     @staticmethod

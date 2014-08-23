@@ -1,5 +1,4 @@
 # python
-import dateutil.parser
 import hashlib
 import hmac
 import os
@@ -11,8 +10,6 @@ from datetime import datetime, timedelta
 # django/tastypie/libs
 import pytz
 
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, Unauthorized
@@ -25,9 +22,23 @@ import utils
 from api.models import ApiKey
 
 
+def get_api_key(key):
+    redis_key = 'api_key_{0}'.format(key)
+    utils.redis.expire(redis_key, 900)  # update the ttl if possible
+    api_redis_string = utils.redis.get(redis_key)  # get the key
+    if api_redis_string:
+        api_key = pickle.loads(api_redis_string)
+        return api_key
+    else:
+        api_key = ApiKey.objects.get(key=key)
+        api_redis_string = pickle.dumps(api_key)
+        utils.redis.setex(redis_key, 900, api_redis_string)
+        return api_key
+
+
 def apiAuthorizationChecks(request):
     auth_params = api.auth.get_auth_params(request)
-    api_key = ApiKey.objects.get(key=auth_params['key'])
+    api_key = get_api_key(auth_params['key'])
     version = request.META['PATH_INFO'].strip('/').split('/')[0]
 
     if not api_key.is_enabled:
@@ -79,7 +90,7 @@ class DatabaseAuthentication(Authentication):
 
             # add the parts to proper varibles for signature
             key = auth_params['key']
-            api_key = ApiKey.objects.get(key=key)
+            api_key = get_api_key(key)
             secret = str(api_key.secret)
             signature = auth_params['signature']
             x_snap_nonce = auth_params['nonce']
@@ -109,7 +120,7 @@ class DatabaseAuthentication(Authentication):
     def get_identifier(self, request):
         # check for the environment variable to skip auth
         auth_params = api.auth.get_auth_params(request)
-        return ApiKey.objects.get(key=auth_params['key'])
+        return get_api_key(auth_params['key'])
 
 
 class DatabaseAuthorization(Authorization):

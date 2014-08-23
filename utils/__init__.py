@@ -3,7 +3,7 @@ import sys
 # snapable
 from .loggers import Log
 from .redis import api as redis
-from .sendwithus import api as sendwithus
+#from .sendwithus import api as sendwithus
 
 
 class Dotable(dict):
