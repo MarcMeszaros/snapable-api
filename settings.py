@@ -12,7 +12,7 @@ from datetime import timedelta
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(__file__)
-PROJECT_PATH = BASE_DIR # deprecated
+PROJECT_PATH = BASE_DIR  # deprecated
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '***REMOVED***'
@@ -47,13 +47,13 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware', # Admin
+    'django.contrib.sessions.middleware.SessionMiddleware',  # Admin
     #'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware', # Admin
-    'django.contrib.messages.middleware.MessageMiddleware', # Admin
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Admin
+    'django.contrib.messages.middleware.MessageMiddleware',  # Admin
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.http.ConditionalGetMiddleware', # Adds 'Content-Length' header
+    'django.middleware.http.ConditionalGetMiddleware',  # 'Content-Length'
 
     # snapable
     'api.utils.middleware.RequestLoggingMiddleware',
@@ -79,12 +79,12 @@ pymysql.install_as_MySQLdb()
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'snapabledb',            # Or path to database file if using sqlite3.
-        'USER': 'snapableusr',           # Not used with sqlite3.
-        'PASSWORD': 'snapable12345',     # Not used with sqlite3.
-        'HOST': '192.168.56.101',        # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'snapabledb',
+        'USER': 'snapableusr',
+        'PASSWORD': 'snapable12345',
+        'HOST': '192.168.56.101',
+        'PORT': '',
     }
 }
 
@@ -94,8 +94,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static-www')
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth', # Admin
-    'django.contrib.messages.context_processors.messages', # Admin
+    'django.contrib.auth.context_processors.auth',  # Admin
+    'django.contrib.messages.context_processors.messages',  # Admin
     'django.core.context_processors.request',
 )
 
@@ -202,11 +202,17 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 ##### RACKSPACE #####
-RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = 'dev_images_'
-RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX = 'dev_downloads_'
-RACKSPACE_CLOUDFILE_WATERMARK = 'dev_watermark'
-RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = 10000
-RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = True
+CLOUDFILES_IMAGES_PREFIX = 'dev_images_'
+CLOUDFILES_DOWNLOAD_PREFIX = 'dev_downloads_'
+CLOUDFILES_WATERMARK_PREFIX = 'dev_watermark'
+CLOUDFILES_EVENTS_PER_CONTAINER = 10000
+CLOUDFILES_PUBLIC_NETWORK = True
+# deprecated
+RACKSPACE_CLOUDFILE_CONTAINER_PREFIX = CLOUDFILES_IMAGES_PREFIX
+RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX = CLOUDFILES_DOWNLOAD_PREFIX
+RACKSPACE_CLOUDFILE_WATERMARK = CLOUDFILES_WATERMARK_PREFIX
+RACKSPACE_CLOUDFILE_EVENTS_PER_CONTAINER = CLOUDFILES_EVENTS_PER_CONTAINER
+RACKSPACE_CLOUDFILE_PUBLIC_NETWORK = CLOUDFILES_PUBLIC_NETWORK
 
 ##### Redis #####
 REDIS_HOST = '192.168.56.102'
@@ -220,12 +226,12 @@ TASTYPIE_ABSTRACT_APIKEY = True
 TASTYPIE_DATETIME_FORMATTING = 'iso-8601-strict'
 
 ##### Stripe #####
-STRIPE_KEY_SECRET = '***REMOVED***' # testing
-STRIPE_KEY_PUBLIC = '***REMOVED***' # testing
+STRIPE_KEY_SECRET = '***REMOVED***'  # testing
+STRIPE_KEY_PUBLIC = '***REMOVED***'  # testing
 STRIPE_CURRENCY = 'usd'
 
 ##### sendwithus #####
-SENDWITHUS_KEY = '***REMOVED***' # no email
+SENDWITHUS_KEY = '***REMOVED***'  # no email
 
 ##### Celery #####
 # Broker settings.
@@ -235,7 +241,7 @@ BROKER_URL = 'amqp://snap_api:snapable12345@192.168.56.102:5672/snap_api'
 CELERY_RESULT_BACKEND = 'redis://192.168.56.102/0'
 
 # Expire tasks after a set time
-CELERY_TASK_RESULT_EXPIRES = 3600 # 1h
+CELERY_TASK_RESULT_EXPIRES = 3600  # 1h
 #CELERY_ANNOTATIONS = {'tasks.add': {'rate_limit': '10/s'}}
 
 # List of modules to import when celery starts.
