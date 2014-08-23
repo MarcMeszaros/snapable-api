@@ -18,6 +18,7 @@ import admin
 from photo import Photo
 from utils import rackspace
 
+
 @python_2_unicode_compatible
 class Event(models.Model):
 
@@ -75,7 +76,7 @@ class Event(models.Model):
     # override the save function to set defaults if required
     def save(self, *args, **kwargs):
         if not self.pin:
-            self.pin = str(random.randint(1000, 9999)) # random int between 1000 and 9999 (inclusive)
+            self.pin = str(random.randint(1000, 9999))  # 1000~9999 (inclusive)
 
         return super(Event, self).save(*args, **kwargs)
 
@@ -87,7 +88,7 @@ class Event(models.Model):
         try:
             # check the partner API account first
             if self.account.api_account is not None:
-                cont = rackspace.cloud_files.get_container(settings.RACKSPACE_CLOUDFILE_WATERMARK)
+                cont = rackspace.cloud_files.get(settings.CLOUDFILES_WATERMARK_PREFIX)
 
                 # try and get watermark image
                 obj = cont.get_object('{0}.png'.format(self.account.api_account.pk))
@@ -108,6 +109,10 @@ class Event(models.Model):
     def save_watermark(self, image):
         pass
 
+    def cleanup_photos(self):
+        from worker import event
+        event.cleanup_photos.delay(self.pk)
+
     def create_zip(self):
         from worker import event
         event.create_album_zip.delay(self.pk)
@@ -115,6 +120,7 @@ class Event(models.Model):
     def send_invites(self, message=''):
         from worker import event
         event.email_guests.delay(self.pk, message)
+
 
 #===== Admin =====#
 class UpcomingEventListFilter(admin.SimpleListFilter):
@@ -173,6 +179,7 @@ class UpcomingEventListFilter(admin.SimpleListFilter):
         query = (Q(start_at__gte=start) | Q(end_at__gte=start)) & (Q(start_at__lte=end) | Q(end_at__lte=end))
         return queryset.filter(query)
 
+
 #===== Admin =====#
 # base details for direct and inline admin models
 class EventAdminDetails(object):
@@ -204,10 +211,11 @@ class EventAdminDetails(object):
         }),
     )
 
+
 # base details for direct and inline admin models
 from location import LocationAdminInline
 class EventAdmin(EventAdminDetails, admin.ModelAdmin):
-    actions = ['create_event_photo_zip', 'send_event_invites']
+    actions = ['cleanup_photos', 'create_event_photo_zip', 'send_event_invites']
     inlines = [LocationAdminInline]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -222,18 +230,24 @@ class EventAdmin(EventAdminDetails, admin.ModelAdmin):
                 kwargs['queryset'] = Photo.objects.none()
             return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+    def cleanup_photos(self, request, queryset):
+        for event in queryset.iterator():
+            event.cleanup_photos()
+        self.message_user(request, 'Successfully schedule photo cleanup.')
+
     def create_event_photo_zip(self, request, queryset):
         for event in queryset.iterator():
             event.create_zip()
-        self.message_user(request, "Successfully scheduled zip archive creation.")
+        self.message_user(request, 'Successfully scheduled zip archive creation.')
 
     def send_event_invites(self, request, queryset):
         for event in queryset.iterator():
             event.send_invites()
-        self.message_user(request, "Successfully sent the event invites.")
+        self.message_user(request, 'Successfully sent the event invites.')
 
 
 admin.site.register(Event, EventAdmin)
+
 
 # add the inline admin model
 class EventAdminInline(EventAdminDetails, admin.StackedInline):

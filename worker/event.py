@@ -23,6 +23,15 @@ from utils.loggers import Log
 
 
 @app.task
+def cleanup_photos(event_id):
+    event = Event.objects.get(pk=event_id)
+    photos = event.photo_set.all()
+
+    for photo in photos:
+        photo.cleanup_resizes()
+
+
+@app.task
 def create_album_zip(event_id):
 
     # add lock
