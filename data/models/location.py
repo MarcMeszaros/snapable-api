@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import admin
+import dashboard
 
 @python_2_unicode_compatible
 class Location(models.Model):
@@ -42,5 +42,5 @@ class LocationAdminDetails(object):
     )
 
 # add the inline admin model
-class LocationAdminInline(LocationAdminDetails, admin.StackedInline):
+class LocationAdminInline(LocationAdminDetails, dashboard.StackedInline):
     model = Location

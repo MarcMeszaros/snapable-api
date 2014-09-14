@@ -10,7 +10,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import admin
+import dashboard
 import utils
 
 @python_2_unicode_compatible
@@ -114,12 +114,12 @@ class ApiKeyAdminDetails(object):
         }),
     )
 
-class ApiKeyAdmin(ApiKeyAdminDetails, admin.ModelAdmin):
+class ApiKeyAdmin(ApiKeyAdminDetails, dashboard.ModelAdmin):
     pass
 
-admin.site.register(ApiKey, ApiKeyAdmin)
+dashboard.site.register(ApiKey, ApiKeyAdmin)
 
 # add the inline admin model
-class ApiKeyAdminInline(ApiKeyAdminDetails, admin.StackedInline):
+class ApiKeyAdminInline(ApiKeyAdminDetails, dashboard.StackedInline):
     model = ApiKey
     extra = 0

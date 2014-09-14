@@ -14,7 +14,7 @@ from PIL import Image
 from uuidfield import UUIDField
 
 # snapable
-import admin
+import dashboard
 from photo import Photo
 from utils import rackspace
 
@@ -123,7 +123,7 @@ class Event(models.Model):
 
 
 #===== Admin =====#
-class UpcomingEventListFilter(admin.SimpleListFilter):
+class UpcomingEventListFilter(dashboard.SimpleListFilter):
     title = 'Upcoming'
     parameter_name = 'upcoming'
 
@@ -214,7 +214,7 @@ class EventAdminDetails(object):
 
 # base details for direct and inline admin models
 from location import LocationAdminInline
-class EventAdmin(EventAdminDetails, admin.ModelAdmin):
+class EventAdmin(EventAdminDetails, dashboard.ModelAdmin):
     actions = ['cleanup_photos', 'create_event_photo_zip', 'send_event_invites']
     inlines = [LocationAdminInline]
 
@@ -246,10 +246,10 @@ class EventAdmin(EventAdminDetails, admin.ModelAdmin):
         self.message_user(request, 'Successfully sent the event invites.')
 
 
-admin.site.register(Event, EventAdmin)
+dashboard.site.register(Event, EventAdmin)
 
 
 # add the inline admin model
-class EventAdminInline(EventAdminDetails, admin.StackedInline):
+class EventAdminInline(EventAdminDetails, dashboard.StackedInline):
     model = Event
     extra = 1

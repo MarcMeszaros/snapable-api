@@ -27,7 +27,7 @@ INSTALLED_APPS = (
     # core apps for snapable
     'data',
     'api',
-    'admin',
+    'dashboard',
     # third-party libraries/apps
     'raven.contrib.django.raven_compat',
     'tastypie',

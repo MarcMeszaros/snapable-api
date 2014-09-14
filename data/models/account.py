@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import admin
+import dashboard
 from api.models import ApiAccount
 
 @python_2_unicode_compatible
@@ -61,7 +61,7 @@ class AccountAdminDetails(object):
 from .accountuser import AccountUserAdminInline
 from .event import EventAdminInline
 from .order import OrderAdminInline
-class AccountAdmin(AccountAdminDetails, admin.ModelAdmin):
+class AccountAdmin(AccountAdminDetails, dashboard.ModelAdmin):
     inlines = [AccountUserAdminInline, EventAdminInline, OrderAdminInline]
 
-admin.site.register(Account, AccountAdmin)
+dashboard.site.register(Account, AccountAdmin)

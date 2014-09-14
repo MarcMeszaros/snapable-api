@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import admin
+import dashboard
 
 @python_2_unicode_compatible
 class ApiAccount(models.Model):
@@ -29,7 +29,7 @@ class ApiAccount(models.Model):
 
 #===== Admin =====#
 from .key import ApiKeyAdminInline
-class ApiAccountAdmin(admin.ModelAdmin):
+class ApiAccountAdmin(dashboard.ModelAdmin):
     inlines = [ApiKeyAdminInline]
 
     list_display = ['id', 'email', 'company', 'created_at']
@@ -46,4 +46,4 @@ class ApiAccountAdmin(admin.ModelAdmin):
         }),
     )
 
-admin.site.register(ApiAccount, ApiAccountAdmin)
+dashboard.site.register(ApiAccount, ApiAccountAdmin)

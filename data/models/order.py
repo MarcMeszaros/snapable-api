@@ -10,7 +10,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
 # snapable
-import admin
+import dashboard
 import utils.currency
 import utils.sendwithus
 from accountaddon import AccountAddon
@@ -221,7 +221,7 @@ class OrderAdminDetails(object):
 
 
 # add the direct admin model
-class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
+class OrderAdmin(OrderAdminDetails, dashboard.ModelAdmin):
     actions = ['charge', 'send_email']
 
     def send_email(self, request, queryset):
@@ -240,11 +240,11 @@ class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
         else:
             self.message_user(request, 'Some charges failed')
 
-admin.site.register(Order, OrderAdmin)
+dashboard.site.register(Order, OrderAdmin)
 
 
 # add the inline admin model
-class OrderAdminInline(OrderAdminDetails, admin.StackedInline):
+class OrderAdminInline(OrderAdminDetails, dashboard.StackedInline):
     model = Order
 
     def has_add_permission(self, request):

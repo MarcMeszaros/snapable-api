@@ -8,7 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 
 # snapable
-import admin
+import dashboard
 from data.images import SnapImage
 from guest import Guest
 from utils import rackspace
@@ -198,7 +198,7 @@ class PhotoAdminDetails(object):
 
 
 # add the direct admin model
-class PhotoAdmin(PhotoAdminDetails, admin.ModelAdmin):
+class PhotoAdmin(PhotoAdminDetails, dashboard.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         object_id = filter(None, request.path.split('/'))[-1]
         photo = Photo.objects.get(pk=object_id)
@@ -206,4 +206,4 @@ class PhotoAdmin(PhotoAdminDetails, admin.ModelAdmin):
             kwargs['queryset'] = Guest.objects.filter(event=photo.event)
         return super(PhotoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-admin.site.register(Photo, PhotoAdmin)
+dashboard.site.register(Photo, PhotoAdmin)

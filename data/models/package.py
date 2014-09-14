@@ -4,7 +4,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
 # snapable
-import admin
+import dashboard
 
 @python_2_unicode_compatible
 class Package(models.Model):
@@ -45,7 +45,7 @@ class Package(models.Model):
             'short_name': self.short_name,
         })
 
-class PackageAdmin(admin.ModelAdmin):
+class PackageAdmin(dashboard.ModelAdmin):
     list_display = ['id', 'short_name', 'name', 'amount', 'is_enabled']
     readonly_fields = ['id']
     search_fields = ['short_name', 'name']
@@ -63,4 +63,4 @@ class PackageAdmin(admin.ModelAdmin):
         }),
     )
 
-admin.site.register(Package, PackageAdmin)
+dashboard.site.register(Package, PackageAdmin)

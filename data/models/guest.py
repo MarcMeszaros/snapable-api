@@ -6,7 +6,7 @@ from django.template import Context
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import admin
+import dashboard
 
 @python_2_unicode_compatible
 class Guest(models.Model):
@@ -101,7 +101,7 @@ class GuestAdminDetails(object):
         return object.event.url
 
 
-class GuestAdmin(GuestAdminDetails, admin.ModelAdmin):
+class GuestAdmin(GuestAdminDetails, dashboard.ModelAdmin):
     actions = ['send_email_invite', 'reset_email_invite_flag']
 
     def send_email_invite(self, request, queryset):
@@ -115,4 +115,4 @@ class GuestAdmin(GuestAdminDetails, admin.ModelAdmin):
             guest.save()
         self.message_user(request, "Successfully sent email.")
 
-admin.site.register(Guest, GuestAdmin)
+dashboard.site.register(Guest, GuestAdmin)

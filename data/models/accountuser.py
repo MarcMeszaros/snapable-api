@@ -2,7 +2,7 @@
 from django.db import models
 
 # snapable
-import admin
+import dashboard
 
 class AccountUser(models.Model):
     
@@ -25,10 +25,10 @@ class AccountUserAdminDetails(object):
     }
 
 # add the direct admin model
-class AccountUserAdmin(AccountUserAdminDetails, admin.ModelAdmin):
+class AccountUserAdmin(AccountUserAdminDetails, dashboard.ModelAdmin):
     pass
 
 # add the inline admin model
-class AccountUserAdminInline(AccountUserAdminDetails, admin.TabularInline):
+class AccountUserAdminInline(AccountUserAdminDetails, dashboard.TabularInline):
     model = AccountUser
     extra = 0

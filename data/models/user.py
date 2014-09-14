@@ -13,7 +13,7 @@ from django.template import Context
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import admin
+import dashboard
 from data.models import PasswordNonce
 
 class UserManager(BaseUserManager):
@@ -199,7 +199,7 @@ class UserAdminDetails(object):
 
 # add the direct admin model
 from .accountuser import AccountUserAdminInline
-class UserAdmin(UserAdminDetails, admin.ModelAdmin):
+class UserAdmin(UserAdminDetails, dashboard.ModelAdmin):
     inlines = [AccountUserAdminInline]
 
     def save_model(self, request, obj, form, change):
@@ -207,8 +207,8 @@ class UserAdmin(UserAdminDetails, admin.ModelAdmin):
             obj.set_password(obj.password)
         obj.save()
 
-admin.site.register(User, UserAdmin)
+dashboard.site.register(User, UserAdmin)
 
 # add the inline admin model
-class UserAdminInline(UserAdminDetails, admin.StackedInline):
+class UserAdminInline(UserAdminDetails, dashboard.StackedInline):
     model = User
