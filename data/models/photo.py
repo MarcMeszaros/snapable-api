@@ -2,6 +2,7 @@
 import cStringIO
 
 # django/tastypie/libs
+from django.contrib import admin
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -198,7 +199,7 @@ class PhotoAdminDetails(object):
 
 
 # add the direct admin model
-class PhotoAdmin(PhotoAdminDetails, dashboard.ModelAdmin):
+class PhotoAdmin(PhotoAdminDetails, admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         object_id = filter(None, request.path.split('/'))[-1]
         photo = Photo.objects.get(pk=object_id)

@@ -6,6 +6,7 @@ import uuid
 # django/tastypie/libs
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
+from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -114,12 +115,12 @@ class ApiKeyAdminDetails(object):
         }),
     )
 
-class ApiKeyAdmin(ApiKeyAdminDetails, dashboard.ModelAdmin):
+class ApiKeyAdmin(ApiKeyAdminDetails, admin.ModelAdmin):
     pass
 
 dashboard.site.register(ApiKey, ApiKeyAdmin)
 
 # add the inline admin model
-class ApiKeyAdminInline(ApiKeyAdminDetails, dashboard.StackedInline):
+class ApiKeyAdminInline(ApiKeyAdminDetails, admin.StackedInline):
     model = ApiKey
     extra = 0

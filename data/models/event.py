@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 # django/tastypie/libs
 from django.conf import settings
+from django.contrib import admin
 from django.db import models
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
@@ -123,7 +124,7 @@ class Event(models.Model):
 
 
 #===== Admin =====#
-class UpcomingEventListFilter(dashboard.SimpleListFilter):
+class UpcomingEventListFilter(admin.SimpleListFilter):
     title = 'Upcoming'
     parameter_name = 'upcoming'
 
@@ -214,7 +215,7 @@ class EventAdminDetails(object):
 
 # base details for direct and inline admin models
 from location import LocationAdminInline
-class EventAdmin(EventAdminDetails, dashboard.ModelAdmin):
+class EventAdmin(EventAdminDetails, admin.ModelAdmin):
     actions = ['cleanup_photos', 'create_event_photo_zip', 'send_event_invites']
     inlines = [LocationAdminInline]
 
@@ -245,11 +246,10 @@ class EventAdmin(EventAdminDetails, dashboard.ModelAdmin):
             event.send_invites()
         self.message_user(request, 'Successfully sent the event invites.')
 
-
 dashboard.site.register(Event, EventAdmin)
 
 
 # add the inline admin model
-class EventAdminInline(EventAdminDetails, dashboard.StackedInline):
+class EventAdminInline(EventAdminDetails, admin.StackedInline):
     model = Event
     extra = 1

@@ -1,4 +1,5 @@
 # django/tastypie/libs
+from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -29,7 +30,7 @@ class ApiAccount(models.Model):
 
 #===== Admin =====#
 from .key import ApiKeyAdminInline
-class ApiAccountAdmin(dashboard.ModelAdmin):
+class ApiAccountAdmin(admin.ModelAdmin):
     inlines = [ApiKeyAdminInline]
 
     list_display = ['id', 'email', 'company', 'created_at']

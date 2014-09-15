@@ -1,5 +1,6 @@
-from django.contrib.admin.options import (HORIZONTAL, VERTICAL, ModelAdmin, StackedInline, TabularInline)
-from django.contrib.admin.filters import (ListFilter, SimpleListFilter, FieldListFilter, BooleanFieldListFilter, 
-    RelatedFieldListFilter, ChoicesFieldListFilter, DateFieldListFilter, AllValuesFieldListFilter)
+# django/libs
+from django.contrib.admin.sites import AdminSite
 
-from sites import AdminSite, site
+# This global object represents the admin site, for the common case.
+site = AdminSite()
+site.disable_action('delete_selected')

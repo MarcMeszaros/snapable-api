@@ -4,6 +4,7 @@ import re
 
 # django/libs
 import stripe
+from django.contrib import admin
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -221,7 +222,7 @@ class OrderAdminDetails(object):
 
 
 # add the direct admin model
-class OrderAdmin(OrderAdminDetails, dashboard.ModelAdmin):
+class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
     actions = ['charge', 'send_email']
 
     def send_email(self, request, queryset):
@@ -244,7 +245,7 @@ dashboard.site.register(Order, OrderAdmin)
 
 
 # add the inline admin model
-class OrderAdminInline(OrderAdminDetails, dashboard.StackedInline):
+class OrderAdminInline(OrderAdminDetails, admin.StackedInline):
     model = Order
 
     def has_add_permission(self, request):

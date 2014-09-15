@@ -1,4 +1,5 @@
 # django/tastypie/libs
+from django.contrib import admin
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
 from django.template.loader import get_template
@@ -8,13 +9,14 @@ from django.utils.encoding import python_2_unicode_compatible
 # snapable
 import dashboard
 
+
 @python_2_unicode_compatible
 class Guest(models.Model):
 
     # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
-    
+
     event = models.ForeignKey('Event', on_delete=models.CASCADE)
 
     name = models.CharField(max_length=255, help_text='The guest name.')
@@ -101,7 +103,7 @@ class GuestAdminDetails(object):
         return object.event.url
 
 
-class GuestAdmin(GuestAdminDetails, dashboard.ModelAdmin):
+class GuestAdmin(GuestAdminDetails, admin.ModelAdmin):
     actions = ['send_email_invite', 'reset_email_invite_flag']
 
     def send_email_invite(self, request, queryset):

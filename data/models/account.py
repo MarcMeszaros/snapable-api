@@ -1,4 +1,5 @@
 # django/tastypie/libs
+from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -6,9 +7,10 @@ from django.utils.encoding import python_2_unicode_compatible
 import dashboard
 from api.models import ApiAccount
 
+
 @python_2_unicode_compatible
 class Account(models.Model):
-    
+
     # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
@@ -28,10 +30,11 @@ class Account(models.Model):
         return str({
             'api_account': self.api_account,
             'package': self.package,
-            'pk': self.pk, # Primary Key is infered from Django
+            'pk': self.pk,  # Primary Key is infered from Django
             'users': self.users,
             'valid_until': self.valid_until,
         })
+
 
 #===== Admin =====#
 # base details for direct and inline admin models
@@ -57,11 +60,12 @@ class AccountAdminDetails(object):
     def account__users(self, obj):
         return ','.join([u.email for u in obj.users.all()])
 
+
 # add the direct admin model
 from .accountuser import AccountUserAdminInline
 from .event import EventAdminInline
 from .order import OrderAdminInline
-class AccountAdmin(AccountAdminDetails, dashboard.ModelAdmin):
+class AccountAdmin(AccountAdminDetails, admin.ModelAdmin):
     inlines = [AccountUserAdminInline, EventAdminInline, OrderAdminInline]
 
 dashboard.site.register(Account, AccountAdmin)

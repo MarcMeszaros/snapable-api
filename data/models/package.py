@@ -1,10 +1,12 @@
 # django/tastypies/libs
+from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
 # snapable
 import dashboard
+
 
 @python_2_unicode_compatible
 class Package(models.Model):
@@ -45,7 +47,9 @@ class Package(models.Model):
             'short_name': self.short_name,
         })
 
-class PackageAdmin(dashboard.ModelAdmin):
+
+#===== Admin =====#
+class PackageAdmin(admin.ModelAdmin):
     list_display = ['id', 'short_name', 'name', 'amount', 'is_enabled']
     readonly_fields = ['id']
     search_fields = ['short_name', 'name']
@@ -54,7 +58,7 @@ class PackageAdmin(dashboard.ModelAdmin):
             'fields': (
                 'id',
                 'is_enabled',
-                'name', 
+                'name',
                 'short_name',
                 'amount',
                 'items',

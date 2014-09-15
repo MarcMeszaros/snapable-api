@@ -1,13 +1,12 @@
 # django/tastypie/libs
+from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
-# snapable
-import dashboard
 
 @python_2_unicode_compatible
 class Location(models.Model):
-    
+
     # required to make 'south' migrations work
     class Meta:
         app_label = 'data'
@@ -29,6 +28,7 @@ class Location(models.Model):
             'lng': self.lng,
         })
 
+
 #===== Admin =====#
 # base details for direct and inline admin models
 class LocationAdminDetails(object):
@@ -42,5 +42,5 @@ class LocationAdminDetails(object):
     )
 
 # add the inline admin model
-class LocationAdminInline(LocationAdminDetails, dashboard.StackedInline):
+class LocationAdminInline(LocationAdminDetails, admin.StackedInline):
     model = Location
