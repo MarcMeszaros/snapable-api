@@ -115,10 +115,11 @@ class ApiKeyAdminDetails(object):
         }),
     )
 
+
+@admin.register(ApiKey, site=dashboard.site)
 class ApiKeyAdmin(ApiKeyAdminDetails, admin.ModelAdmin):
     pass
 
-dashboard.site.register(ApiKey, ApiKeyAdmin)
 
 # add the inline admin model
 class ApiKeyAdminInline(ApiKeyAdminDetails, admin.StackedInline):

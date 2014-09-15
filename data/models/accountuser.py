@@ -26,11 +26,11 @@ class AccountUserAdminDetails(object):
 
 
 # add the direct admin model
-class AccountUserAdmin(AccountUserAdminDetails, admin.ModelAdmin):
+class AccountUserAdmin(admin.ModelAdmin, AccountUserAdminDetails):
     pass
 
 
 # add the inline admin model
-class AccountUserAdminInline(AccountUserAdminDetails, admin.TabularInline):
+class AccountUserAdminInline(admin.TabularInline, AccountUserAdminDetails):
     model = AccountUser
     extra = 0

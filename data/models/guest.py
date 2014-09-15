@@ -102,8 +102,8 @@ class GuestAdminDetails(object):
     def event_url(self, object):
         return object.event.url
 
-
-class GuestAdmin(GuestAdminDetails, admin.ModelAdmin):
+@admin.register(Guest, site=dashboard.site)
+class GuestAdmin(admin.ModelAdmin, GuestAdminDetails):
     actions = ['send_email_invite', 'reset_email_invite_flag']
 
     def send_email_invite(self, request, queryset):
@@ -116,5 +116,3 @@ class GuestAdmin(GuestAdminDetails, admin.ModelAdmin):
             guest.is_invited = False
             guest.save()
         self.message_user(request, "Successfully sent email.")
-
-dashboard.site.register(Guest, GuestAdmin)

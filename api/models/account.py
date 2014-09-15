@@ -28,8 +28,10 @@ class ApiAccount(models.Model):
             'pk': self.pk,
         })
 
+
 #===== Admin =====#
 from .key import ApiKeyAdminInline
+@admin.register(ApiAccount, site=dashboard.site)
 class ApiAccountAdmin(admin.ModelAdmin):
     inlines = [ApiKeyAdminInline]
 
@@ -40,11 +42,9 @@ class ApiAccountAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'id',
-                'email', 
+                'email',
                 'company',
                 'created_at',
             ),
         }),
     )
-
-dashboard.site.register(ApiAccount, ApiAccountAdmin)

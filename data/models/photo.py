@@ -199,12 +199,11 @@ class PhotoAdminDetails(object):
 
 
 # add the direct admin model
-class PhotoAdmin(PhotoAdminDetails, admin.ModelAdmin):
+@admin.register(Photo, site=dashboard.site)
+class PhotoAdmin(admin.ModelAdmin, PhotoAdminDetails):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         object_id = filter(None, request.path.split('/'))[-1]
         photo = Photo.objects.get(pk=object_id)
         if db_field.name == 'guest':
             kwargs['queryset'] = Guest.objects.filter(event=photo.event)
         return super(PhotoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
-dashboard.site.register(Photo, PhotoAdmin)

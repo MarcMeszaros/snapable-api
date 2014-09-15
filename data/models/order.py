@@ -222,7 +222,8 @@ class OrderAdminDetails(object):
 
 
 # add the direct admin model
-class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
+@admin.register(Order, site=dashboard.site)
+class OrderAdmin(admin.ModelAdmin, OrderAdminDetails):
     actions = ['charge', 'send_email']
 
     def send_email(self, request, queryset):
@@ -241,11 +242,9 @@ class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
         else:
             self.message_user(request, 'Some charges failed')
 
-dashboard.site.register(Order, OrderAdmin)
-
 
 # add the inline admin model
-class OrderAdminInline(OrderAdminDetails, admin.StackedInline):
+class OrderAdminInline(admin.StackedInline, OrderAdminDetails):
     model = Order
 
     def has_add_permission(self, request):

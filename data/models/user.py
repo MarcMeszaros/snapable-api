@@ -204,7 +204,8 @@ class UserAdminDetails(object):
 
 # add the direct admin model
 from .accountuser import AccountUserAdminInline
-class UserAdmin(UserAdminDetails, admin.ModelAdmin):
+@admin.register(User, site=dashboard.site)
+class UserAdmin(admin.ModelAdmin, UserAdminDetails):
     inlines = [AccountUserAdminInline]
 
     def save_model(self, request, obj, form, change):
@@ -212,9 +213,7 @@ class UserAdmin(UserAdminDetails, admin.ModelAdmin):
             obj.set_password(obj.password)
         obj.save()
 
-dashboard.site.register(User, UserAdmin)
-
 
 # add the inline admin model
-class UserAdminInline(UserAdminDetails, admin.StackedInline):
+class UserAdminInline(admin.StackedInline, UserAdminDetails):
     model = User

@@ -49,6 +49,7 @@ class Package(models.Model):
 
 
 #===== Admin =====#
+@admin.register(Package, site=dashboard.site)
 class PackageAdmin(admin.ModelAdmin):
     list_display = ['id', 'short_name', 'name', 'amount', 'is_enabled']
     readonly_fields = ['id']
@@ -66,5 +67,3 @@ class PackageAdmin(admin.ModelAdmin):
             ),
         }),
     )
-
-dashboard.site.register(Package, PackageAdmin)

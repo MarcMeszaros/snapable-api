@@ -42,5 +42,5 @@ class LocationAdminDetails(object):
     )
 
 # add the inline admin model
-class LocationAdminInline(LocationAdminDetails, admin.StackedInline):
+class LocationAdminInline(admin.StackedInline, LocationAdminDetails):
     model = Location

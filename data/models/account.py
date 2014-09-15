@@ -65,7 +65,6 @@ class AccountAdminDetails(object):
 from .accountuser import AccountUserAdminInline
 from .event import EventAdminInline
 from .order import OrderAdminInline
-class AccountAdmin(AccountAdminDetails, admin.ModelAdmin):
+@admin.register(Account, site=dashboard.site)
+class AccountAdmin(admin.ModelAdmin, AccountAdminDetails):
     inlines = [AccountUserAdminInline, EventAdminInline, OrderAdminInline]
-
-dashboard.site.register(Account, AccountAdmin)

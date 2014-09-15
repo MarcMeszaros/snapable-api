@@ -214,8 +214,9 @@ class EventAdminDetails(object):
 
 
 # base details for direct and inline admin models
-from location import LocationAdminInline
-class EventAdmin(EventAdminDetails, admin.ModelAdmin):
+from .location import LocationAdminInline
+@admin.register(Event, site=dashboard.site)
+class EventAdmin(admin.ModelAdmin, EventAdminDetails):
     actions = ['cleanup_photos', 'create_event_photo_zip', 'send_event_invites']
     inlines = [LocationAdminInline]
 
@@ -246,10 +247,8 @@ class EventAdmin(EventAdminDetails, admin.ModelAdmin):
             event.send_invites()
         self.message_user(request, 'Successfully sent the event invites.')
 
-dashboard.site.register(Event, EventAdmin)
-
 
 # add the inline admin model
-class EventAdminInline(EventAdminDetails, admin.StackedInline):
+class EventAdminInline(admin.StackedInline, EventAdminDetails):
     model = Event
     extra = 1
