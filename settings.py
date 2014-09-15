@@ -31,7 +31,6 @@ INSTALLED_APPS = (
     # third-party libraries/apps
     'raven.contrib.django.raven_compat',
     'tastypie',
-    'south',
 
     # django related
     'grappelli',

@@ -4,7 +4,6 @@ Django==1.7.0                                   # python 3
 django-tastypie==0.12.0                         # python 3
 PyMySQL==0.6.2                                  # python 3
 pyrax==1.9.2                                    # python 2 x
-South==1.0                                      # python 3
 Pillow==2.5.3                                   # python 3
 celery[redis]==3.1.14                           # python 3
 
@@ -14,7 +13,8 @@ django-grappelli>=2.6.1                         # python 3
 jsonfield>=1.0.0                                # python 3
 django-uuidfield>=0.5.0                         # python 3
 #django-bitfield>=1.7.0                         # python 3
-git+https://github.com/habfast/django-bitfield.git@patch-1#egg=django-bitfield
+#git+https://github.com/habfast/django-bitfield.git@patch-1#egg=django-bitfield
+git+https://github.com/disqus/django-bitfield.git@master#egg=django-bitfield
 setproctitle>=1.1.8                             # python 3
 pytz>=2014.7                                    # python 3
 python-dateutil>=2.2                            # python 3

@@ -1,61 +1,42 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import bitfield.models
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'ApiAccount'
-        db.create_table('api_apiaccount', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('email', self.gf('django.db.models.fields.EmailField')(max_length=75)),
-            ('company', self.gf('django.db.models.fields.CharField')(max_length=255, null=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-        ))
-        db.send_create_signal('api', ['ApiAccount'])
+    dependencies = [
+    ]
 
-        # Adding model 'ApiKey'
-        db.create_table('api_apikey', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('account', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['api.ApiAccount'])),
-            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255, db_index=True)),
-            ('secret', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('version', self.gf('django.db.models.fields.CharField')(max_length=25)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('enabled', self.gf('django.db.models.fields.BooleanField')(default=True)),
-        ))
-        db.send_create_signal('api', ['ApiKey'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'ApiAccount'
-        db.delete_table('api_apiaccount')
-
-        # Deleting model 'ApiKey'
-        db.delete_table('api_apikey')
-
-
-    models = {
-        'api.apiaccount': {
-            'Meta': {'object_name': 'ApiAccount'},
-            'company': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
-        },
-        'api.apikey': {
-            'Meta': {'object_name': 'ApiKey'},
-            'account': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['api.ApiAccount']"}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
-            'secret': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'version': ('django.db.models.fields.CharField', [], {'max_length': '25'})
-        }
-    }
-
-    complete_apps = ['api']
+    operations = [
+        migrations.CreateModel(
+            name='ApiAccount',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('email', models.EmailField(help_text=b'The email contact for the API.', max_length=75)),
+                ('company', models.CharField(help_text=b'The name of the organization or company.', max_length=255, null=True)),
+                ('created_at', models.DateTimeField(help_text=b'When the api account was created. (UTC)', auto_now_add=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ApiKey',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('key', models.CharField(help_text=b'The API key.', unique=True, max_length=255, db_index=True)),
+                ('secret', models.CharField(help_text=b'The API key secret.', max_length=255)),
+                ('version', models.CharField(help_text=b'The API version that the key has access to.', max_length=25, choices=[(b'partner_v1', b'Partner (v1)'), (b'private_v1', b'Private (v1)')])),
+                ('created_at', models.DateTimeField(help_text=b'When the API key was created. (UTC)', auto_now_add=True)),
+                ('is_enabled', models.BooleanField(default=True, help_text=b'If the API key is enabled.')),
+                ('permission_mask', bitfield.models.BitField(((b'create', b'Create'), (b'read', b'Read'), (b'update', b'Update'), (b'delete', b'Delete')), default=15, help_text=b'What permissions this API key has on data in the system.')),
+                ('account', models.ForeignKey(to='api.ApiAccount')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+    ]
