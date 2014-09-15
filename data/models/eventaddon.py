@@ -1,11 +1,8 @@
 # django/libs
 from django.db import models
 
+
 class EventAddon(models.Model):
-    
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
 
     event = models.ForeignKey('Event')
     addon = models.ForeignKey('Addon')

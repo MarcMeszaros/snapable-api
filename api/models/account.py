@@ -6,12 +6,9 @@ from django.utils.encoding import python_2_unicode_compatible
 # snapable
 import dashboard
 
+
 @python_2_unicode_compatible
 class ApiAccount(models.Model):
-
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'api'
 
     email = models.EmailField(help_text='The email contact for the API.')
     company = models.CharField(max_length=255, null=True, help_text='The name of the organization or company.')

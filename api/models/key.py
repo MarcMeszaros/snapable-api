@@ -1,6 +1,5 @@
 # python
 import hashlib
-import pickle
 import uuid
 
 # django/tastypie/libs
@@ -14,12 +13,9 @@ from django.utils.encoding import python_2_unicode_compatible
 import dashboard
 import utils
 
+
 @python_2_unicode_compatible
 class ApiKey(models.Model):
-
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'api'
 
     # the choices for the interval field
     API_PARTNER_V1 = 'partner_v1'

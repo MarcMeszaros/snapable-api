@@ -7,10 +7,6 @@ from django.utils.encoding import python_2_unicode_compatible
 @python_2_unicode_compatible
 class Location(models.Model):
 
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
-
     event = models.ForeignKey('Event', help_text='The event this location belongs to.')
 
     address = models.CharField(max_length=255, help_text='The location address.')
@@ -40,6 +36,7 @@ class LocationAdminDetails(object):
             ),
         }),
     )
+
 
 # add the inline admin model
 class LocationAdminInline(admin.StackedInline, LocationAdminDetails):

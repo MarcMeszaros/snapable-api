@@ -22,10 +22,6 @@ from package import Package
 @python_2_unicode_compatible
 class Order(models.Model):
 
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
-
     # the choices for the interval field
     # name should contain the [value] in cents
     COUPON_CHOICES = [
@@ -104,7 +100,6 @@ class Order(models.Model):
         # update the amount
         #if not self.is_paid:
         self.amount = total - discount
-
 
     def charge(self, stripe_token=None):
         if self.is_paid or self.amount < 50:

@@ -40,10 +40,6 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
-
     objects = UserManager()
     is_active = True
 
@@ -100,7 +96,6 @@ class User(AbstractBaseUser):
         return self.first_name
 
     def send_password_reset(self, url):
-        
         # whitelist check for url
         if re.match('https?://(.+\.)?snapable\.com', url) != None:
             # create the passwordnonce and save

@@ -23,10 +23,6 @@ from utils import rackspace
 @python_2_unicode_compatible
 class Event(models.Model):
 
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
-
     account = models.ForeignKey('Account', help_text='What account the event belongs to.')
     addons = models.ManyToManyField('Addon', through='EventAddon')
     cover = models.ForeignKey('Photo', related_name='+', null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The image to use for the event cover.')

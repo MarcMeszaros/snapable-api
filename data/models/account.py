@@ -11,10 +11,6 @@ from api.models import ApiAccount
 @python_2_unicode_compatible
 class Account(models.Model):
 
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
-
     package = models.ForeignKey('Package', null=True, default=None, help_text='The active package associated with the account.')
     addons = models.ManyToManyField('Addon', through='AccountAddon')
     users = models.ManyToManyField('User', through='AccountUser')

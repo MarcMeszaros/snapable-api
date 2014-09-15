@@ -13,10 +13,6 @@ import dashboard
 @python_2_unicode_compatible
 class Guest(models.Model):
 
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
-
     event = models.ForeignKey('Event', on_delete=models.CASCADE)
 
     name = models.CharField(max_length=255, help_text='The guest name.')
@@ -79,7 +75,7 @@ class GuestAdminDetails(object):
         (None, {
             'fields': (
                 'id',
-                'email', 
+                'email',
                 'name',
                 'is_invited',
                 'created_at',
@@ -101,6 +97,7 @@ class GuestAdminDetails(object):
 
     def event_url(self, object):
         return object.event.url
+
 
 @admin.register(Guest, site=dashboard.site)
 class GuestAdmin(admin.ModelAdmin, GuestAdminDetails):

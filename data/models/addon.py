@@ -1,11 +1,8 @@
 # django/libs
 from django.db import models
 
+
 class Addon(models.Model):
-    
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
 
     title = models.CharField(max_length=255, help_text='The title of the addon.')
     description = models.TextField(help_text='The addon description.')

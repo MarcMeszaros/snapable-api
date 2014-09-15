@@ -5,12 +5,8 @@ import random
 # django/tastypie
 from django.db import models
 
+
 class PasswordNonce(models.Model):
-
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
-
     # the model fields
     user = models.ForeignKey('User')
 

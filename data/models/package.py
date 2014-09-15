@@ -11,10 +11,6 @@ import dashboard
 @python_2_unicode_compatible
 class Package(models.Model):
 
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
-
     # the choices for the interval field
     INTERVAL_YEAR = 'year'
     INTERVAL_MONTH = 'month'
@@ -28,7 +24,7 @@ class Package(models.Model):
     short_name = models.CharField(max_length=255, help_text='The package short name.')
     name = models.CharField(max_length=255, help_text='The package long name.')
     amount = models.IntegerField(help_text='The package price. (CENTS)')
-    is_enabled = models.BooleanField(help_text='If the package is enabled.')
+    is_enabled = models.BooleanField(default=True, help_text='If the package is enabled.')
     items = JSONField(help_text='The items included in the package.')
     interval = models.CharField(max_length=5, null=True, default=None, blank=True, choices=INTERVAL_CHOICES, help_text='The interval type for the package. (NULL/day/month/year)') # day, month, year
     interval_count = models.IntegerField(default=0, help_text='The interval count for the package if the interval field isn\'t null.')

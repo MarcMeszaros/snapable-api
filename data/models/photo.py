@@ -19,10 +19,6 @@ from utils.loggers import Log
 @python_2_unicode_compatible
 class Photo(models.Model):
 
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
-
     # the model fields
     event = models.ForeignKey('Event', help_text='The event the photo belongs to.')
     guest = models.ForeignKey('Guest', null=True, default=None, on_delete=models.SET_NULL, blank=True, help_text='The guest who took the photo.')
@@ -124,7 +120,6 @@ class Photo(models.Model):
 
         else:
             raise Exception('No Photo ID and/or Event ForeignKey specified.')
-
 
     def save_image(self, image, orig=False, watermark=False):
         """
