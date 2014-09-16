@@ -20,7 +20,7 @@ SECRET_KEY = '***REMOVED***'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 TEMPLATE_DEBUG = False
-ALLOWED_HOSTS = ['.snapable.com']
+ALLOWED_HOSTS = ['127.0.0.1:8000', '.snapable.com']
 
 # Application definition
 INSTALLED_APPS = (
