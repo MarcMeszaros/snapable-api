@@ -1,248 +1,251 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+import django.db.models.deletion
+import jsonfield.fields
+import django.utils.timezone
+from django.conf import settings
+import uuidfield.fields
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'User'
-        db.create_table('data_user', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('email', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
-            ('password', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('first_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('last_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('billing_zip', self.gf('django.db.models.fields.CharField')(max_length=11)),
-            ('terms', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('creation_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('last_access', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-        ))
-        db.send_create_signal('data', ['User'])
+    dependencies = [
+        ('api', '0001_initial'),
+    ]
 
-        # Adding model 'Package'
-        db.create_table('data_package', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('short_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('price', self.gf('django.db.models.fields.DecimalField')(max_digits=6, decimal_places=2)),
-            ('prints', self.gf('django.db.models.fields.IntegerField')()),
-            ('additional_price_per_print', self.gf('django.db.models.fields.DecimalField')(max_digits=6, decimal_places=2)),
-            ('albums', self.gf('django.db.models.fields.IntegerField')()),
-            ('slideshow', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('shipping', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('table_cards', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('guest_reminders', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('enabled', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('data', ['Package'])
-
-        # Adding model 'Type'
-        db.create_table('data_type', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-        ))
-        db.send_create_signal('data', ['Type'])
-
-        # Adding model 'Event'
-        db.create_table('data_event', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.User'])),
-            ('package', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Package'])),
-            ('start', self.gf('django.db.models.fields.DateTimeField')()),
-            ('end', self.gf('django.db.models.fields.DateTimeField')()),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('url', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('pin', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('creation_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('last_access', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('access_count', self.gf('django.db.models.fields.IntegerField')()),
-            ('enabled', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('data', ['Event'])
-
-        # Adding model 'Address'
-        db.create_table('data_address', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('event', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Event'])),
-            ('address', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('lat', self.gf('django.db.models.fields.DecimalField')(max_digits=9, decimal_places=6)),
-            ('lng', self.gf('django.db.models.fields.DecimalField')(max_digits=9, decimal_places=6)),
-            ('creation_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-        ))
-        db.send_create_signal('data', ['Address'])
-
-        # Adding model 'Guest'
-        db.create_table('data_guest', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('event', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Event'])),
-            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Type'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('email', self.gf('django.db.models.fields.CharField')(max_length=255)),
-        ))
-        db.send_create_signal('data', ['Guest'])
-
-        # Adding model 'Photo'
-        db.create_table('data_photo', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('event', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Event'])),
-            ('guest', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Guest'])),
-            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Type'])),
-            ('filename', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
-            ('caption', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('streamable', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('timestamp', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('metrics', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal('data', ['Photo'])
-
-        # Adding model 'Album'
-        db.create_table('data_album', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('event', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Event'])),
-            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Type'])),
-            ('photo', self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['data.Photo'], null=True, on_delete=models.SET_NULL)),
-            ('short_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
-            ('creation_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-        ))
-        db.send_create_signal('data', ['Album'])
-
-        # Adding model 'AlbumPhoto'
-        db.create_table('data_albumphoto', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('album', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Album'])),
-            ('photo', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['data.Photo'])),
-        ))
-        db.send_create_signal('data', ['AlbumPhoto'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'User'
-        db.delete_table('data_user')
-
-        # Deleting model 'Package'
-        db.delete_table('data_package')
-
-        # Deleting model 'Type'
-        db.delete_table('data_type')
-
-        # Deleting model 'Event'
-        db.delete_table('data_event')
-
-        # Deleting model 'Address'
-        db.delete_table('data_address')
-
-        # Deleting model 'Guest'
-        db.delete_table('data_guest')
-
-        # Deleting model 'Photo'
-        db.delete_table('data_photo')
-
-        # Deleting model 'Album'
-        db.delete_table('data_album')
-
-        # Deleting model 'AlbumPhoto'
-        db.delete_table('data_albumphoto')
-
-
-    models = {
-        'data.address': {
-            'Meta': {'object_name': 'Address'},
-            'address': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'event': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Event']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'lat': ('django.db.models.fields.DecimalField', [], {'max_digits': '9', 'decimal_places': '6'}),
-            'lng': ('django.db.models.fields.DecimalField', [], {'max_digits': '9', 'decimal_places': '6'})
-        },
-        'data.album': {
-            'Meta': {'object_name': 'Album'},
-            'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {}),
-            'event': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Event']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'photo': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['data.Photo']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
-            'short_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Type']"})
-        },
-        'data.albumphoto': {
-            'Meta': {'object_name': 'AlbumPhoto'},
-            'album': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Album']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'photo': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Photo']"})
-        },
-        'data.event': {
-            'Meta': {'object_name': 'Event'},
-            'access_count': ('django.db.models.fields.IntegerField', [], {}),
-            'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'end': ('django.db.models.fields.DateTimeField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_access': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'package': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Package']"}),
-            'pin': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'start': ('django.db.models.fields.DateTimeField', [], {}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'url': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.User']"})
-        },
-        'data.guest': {
-            'Meta': {'object_name': 'Guest'},
-            'email': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'event': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Event']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Type']"})
-        },
-        'data.package': {
-            'Meta': {'object_name': 'Package'},
-            'additional_price_per_print': ('django.db.models.fields.DecimalField', [], {'max_digits': '6', 'decimal_places': '2'}),
-            'albums': ('django.db.models.fields.IntegerField', [], {}),
-            'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'guest_reminders': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'price': ('django.db.models.fields.DecimalField', [], {'max_digits': '6', 'decimal_places': '2'}),
-            'prints': ('django.db.models.fields.IntegerField', [], {}),
-            'shipping': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'short_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'slideshow': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'table_cards': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
-        },
-        'data.photo': {
-            'Meta': {'object_name': 'Photo'},
-            'caption': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'event': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Event']"}),
-            'filename': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
-            'guest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Guest']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'metrics': ('django.db.models.fields.TextField', [], {}),
-            'streamable': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['data.Type']"})
-        },
-        'data.type': {
-            'Meta': {'object_name': 'Type'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'})
-        },
-        'data.user': {
-            'Meta': {'object_name': 'User'},
-            'billing_zip': ('django.db.models.fields.CharField', [], {'max_length': '11'}),
-            'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'email': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_access': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'terms': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
-        }
-    }
-
-    complete_apps = ['data']
+    operations = [
+        migrations.CreateModel(
+            name='User',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('password', models.CharField(max_length=128, verbose_name='password')),
+                ('last_login', models.DateTimeField(default=django.utils.timezone.now, verbose_name='last login')),
+                ('email', models.CharField(help_text=b"The user's email.", unique=True, max_length=255, db_index=True)),
+                ('first_name', models.CharField(help_text=b"The user's first name.", max_length=255)),
+                ('last_name', models.CharField(help_text=b"The user's last name.", max_length=255)),
+                ('created_at', models.DateTimeField(help_text=b'When the user was created. (UTC)', auto_now_add=True)),
+                ('payment_gateway_user_id', models.CharField(default=None, max_length=255, null=True, help_text=b'The user ID on the payment gateway linked to this user.', blank=True)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Account',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('valid_until', models.DateTimeField(default=None, help_text=b'If set, the account is valid until this date (UTC). [Usually set when buying a package.]', null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='AccountAddon',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('quantity', models.IntegerField(default=1, help_text=b'The quantity modifier of the addon.')),
+                ('is_paid', models.BooleanField(default=False, help_text=b'If the event addon has been paid.')),
+                ('account', models.ForeignKey(to='data.Account')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='AccountUser',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('is_admin', models.BooleanField(default=False, help_text=b'If the user is an account admin.')),
+                ('added_at', models.DateTimeField(help_text=b'When the user was added to the account. (UTC)', auto_now_add=True)),
+                ('account', models.ForeignKey(to='data.Account')),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Addon',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(help_text=b'The title of the addon.', max_length=255)),
+                ('description', models.TextField(help_text=b'The addon description.')),
+                ('amount', models.DecimalField(help_text=b'The per unit addon price.', max_digits=6, decimal_places=2)),
+                ('is_enabled', models.BooleanField(default=True, help_text=b'If the addon is enabled or not.')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Event',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uuid', uuidfield.fields.UUIDField(help_text=b'A unique identifier for the event.', unique=True, max_length=32, editable=False, blank=True)),
+                ('start_at', models.DateTimeField(default=datetime.datetime.utcnow, help_text=b'Event start time. (UTC)')),
+                ('end_at', models.DateTimeField(default=datetime.datetime.utcnow, help_text=b'Event end time. (UTC)')),
+                ('tz_offset', models.IntegerField(default=0, help_text=b'The timezone offset (in minutes) from UTC.')),
+                ('title', models.CharField(help_text=b'Event title.', max_length=255)),
+                ('url', models.CharField(help_text=b'A "short name" for the event.', unique=True, max_length=255)),
+                ('is_public', models.BooleanField(default=True, help_text=b'Is the event considered "public".')),
+                ('pin', models.CharField(help_text=b'Pseudo-random PIN used for private events.', max_length=255)),
+                ('created_at', models.DateTimeField(help_text=b'When the event was created. (UTC)', auto_now_add=True)),
+                ('is_enabled', models.BooleanField(default=True, help_text=b'Is the event considered "active" in the system.')),
+                ('are_photos_streamable', models.BooleanField(default=True, help_text=b'Should the images be streamable by default when created.')),
+                ('are_photos_watermarked', models.BooleanField(default=False, help_text=b'Should a watermark be applied to non-original images.')),
+                ('account', models.ForeignKey(help_text=b'What account the event belongs to.', to='data.Account')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='EventAddon',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('quantity', models.IntegerField(default=1, help_text=b'The quantity modifier of the addon.')),
+                ('is_paid', models.BooleanField(default=False, help_text=b'If the event addon has been paid.')),
+                ('addon', models.ForeignKey(to='data.Addon')),
+                ('event', models.ForeignKey(to='data.Event')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Guest',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(help_text=b'The guest name.', max_length=255)),
+                ('email', models.CharField(help_text=b'The guest email address.', max_length=255)),
+                ('is_invited', models.BooleanField(default=False, help_text=b'If the guest has been invited.')),
+                ('created_at', models.DateTimeField(help_text=b'The guest timestamp.', auto_now_add=True)),
+                ('event', models.ForeignKey(to='data.Event')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Location',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('address', models.CharField(help_text=b'The location address.', max_length=255)),
+                ('lat', models.DecimalField(default=0, help_text=b'The address latitude.', max_digits=9, decimal_places=6)),
+                ('lng', models.DecimalField(default=0, help_text=b'The address longitude.', max_digits=9, decimal_places=6)),
+                ('event', models.ForeignKey(help_text=b'The event this location belongs to.', to='data.Event')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Order',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('amount', models.IntegerField(default=0, help_text=b'The order amount. (USD cents)')),
+                ('amount_refunded', models.IntegerField(default=0, help_text=b'The amount refunded. (USD cents)')),
+                ('created_at', models.DateTimeField(help_text=b'When the order was processed. (UTC)', auto_now_add=True)),
+                ('items', jsonfield.fields.JSONField(help_text=b'The items payed for.')),
+                ('charge_id', models.CharField(help_text=b'The invoice id for the payment gateway.', max_length=255, null=True)),
+                ('is_paid', models.BooleanField(default=False, help_text=b'If the order has been paid for.')),
+                ('coupon', models.CharField(default=None, max_length=255, null=True, help_text=b'The coupon code used in the order.', choices=[(b'201bride', b'201bride -\xc2\xa2[1000]'), (b'adorii', b'adorii -\xc2\xa2[4900]'), (b'adorii5986', b'adorii5986 -\xc2\xa2[4900]'), (b'bespoke', b'bespoke -\xc2\xa2[1000]'), (b'betheman', b'betheman -\xc2\xa2[1000]'), (b'bridaldetective', b'bridaldetective -\xc2\xa2[1000]'), (b'budgetsavvy', b'budgetsavvy -\xc2\xa2[1000]'), (b'enfianced', b'enfianced -\xc2\xa2[1000]'), (b'gbg', b'gbg -\xc2\xa2[1000]'), (b'nonprofitedu', b'nonprofitedu -\xc2\xa2[4900]'), (b'poptastic', b'poptastic -\xc2\xa2[1000]'), (b'smartbride', b'smartbride -\xc2\xa2[1000]'), (b'snaptrial2013', b'snaptrial2013 -\xc2\xa2[4900]'), (b'snaptrial2014', b'snaptrial2014 -\xc2\xa2[4900]'), (b'weddingful5986', b'weddingful5986 -\xc2\xa2[4900]'), (b'wr2013', b'wr2013 -\xc2\xa2[1000]')])),
+                ('account', models.ForeignKey(help_text=b'The account that the order is for.', to='data.Account')),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, help_text=b'The user that made the order.', null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Package',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('short_name', models.CharField(help_text=b'The package short name.', max_length=255)),
+                ('name', models.CharField(help_text=b'The package long name.', max_length=255)),
+                ('amount', models.IntegerField(help_text=b'The package price. (CENTS)')),
+                ('is_enabled', models.BooleanField(default=True, help_text=b'If the package is enabled.')),
+                ('items', jsonfield.fields.JSONField(help_text=b'The items included in the package.')),
+                ('interval', models.CharField(default=None, choices=[(b'year', b'Year'), (b'month', b'Month'), (b'week', b'Week')], max_length=5, blank=True, help_text=b'The interval type for the package. (NULL/day/month/year)', null=True)),
+                ('interval_count', models.IntegerField(default=0, help_text=b"The interval count for the package if the interval field isn't null.")),
+                ('trial_period_days', models.IntegerField(default=0, help_text=b'How many days to offer a trial for.')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='PasswordNonce',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('nonce', models.CharField(help_text=b'The password nonce.', unique=True, max_length=255)),
+                ('is_valid', models.BooleanField(default=True, help_text=b'If the nonce is still valid.')),
+                ('created_at', models.DateTimeField(help_text=b'When the nonce was created. (UTC)', auto_now_add=True)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Photo',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('caption', models.CharField(help_text=b'The photo caption.', max_length=255, blank=True)),
+                ('is_streamable', models.BooleanField(default=True, help_text=b'If the photo is streamable.')),
+                ('created_at', models.DateTimeField(help_text=b'The photo timestamp.', auto_now_add=True)),
+                ('event', models.ForeignKey(help_text=b'The event the photo belongs to.', to='data.Event')),
+                ('guest', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, default=None, blank=True, to='data.Guest', help_text=b'The guest who took the photo.', null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='event',
+            name='addons',
+            field=models.ManyToManyField(to='data.Addon', through='data.EventAddon'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='event',
+            name='cover',
+            field=models.ForeignKey(related_name=b'+', on_delete=django.db.models.deletion.SET_NULL, default=None, blank=True, to='data.Photo', help_text=b'The image to use for the event cover.', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='accountaddon',
+            name='addon',
+            field=models.ForeignKey(to='data.Addon'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='account',
+            name='addons',
+            field=models.ManyToManyField(to='data.Addon', through='data.AccountAddon'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='account',
+            name='api_account',
+            field=models.ForeignKey(default=None, blank=True, to='api.ApiAccount', help_text=b'The API Account this account was created by. (None = Snapable)', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='account',
+            name='package',
+            field=models.ForeignKey(default=None, to='data.Package', help_text=b'The active package associated with the account.', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='account',
+            name='users',
+            field=models.ManyToManyField(to=settings.AUTH_USER_MODEL, through='data.AccountUser'),
+            preserve_default=True,
+        ),
+    ]

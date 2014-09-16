@@ -1,24 +1,21 @@
 # python
 import hashlib
-import pickle
 import uuid
 
 # django/tastypie/libs
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
+from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import admin
+import dashboard
 import utils
+
 
 @python_2_unicode_compatible
 class ApiKey(models.Model):
-
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'api'
 
     # the choices for the interval field
     API_PARTNER_V1 = 'partner_v1'
@@ -114,10 +111,11 @@ class ApiKeyAdminDetails(object):
         }),
     )
 
+
+@admin.register(ApiKey, site=dashboard.site)
 class ApiKeyAdmin(ApiKeyAdminDetails, admin.ModelAdmin):
     pass
 
-admin.site.register(ApiKey, ApiKeyAdmin)
 
 # add the inline admin model
 class ApiKeyAdminInline(ApiKeyAdminDetails, admin.StackedInline):

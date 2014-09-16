@@ -4,13 +4,14 @@ import re
 
 # django/libs
 import stripe
+from django.contrib import admin
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
 # snapable
-import admin
+import dashboard
 import utils.currency
 import utils.sendwithus
 from accountaddon import AccountAddon
@@ -20,10 +21,6 @@ from package import Package
 
 @python_2_unicode_compatible
 class Order(models.Model):
-
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
 
     # the choices for the interval field
     # name should contain the [value] in cents
@@ -103,7 +100,6 @@ class Order(models.Model):
         # update the amount
         #if not self.is_paid:
         self.amount = total - discount
-
 
     def charge(self, stripe_token=None):
         if self.is_paid or self.amount < 50:
@@ -221,7 +217,8 @@ class OrderAdminDetails(object):
 
 
 # add the direct admin model
-class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
+@admin.register(Order, site=dashboard.site)
+class OrderAdmin(admin.ModelAdmin, OrderAdminDetails):
     actions = ['charge', 'send_email']
 
     def send_email(self, request, queryset):
@@ -240,11 +237,9 @@ class OrderAdmin(OrderAdminDetails, admin.ModelAdmin):
         else:
             self.message_user(request, 'Some charges failed')
 
-admin.site.register(Order, OrderAdmin)
-
 
 # add the inline admin model
-class OrderAdminInline(OrderAdminDetails, admin.StackedInline):
+class OrderAdminInline(admin.StackedInline, OrderAdminDetails):
     model = Order
 
     def has_add_permission(self, request):

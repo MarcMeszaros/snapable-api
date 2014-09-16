@@ -2,13 +2,14 @@
 import cStringIO
 
 # django/tastypie/libs
+from django.contrib import admin
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 
 # snapable
-import admin
+import dashboard
 from data.images import SnapImage
 from guest import Guest
 from utils import rackspace
@@ -17,10 +18,6 @@ from utils.loggers import Log
 
 @python_2_unicode_compatible
 class Photo(models.Model):
-
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
 
     # the model fields
     event = models.ForeignKey('Event', help_text='The event the photo belongs to.')
@@ -124,7 +121,6 @@ class Photo(models.Model):
         else:
             raise Exception('No Photo ID and/or Event ForeignKey specified.')
 
-
     def save_image(self, image, orig=False, watermark=False):
         """
         Save the SnapImage to CloudFiles.
@@ -198,12 +194,11 @@ class PhotoAdminDetails(object):
 
 
 # add the direct admin model
-class PhotoAdmin(PhotoAdminDetails, admin.ModelAdmin):
+@admin.register(Photo, site=dashboard.site)
+class PhotoAdmin(admin.ModelAdmin, PhotoAdminDetails):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         object_id = filter(None, request.path.split('/'))[-1]
         photo = Photo.objects.get(pk=object_id)
         if db_field.name == 'guest':
             kwargs['queryset'] = Guest.objects.filter(event=photo.event)
         return super(PhotoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
-admin.site.register(Photo, PhotoAdmin)

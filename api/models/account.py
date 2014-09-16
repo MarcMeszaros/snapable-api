@@ -1,16 +1,14 @@
 # django/tastypie/libs
+from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import admin
+import dashboard
+
 
 @python_2_unicode_compatible
 class ApiAccount(models.Model):
-
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'api'
 
     email = models.EmailField(help_text='The email contact for the API.')
     company = models.CharField(max_length=255, null=True, help_text='The name of the organization or company.')
@@ -27,8 +25,10 @@ class ApiAccount(models.Model):
             'pk': self.pk,
         })
 
+
 #===== Admin =====#
 from .key import ApiKeyAdminInline
+@admin.register(ApiAccount, site=dashboard.site)
 class ApiAccountAdmin(admin.ModelAdmin):
     inlines = [ApiKeyAdminInline]
 
@@ -39,11 +39,9 @@ class ApiAccountAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'id',
-                'email', 
+                'email',
                 'company',
                 'created_at',
             ),
         }),
     )
-
-admin.site.register(ApiAccount, ApiAccountAdmin)

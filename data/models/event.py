@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 # django/tastypie/libs
 from django.conf import settings
+from django.contrib import admin
 from django.db import models
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
@@ -14,17 +15,13 @@ from PIL import Image
 from uuidfield import UUIDField
 
 # snapable
-import admin
+import dashboard
 from photo import Photo
 from utils import rackspace
 
 
 @python_2_unicode_compatible
 class Event(models.Model):
-
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
 
     account = models.ForeignKey('Account', help_text='What account the event belongs to.')
     addons = models.ManyToManyField('Addon', through='EventAddon')
@@ -213,8 +210,9 @@ class EventAdminDetails(object):
 
 
 # base details for direct and inline admin models
-from location import LocationAdminInline
-class EventAdmin(EventAdminDetails, admin.ModelAdmin):
+from .location import LocationAdminInline
+@admin.register(Event, site=dashboard.site)
+class EventAdmin(admin.ModelAdmin, EventAdminDetails):
     actions = ['cleanup_photos', 'create_event_photo_zip', 'send_event_invites']
     inlines = [LocationAdminInline]
 
@@ -246,10 +244,7 @@ class EventAdmin(EventAdminDetails, admin.ModelAdmin):
         self.message_user(request, 'Successfully sent the event invites.')
 
 
-admin.site.register(Event, EventAdmin)
-
-
 # add the inline admin model
-class EventAdminInline(EventAdminDetails, admin.StackedInline):
+class EventAdminInline(admin.StackedInline, EventAdminDetails):
     model = Event
     extra = 1

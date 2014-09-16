@@ -1,20 +1,16 @@
 # django/libs
+from django.contrib import admin
 from django.db import models
 
-# snapable
-import admin
 
 class AccountUser(models.Model):
-    
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
 
     account = models.ForeignKey('Account')
     user = models.ForeignKey('User')
 
     is_admin = models.BooleanField(default=False, help_text='If the user is an account admin.')
     added_at = models.DateTimeField(auto_now_add=True, help_text='When the user was added to the account. (UTC)')
+
 
 #===== Admin =====#
 # base details for direct and inline admin models
@@ -24,11 +20,13 @@ class AccountUserAdminDetails(object):
         'fk': ['account', 'user'],
     }
 
+
 # add the direct admin model
-class AccountUserAdmin(AccountUserAdminDetails, admin.ModelAdmin):
+class AccountUserAdmin(admin.ModelAdmin, AccountUserAdminDetails):
     pass
 
+
 # add the inline admin model
-class AccountUserAdminInline(AccountUserAdminDetails, admin.TabularInline):
+class AccountUserAdminInline(admin.TabularInline, AccountUserAdminDetails):
     model = AccountUser
     extra = 0

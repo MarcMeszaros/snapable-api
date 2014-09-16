@@ -3,18 +3,20 @@ import re
 
 # django/tastypie/libs
 import bcrypt
-from django.db import models
+from django.contrib import admin
 from django.conf import settings
 from django.contrib.auth.hashers import (check_password, make_password, is_password_usable)
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.mail import send_mail, EmailMultiAlternatives
+from django.db import models
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import admin
+import dashboard
 from data.models import PasswordNonce
+
 
 class UserManager(BaseUserManager):
 
@@ -30,16 +32,13 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
 @python_2_unicode_compatible
 class User(AbstractBaseUser):
 
     # Django 1.5+ needs this defined
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
 
     objects = UserManager()
     is_active = True
@@ -97,7 +96,6 @@ class User(AbstractBaseUser):
         return self.first_name
 
     def send_password_reset(self, url):
-        
         # whitelist check for url
         if re.match('https?://(.+\.)?snapable\.com', url) != None:
             # create the passwordnonce and save
@@ -172,6 +170,7 @@ class User(AbstractBaseUser):
         else:
             return False
 
+
 #===== Admin =====#
 # base details for direct and inline admin models
 class UserAdminDetails(object):
@@ -182,7 +181,7 @@ class UserAdminDetails(object):
         (None, {
             'fields': (
                 'id',
-                'email', 
+                'email',
                 'password',
                 ('first_name', 'last_name'),
                 ('last_login', 'created_at'),
@@ -197,9 +196,11 @@ class UserAdminDetails(object):
         }),
     )
 
+
 # add the direct admin model
 from .accountuser import AccountUserAdminInline
-class UserAdmin(UserAdminDetails, admin.ModelAdmin):
+@admin.register(User, site=dashboard.site)
+class UserAdmin(admin.ModelAdmin, UserAdminDetails):
     inlines = [AccountUserAdminInline]
 
     def save_model(self, request, obj, form, change):
@@ -207,8 +208,7 @@ class UserAdmin(UserAdminDetails, admin.ModelAdmin):
             obj.set_password(obj.password)
         obj.save()
 
-admin.site.register(User, UserAdmin)
 
 # add the inline admin model
-class UserAdminInline(UserAdminDetails, admin.StackedInline):
+class UserAdminInline(admin.StackedInline, UserAdminDetails):
     model = User

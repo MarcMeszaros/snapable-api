@@ -1,11 +1,8 @@
 # django/libs
 from django.db import models
 
+
 class AccountAddon(models.Model):
-    
-    # required to make 'south' migrations work
-    class Meta:
-        app_label = 'data'
 
     account = models.ForeignKey('Account')
     addon = models.ForeignKey('Addon')

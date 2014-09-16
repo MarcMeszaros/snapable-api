@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 # other endpoints
-import admin
+import dashboard
 import ajax
 import hooks
 
@@ -24,7 +24,7 @@ urlpatterns = patterns('',
 
     # add admin
     (r'^grappelli/', include('grappelli.urls')), # grappelli URLS
-    (r'^control_tower/', include(admin.site.urls)),
+    (r'^control_tower/', include(dashboard.site.urls)),
     (r'^control_tower/ajax/', include(ajax.urls)),
 
     # handle webhooks

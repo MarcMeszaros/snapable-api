@@ -20,22 +20,21 @@ SECRET_KEY = '***REMOVED***'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 TEMPLATE_DEBUG = False
-ALLOWED_HOSTS = ['.snapable.com']
+ALLOWED_HOSTS = ['127.0.0.1:8000', '.snapable.com']
 
 # Application definition
 INSTALLED_APPS = (
     # core apps for snapable
     'data',
     'api',
-    'admin',
+    'dashboard',
     # third-party libraries/apps
     'raven.contrib.django.raven_compat',
     'tastypie',
-    'south',
 
     # django related
     'grappelli',
-    'django.contrib.admin',
+    'django.contrib.admin.apps.SimpleAdminConfig',
     # required for admin
     'django.contrib.auth',
     'django.contrib.contenttypes',
