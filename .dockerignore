@@ -1,0 +1,7 @@
+.git
+.vagrant
+vagrant
+salt
+static-www
+
+*.pyc

@@ -79,11 +79,11 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'snapabledb',
-        'USER': 'snapableusr',
-        'PASSWORD': 'snapable12345',
-        'HOST': '192.168.56.101',
-        'PORT': '',
+        'NAME': os.environ.get('DATABASE_NAME', 'snapabledb'),
+        'USER': os.environ.get('DATABASE_USER', 'snapableusr'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'snapable12345'),
+        'HOST': os.environ.get('DATABASE_HOST', os.environ.get('DB_PORT_3306_TCP_ADDR', '192.168.56.101')),
+        'PORT': os.environ.get('DATABASE_PORT', ''),
     }
 }
 
@@ -199,6 +199,8 @@ EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
 EMAIL_HOST = 'smtp.mailgun.org'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '***REMOVED***')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '***REMOVED***')
 
 ##### RACKSPACE #####
 CLOUDFILES_IMAGES_PREFIX = 'dev_images_'
@@ -208,9 +210,9 @@ CLOUDFILES_EVENTS_PER_CONTAINER = 10000
 CLOUDFILES_PUBLIC_NETWORK = True
 
 ##### Redis #####
-REDIS_HOST = '192.168.56.102'
-REDIS_PORT = 6379
-REDIS_DB = 0
+REDIS_HOST = os.environ.get('REDIS_HOST', '192.168.56.102')
+REDIS_PORT = os.environ.get('REDIS_PORT', 6379)
+REDIS_DB = os.environ.get('REDIS_DB', 0)
 
 ##### Tastypie #####
 API_LIMIT_PER_PAGE = 50
@@ -219,19 +221,19 @@ TASTYPIE_ABSTRACT_APIKEY = True
 TASTYPIE_DATETIME_FORMATTING = 'iso-8601-strict'
 
 ##### Stripe #####
-STRIPE_KEY_SECRET = '***REMOVED***'  # testing
-STRIPE_KEY_PUBLIC = '***REMOVED***'  # testing
+STRIPE_KEY_SECRET = os.environ.get('STRIPE_KEY_SECRET', '***REMOVED***') # testing
+STRIPE_KEY_PUBLIC = os.environ.get('STRIPE_KEY_PUBLIC', '***REMOVED***') # testing
 STRIPE_CURRENCY = 'usd'
 
 ##### sendwithus #####
-SENDWITHUS_KEY = '***REMOVED***'  # no email
+SENDWITHUS_KEY = os.environ.get('SENDWITHUS_KEY', '***REMOVED***') # no email
 
 ##### Celery #####
 # Broker settings.
-BROKER_URL = 'amqp://snap_api:snapable12345@192.168.56.102:5672/snap_api'
+BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://snap_api:snapable12345@192.168.56.102:5672/snap_api')
 
 # Results backend.
-CELERY_RESULT_BACKEND = 'redis://192.168.56.102/0'
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://192.168.56.102/0')
 
 # Expire tasks after a set time
 CELERY_TASK_RESULT_EXPIRES = 3600  # 1h

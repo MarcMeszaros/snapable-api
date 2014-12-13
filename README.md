@@ -53,6 +53,14 @@ option to pass in environment variables to your application.
 
 ``gunicorn -e SNAP_AUTHENTICATION=False wsgi:application``
 
+## Docker ##
+http://www.devopslife.com/2014/08/08/docker-boot2docker-and-dns-resolution-of-containers.html
+
+1. ``docker pull mysql``
+2. ``docker run --name db-mysql -e MYSQL_ROOT_PASSWORD="snapable12345" -e MYSQL_USER="snapableusr" -e MYSQL_PASSWORD="snapable12345" -e MYSQL_DATABASE="snapabledb" mysql``
+``docker start -a db-mysql``
+3. ``docker run -i -t --link db-mysql:db -p 8000:8000 <container ID>``
+
 ## Unit Tests ##
 To run the unit tests, you first need to log on to the VM using ``vagrant ssh``. Then execute the following commands:
 
