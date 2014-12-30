@@ -14,7 +14,7 @@ def bool_env(val, default=False):
     """Replaces string based environment values with Python booleans"""
     value = os.environ.get(val, '').lower()
     if len(value) > 0:
-        return True if value[:0] in ['t', 'y', '1'] else False
+        return True if value[0] in ['t', 'y', '1'] else False
     else:
         return default
 

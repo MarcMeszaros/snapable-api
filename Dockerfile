@@ -5,6 +5,7 @@ MAINTAINER  Marc Meszaros <marc@snapable.com>
 RUN apt-get update && apt-get -y install \
     git \
     make \
+    nginx \
     ntp \
     python \
     python-apt \
@@ -19,8 +20,14 @@ RUN apt-get update && apt-get -y install \
     libmysqlclient-dev \
     libtiff4-dev \ 
     libwebp-dev \
+    supervisor \
     zlib1g-dev \
     && pip install virtualenv
+
+# nginx
+RUN useradd -ms /bin/bash nginx
+COPY .docker/supervisor.conf /etc/supervisor/conf.d/
+COPY .docker/nginx.conf /etc/nginx/nginx.conf
 
 # virtualenv
 RUN virtualenv /src
@@ -29,6 +36,10 @@ RUN virtualenv /src
 COPY requirements.txt /tmp/requirements.txt
 RUN cd /tmp && /src/bin/pip install -r /tmp/requirements.txt
 
+# static files
+COPY static-www /src/html/static-www/
+COPY docs/build/html /src/html/docs/
+
 # app code
 COPY *.py /src/app/
 COPY *.ini /src/app/
@@ -36,14 +47,14 @@ COPY ajax /src/app/ajax/
 COPY api /src/app/api/
 COPY dashboard /src/app/dashboard/
 COPY data /src/app/data/
-COPY docs /src/app/docs/
 COPY hooks /src/app/hooks/
 COPY utils /src/app/utils/
 COPY worker /src/app/worker/
 
 # running
+EXPOSE 80
 EXPOSE 8000
 WORKDIR /src/app
-CMD ["/src/bin/gunicorn", "wsgi:application", "--pid", "gunicorn.pid"]
+CMD "supervisord -n"
+#CMD ["/src/bin/gunicorn", "wsgi:application", "--pid gunicorn.pid"]
 #CMD ["/src/bin/newrelic-admin", "run-program", "/src/bin/gunicorn", "wsgi:application", "--pid gunicorn.pid"]
-#CMD ["/src/bin/python", "manage.py", "runserver"]

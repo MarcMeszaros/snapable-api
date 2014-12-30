@@ -7,7 +7,7 @@ cfg_host = os.environ.get('GUNICORN_HOST', '127.0.0.1')
 bind = '{0}:{1}'.format(cfg_host, cfg_port)
 
 workers = multiprocessing.cpu_count() * 2 + 1
-worker_class = 'sync' # default: sync; alternate: gevent
+worker_class = 'sync'  # default: sync; alternate: gevent
 proc_name = 'snap_api'
 
 # logging

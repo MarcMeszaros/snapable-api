@@ -158,7 +158,7 @@ LOGGING = {
             'propagate': True,
         },
         'django.security.DisallowedHost': {
-            'handlers': ['null'],
+            'handlers': ['console'],
             'propagate': False,
         },
         'celery.task': {

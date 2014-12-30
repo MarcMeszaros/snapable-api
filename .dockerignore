@@ -2,7 +2,6 @@
 .vagrant
 vagrant
 salt
-static-www
 
 *.pyc
 settings_local.py
