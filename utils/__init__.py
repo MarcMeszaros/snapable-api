@@ -1,9 +1,27 @@
+import os
 import sys
 
 # snapable
 from .loggers import Log
-from .redis import api as redis
-#from .sendwithus import api as sendwithus
+
+
+def str_env(val, default=''):
+    """Returns string based environment values"""
+    return os.environ.get(val, str(default))
+
+
+def bool_env(val, default=False):
+    """Replaces string based environment values with Python booleans"""
+    value = os.environ.get(val, '').lower()
+    if len(value) > 0:
+        return True if value[:0] in ['t', 'y', '1'] else False
+    else:
+        return default
+
+
+def int_env(val, default=0):
+    """Replaces string based environment values with Python integer"""
+    return int(os.environ.get(val, default))
 
 
 class Dotable(dict):

@@ -69,7 +69,7 @@ class ApiKey(models.Model):
         if not self.secret:
             self.secret = ApiKey.generate_secret()
 
-        utils.redis.delete('api_key_{0}'.format(self.key))  # delete any cache
+        utils.redis.client.delete('api_key_{0}'.format(self.key))  # delete any cache
         return super(ApiKey, self).save(*args, **kwargs)
 
     @staticmethod
