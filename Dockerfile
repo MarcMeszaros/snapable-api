@@ -55,6 +55,6 @@ COPY worker /src/app/worker/
 EXPOSE 80
 EXPOSE 8000
 WORKDIR /src/app
-CMD "supervisord -n"
+CMD ["supervisord", "-n"]
 #CMD ["/src/bin/gunicorn", "wsgi:application", "--pid gunicorn.pid"]
 #CMD ["/src/bin/newrelic-admin", "run-program", "/src/bin/gunicorn", "wsgi:application", "--pid gunicorn.pid"]

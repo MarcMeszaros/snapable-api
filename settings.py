@@ -22,6 +22,8 @@ SECRET_KEY = '***REMOVED***'
 DEBUG = bool_env('DEBUG', False)
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['127.0.0.1:8000', '.snapable.com']
+if len(str_env('HOST_IP')) > 0:
+    ALLOWED_HOSTS.append(str_env('HOST_IP'))
 
 # Application definition
 INSTALLED_APPS = (
