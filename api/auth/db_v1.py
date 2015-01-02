@@ -17,7 +17,7 @@ from tastypie.exceptions import BadRequest, Unauthorized
 # snapable
 import api.auth
 import data.models
-import utils
+import utils.redis
 
 from api.models import ApiKey
 

@@ -11,7 +11,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
 import dashboard
-import utils
+import utils.redis
 
 
 @python_2_unicode_compatible
