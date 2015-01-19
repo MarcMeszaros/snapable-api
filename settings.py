@@ -8,7 +8,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 from datetime import timedelta
-from utils import str_env, int_env, bool_env
+from utils import str_env, int_env, bool_env, docker_link_host, docker_link_port
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -85,8 +85,8 @@ DATABASES = {
         'NAME': str_env('DATABASE_NAME', 'snapabledb'),
         'USER': str_env('DATABASE_USER', 'snapableusr'),
         'PASSWORD': str_env('DATABASE_PASSWORD', 'snapable12345'),
-        'HOST': str_env('DATABASE_HOST', str_env('DB_PORT_3306_TCP_ADDR', '192.168.56.101')),
-        'PORT': str_env('DATABASE_PORT', ''),
+        'HOST': str_env('DATABASE_HOST', docker_link_host('DB', '192.168.56.101')),
+        'PORT': str_env('DATABASE_PORT', docker_link_port('DB', 3306)),
     }
 }
 
@@ -199,9 +199,9 @@ PASSWORD_HASHERS = (
 
 ##### Email #####
 EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
-EMAIL_HOST = 'smtp.mailgun.org'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_HOST = str_env('EMAIL_HOST', 'smtp.mailgun.org')
+EMAIL_PORT = int_env('EMAIL_PORT', 587)
+EMAIL_USE_TLS = bool_env('EMAIL_USE_TLS', True)
 EMAIL_HOST_USER = str_env('EMAIL_HOST_USER', '***REMOVED***')
 EMAIL_HOST_PASSWORD = str_env('EMAIL_HOST_PASSWORD', '***REMOVED***')
 
@@ -215,8 +215,8 @@ CLOUDFILES_EVENTS_PER_CONTAINER = 10000
 CLOUDFILES_PUBLIC_NETWORK = bool_env('CLOUDFILES_PUBLIC_NETWORK', True)
 
 ##### Redis #####
-REDIS_HOST = str_env('REDIS_HOST', '192.168.56.102')
-REDIS_PORT = int_env('REDIS_PORT', 6379)
+REDIS_HOST = str_env('REDIS_HOST', docker_link_host('RD', '192.168.56.102'))
+REDIS_PORT = int_env('REDIS_PORT', docker_link_port('RD', 6379))
 REDIS_DB = int_env('REDIS_DB', 0)
 
 ##### Tastypie #####
@@ -264,10 +264,9 @@ GRAPPELLI_ADMIN_TITLE = 'Snapable'
 
 # sentry/raven
 # Set your DSN value
-SENTRY_DSN = str_env('SENTRY_DSN')
-if len(SENTRY_DSN) > 0:
+if len(str_env('SENTRY_DSN')) > 0:
     RAVEN_CONFIG = {
-        'dsn': SENTRY_DSN,
+        'dsn': str_env('SENTRY_DSN'),
     }
 
 # set API keys for AJAX

@@ -20,6 +20,7 @@ import data.models
 import utils.redis
 
 from api.models import ApiKey
+from utils import bool_env
 
 
 def get_api_key(key):
@@ -73,7 +74,7 @@ class DatabaseAuthentication(Authentication):
 
     def is_authenticated(self, request, **kwargs):
         # check for the environment variable to skip auth
-        if os.environ.get('SNAP_AUTHENTICATION', 'true').lower()[0] == 'f':
+        if not bool_env('SNAP_AUTHENTICATION', True):
             return True
 
         try:
@@ -117,13 +118,18 @@ class DatabaseAuthentication(Authentication):
     # Optional but recommended
     def get_identifier(self, request):
         # check for the environment variable to skip auth
-        auth_params = api.auth.get_auth_params(request)
-        return get_api_key(auth_params['key'])
+        if bool_env('SNAP_AUTHENTICATION', True):
+            auth_params = api.auth.get_auth_params(request)
+            return get_api_key(auth_params['key'])
 
 
 class DatabaseAuthorization(Authorization):
 
     def create_detail(self, object_list, bundle):
+        # check for the environment variable to skip auth
+        if not bool_env('SNAP_AUTHORIZATION', True):
+            return True
+
         # check if authorized to access the API and get the API key
         apiAuthorizationChecks(bundle.request)
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
@@ -134,6 +140,10 @@ class DatabaseAuthorization(Authorization):
             raise Unauthorized('Not authorized to create resource.')
 
     def read_list(self, object_list, bundle):
+        # check for the environment variable to skip auth
+        if not bool_env('SNAP_AUTHORIZATION', True):
+            return True
+
         # check if authorized to access the API and get the API key
         apiAuthorizationChecks(bundle.request)
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
@@ -165,6 +175,10 @@ class DatabaseAuthorization(Authorization):
     def read_detail(self, object_list, bundle):
         # allow schema to be read
         if 'schema' in bundle.request.path and bundle.request.path.split('/')[-2] == 'schema':
+            return True
+
+        # check for the environment variable to skip auth
+        if not bool_env('SNAP_AUTHORIZATION', True):
             return True
 
         # check if authorized to access the API and get the API key
@@ -202,6 +216,10 @@ class DatabaseAuthorization(Authorization):
         raise Unauthorized('Bulk updates are not permitted.')
 
     def update_detail(self, object_list, bundle):
+        # check for the environment variable to skip auth
+        if not bool_env('SNAP_AUTHORIZATION', True):
+            return True
+
         # check if authorized to access the API and get the API key
         apiAuthorizationChecks(bundle.request)
         api_key = DatabaseAuthentication().get_identifier(bundle.request)
@@ -237,6 +255,10 @@ class DatabaseAuthorization(Authorization):
         raise Unauthorized('Bulk deletes are not permitted.')
 
     def delete_detail(self, object_list, bundle):
+        # check for the environment variable to skip auth
+        if not bool_env('SNAP_AUTHORIZATION', True):
+            return True
+
         # check if authorized to access the API and get the API key
         apiAuthorizationChecks(bundle.request)
         api_key = DatabaseAuthentication().get_identifier(bundle.request)

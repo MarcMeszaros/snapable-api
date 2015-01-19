@@ -11,5 +11,5 @@ worker_class = 'sync'  # default: sync; alternate: gevent
 proc_name = 'snap_api'
 
 # logging
-accesslog = '-'
-errorlog = '-'
+accesslog = '/dev/stdout'
+errorlog = '/dev/stderr'

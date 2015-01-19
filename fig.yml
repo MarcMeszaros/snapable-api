@@ -1,0 +1,24 @@
+api:
+  build: .
+  ports:
+    - "80:80"
+    - "8000:8000"
+  links:
+    - redis:rd
+    - mysql:db
+  environment:
+    - DEBUG=true
+    - SNAP_AUTHENTICATION=false
+    - SNAP_AUTHORIZATION=false
+    - GUNICORN_HOST=0.0.0.0
+mysql:
+  image: mysql
+  ports:
+    - "3306:3306" # to connect with a client
+  environment:
+    - MYSQL_ROOT_PASSWORD=mysqlpass
+    - MYSQL_USER=snapableusr
+    - MYSQL_PASSWORD=snapable12345
+    - MYSQL_DATABASE=snapabledb
+redis:
+  image: redis

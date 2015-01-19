@@ -24,6 +24,30 @@ def int_env(val, default=0):
     return int(os.environ.get(val, default))
 
 
+def docker_link_host(alias_name, default=''):
+    """Get the host from the docker link alias"""
+    try:
+        split = os.environ.get('{0}_PORT'.format(alias_name), default).split('//')[1].split(':')
+        if len(split) == 2:
+            return split[0]
+        else:
+            return default
+    except Exception:
+        return default
+
+
+def docker_link_port(alias_name, default=0):
+    """Get the posrt from the docker link alias"""
+    try:
+        split = os.environ.get('{0}_PORT'.format(alias_name), default).split('//')[1].split(':')
+        if len(split) == 2:
+            return int(split[1])
+        else:
+            return default
+    except Exception:
+        return default
+
+
 class Dotable(dict):
 
     __getattr__ = dict.__getitem__

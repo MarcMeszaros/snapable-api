@@ -22,7 +22,8 @@ RUN apt-get update && apt-get -y install \
     libwebp-dev \
     supervisor \
     zlib1g-dev \
-    && pip install virtualenv
+    && pip install virtualenv \
+    && rm -rf /var/lib/apt/lists/*
 
 # nginx
 RUN useradd -ms /bin/bash nginx
