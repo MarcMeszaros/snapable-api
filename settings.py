@@ -245,7 +245,7 @@ CELERY_RESULT_PORT = int_env('CELERY_RESULT_PORT', docker_link_port('CELERY', 56
 BROKER_URL = str_env('CELERY_BROKER_URL', 'redis://{0}:{1}/0'.format(CELERY_BROKER_HOST, CELERY_BROKER_PORT))
 
 # Results backend.
-CELERY_RESULT_BACKEND = str_env('CELERY_RESULT_BACKEND', 'redis://{0}:{1}/0'.format(CELERY_RESULT_HOST,  CELERY_RESULT_PORT))
+CELERY_RESULT_BACKEND = str_env('CELERY_RESULT_URL', 'redis://{0}:{1}/0'.format(CELERY_RESULT_HOST,  CELERY_RESULT_PORT))
 
 # Expire tasks after a set time
 CELERY_TASK_RESULT_EXPIRES = 3600  # 1h
