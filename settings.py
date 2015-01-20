@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': str_env('DATABASE_NAME', 'snapabledb'),
         'USER': str_env('DATABASE_USER', 'snapableusr'),
         'PASSWORD': str_env('DATABASE_PASSWORD', 'snapable12345'),
-        'HOST': str_env('DATABASE_HOST', docker_link_host('DB', '192.168.56.101')),
+        'HOST': str_env('DATABASE_HOST', docker_link_host('DB', '127.0.0.1')),
         'PORT': str_env('DATABASE_PORT', docker_link_port('DB', 3306)),
     }
 }
@@ -215,7 +215,7 @@ CLOUDFILES_EVENTS_PER_CONTAINER = 10000
 CLOUDFILES_PUBLIC_NETWORK = bool_env('CLOUDFILES_PUBLIC_NETWORK', True)
 
 ##### Redis #####
-REDIS_HOST = str_env('REDIS_HOST', docker_link_host('RD', '192.168.56.102'))
+REDIS_HOST = str_env('REDIS_HOST', docker_link_host('RD', '127.0.0.1'))
 REDIS_PORT = int_env('REDIS_PORT', docker_link_port('RD', 6379))
 REDIS_DB = int_env('REDIS_DB', 0)
 
@@ -234,11 +234,18 @@ STRIPE_CURRENCY = str_env('STRIPE_CURRENCY', 'usd')
 SENDWITHUS_KEY = str_env('SENDWITHUS_KEY', '***REMOVED***') # no email
 
 ##### Celery #####
+CELERY_BROKER_USER = str_env('CELERY_BROKER_USER', 'snap_api')
+CELERY_BROKER_PASSWORD = str_env('CELERY_BROKER_PASSWORD', 'snapable12345')
+CELERY_BROKER_HOST = str_env('CELERY_BROKER_HOST', docker_link_host('CELERY', '127.0.0.1'))
+CELERY_BROKER_PORT = int_env('CELERY_BROKER_PORT', docker_link_port('CELERY', 5672))
+CELERY_RESULT_HOST = str_env('CELERY_RESULT_HOST', docker_link_host('CELERY', '127.0.0.1'))
+CELERY_RESULT_PORT = int_env('CELERY_RESULT_PORT', docker_link_port('CELERY', 5672))
+
 # Broker settings.
-BROKER_URL = str_env('CELERY_BROKER_URL', 'amqp://snap_api:snapable12345@192.168.56.102:5672/snap_api')
+BROKER_URL = str_env('CELERY_BROKER_URL', 'redis://{0}:{1}/0'.format(CELERY_BROKER_HOST, CELERY_BROKER_PORT))
 
 # Results backend.
-CELERY_RESULT_BACKEND = str_env('CELERY_RESULT_BACKEND', 'redis://192.168.56.102/0')
+CELERY_RESULT_BACKEND = str_env('CELERY_RESULT_BACKEND', 'redis://{0}:{1}/0'.format(CELERY_RESULT_HOST,  CELERY_RESULT_PORT))
 
 # Expire tasks after a set time
 CELERY_TASK_RESULT_EXPIRES = 3600  # 1h
@@ -274,12 +281,6 @@ APIKEY = {
     'key123': 'sec123',
 }
 
-#### Import Local Settings #####
-try:
-    os.path.isfile(os.path.join(BASE_DIR, 'settings_local.py'))
-    from settings_local import *
-except Exception as e:
-    pass
 
 # setup stripe
 import stripe

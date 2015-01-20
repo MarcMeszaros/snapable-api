@@ -1,3 +1,4 @@
+# application
 api:
   build: .
   ports:
@@ -5,16 +6,42 @@ api:
     - "8000:8000"
   links:
     - redis:rd
+    - redis:celery
     - mysql:db
   environment:
     - DEBUG=true
+    - CLOUDFILES_IMAGES_PREFIX=marc_images_
     - SNAP_AUTHENTICATION=false
     - SNAP_AUTHORIZATION=false
     - GUNICORN_HOST=0.0.0.0
+worker:
+  build: .
+  command: /src/bin/celery worker -A worker
+  links:
+    - redis:rd
+    - redis:celery
+    - mysql:db
+  environment:
+    - C_FORCE_ROOT=true # keep celery happy with docker
+    - DEBUG=true
+    - CLOUDFILES_IMAGES_PREFIX=marc_images_
+beat:
+  build: .
+  command: /src/bin/celery beat -A worker
+  links:
+    - redis:rd
+    - redis:celery
+    - mysql:db
+  environment:
+    - C_FORCE_ROOT=true # keep celery happy with docker
+    - DEBUG=true
+    - CLOUDFILES_IMAGES_PREFIX=marc_images_
+
+# third-party
 mysql:
   image: mysql
   ports:
-    - "3306:3306" # to connect with a client
+    - "3306:3306" # to connect with an SQL client
   environment:
     - MYSQL_ROOT_PASSWORD=mysqlpass
     - MYSQL_USER=snapableusr
