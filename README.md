@@ -114,3 +114,4 @@ defaults.
 | CELERY_RESULT_PORT            | The celery result port (default: 5672)
 | CELERY_RESULT_URL             | The complete result url (default: redis://CELERY_RESULT_HOST:CELERY_RESULT_PORT/0)
 | SENTRY_DSN                    | The DSN string to use for Sentry (default: '')
+| NEW_RELIC_ENVIRONMENT         | The environment for logging [staging/production] (default: development)

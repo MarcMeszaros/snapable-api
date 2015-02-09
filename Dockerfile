@@ -53,9 +53,13 @@ COPY utils /src/app/utils/
 COPY worker /src/app/worker/
 
 # running
+ENV NEW_RELIC_CONFIG_FILE /src/app/newrelic.ini
+ENV NEW_RELIC_ENVIRONMENT staging
+
 EXPOSE 80
 EXPOSE 8000
 WORKDIR /src/app
+
 CMD ["supervisord", "-n"]
 #CMD ["/src/bin/gunicorn", "wsgi:application", "--pid gunicorn.pid"]
 #CMD ["/src/bin/newrelic-admin", "run-program", "/src/bin/gunicorn", "wsgi:application", "--pid gunicorn.pid"]
