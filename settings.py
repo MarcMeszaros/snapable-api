@@ -246,6 +246,7 @@ BROKER_URL = env_str('CELERY_BROKER_URL', 'redis://{0}:{1}/1'.format(CELERY_BROK
 CELERY_RESULT_BACKEND = env_str('CELERY_RESULT_URL', 'redis://{0}:{1}/1'.format(CELERY_RESULT_HOST, CELERY_RESULT_PORT))
 
 # Celery settings
+CELERY_TASK_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_RESULT_EXPIRES = 3600  # 1h
 #CELERY_ANNOTATIONS = {'tasks.add': {'rate_limit': '10/s'}}
