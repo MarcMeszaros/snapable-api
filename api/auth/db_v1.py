@@ -20,7 +20,7 @@ import data.models
 import utils.redis
 
 from api.models import ApiKey
-from utils import bool_env
+from utils import env_bool
 
 
 def get_api_key(key):
@@ -74,7 +74,7 @@ class DatabaseAuthentication(Authentication):
 
     def is_authenticated(self, request, **kwargs):
         # check for the environment variable to skip auth
-        if not bool_env('SNAP_AUTHENTICATION', True):
+        if not env_bool('SNAP_AUTHENTICATION', True):
             return True
 
         try:
@@ -118,7 +118,7 @@ class DatabaseAuthentication(Authentication):
     # Optional but recommended
     def get_identifier(self, request):
         # check for the environment variable to skip auth
-        if bool_env('SNAP_AUTHENTICATION', True):
+        if env_bool('SNAP_AUTHENTICATION', True):
             auth_params = api.auth.get_auth_params(request)
             return get_api_key(auth_params['key'])
 
@@ -127,7 +127,7 @@ class DatabaseAuthorization(Authorization):
 
     def create_detail(self, object_list, bundle):
         # check for the environment variable to skip auth
-        if not bool_env('SNAP_AUTHORIZATION', True):
+        if not env_bool('SNAP_AUTHORIZATION', True):
             return True
 
         # check if authorized to access the API and get the API key
@@ -141,7 +141,7 @@ class DatabaseAuthorization(Authorization):
 
     def read_list(self, object_list, bundle):
         # check for the environment variable to skip auth
-        if not bool_env('SNAP_AUTHORIZATION', True):
+        if not env_bool('SNAP_AUTHORIZATION', True):
             return True
 
         # check if authorized to access the API and get the API key
@@ -178,7 +178,7 @@ class DatabaseAuthorization(Authorization):
             return True
 
         # check for the environment variable to skip auth
-        if not bool_env('SNAP_AUTHORIZATION', True):
+        if not env_bool('SNAP_AUTHORIZATION', True):
             return True
 
         # check if authorized to access the API and get the API key
@@ -217,7 +217,7 @@ class DatabaseAuthorization(Authorization):
 
     def update_detail(self, object_list, bundle):
         # check for the environment variable to skip auth
-        if not bool_env('SNAP_AUTHORIZATION', True):
+        if not env_bool('SNAP_AUTHORIZATION', True):
             return True
 
         # check if authorized to access the API and get the API key
@@ -256,7 +256,7 @@ class DatabaseAuthorization(Authorization):
 
     def delete_detail(self, object_list, bundle):
         # check for the environment variable to skip auth
-        if not bool_env('SNAP_AUTHORIZATION', True):
+        if not env_bool('SNAP_AUTHORIZATION', True):
             return True
 
         # check if authorized to access the API and get the API key

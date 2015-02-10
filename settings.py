@@ -8,7 +8,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 from datetime import timedelta
-from utils import str_env, int_env, bool_env, docker_link_host, docker_link_port
+from utils import env_str, env_int, env_bool, docker_link_host, docker_link_port
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -19,11 +19,11 @@ PROJECT_PATH = BASE_DIR  # deprecated
 SECRET_KEY = '***REMOVED***'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool_env('DEBUG', False)
+DEBUG = env_bool('DEBUG', False)
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['127.0.0.1:8000', '.snapable.com']
-if len(str_env('HOST_IP')) > 0:
-    ALLOWED_HOSTS.append(str_env('HOST_IP'))
+if len(env_str('HOST_IP')) > 0:
+    ALLOWED_HOSTS.append(env_str('HOST_IP'))
 
 # Application definition
 INSTALLED_APPS = (
@@ -82,11 +82,11 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': str_env('DATABASE_NAME', 'snapabledb'),
-        'USER': str_env('DATABASE_USER', 'snapableusr'),
-        'PASSWORD': str_env('DATABASE_PASSWORD', 'snapable12345'),
-        'HOST': str_env('DATABASE_HOST', docker_link_host('DB', '127.0.0.1')),
-        'PORT': str_env('DATABASE_PORT', docker_link_port('DB', 3306)),
+        'NAME': env_str('DATABASE_NAME', 'snapabledb'),
+        'USER': env_str('DATABASE_USER', 'snapableusr'),
+        'PASSWORD': env_str('DATABASE_PASSWORD', 'snapable12345'),
+        'HOST': env_str('DATABASE_HOST', docker_link_host('DB', '127.0.0.1')),
+        'PORT': env_str('DATABASE_PORT', docker_link_port('DB', 3306)),
     }
 }
 
@@ -199,25 +199,25 @@ PASSWORD_HASHERS = (
 
 ##### Email #####
 EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
-EMAIL_HOST = str_env('EMAIL_HOST', 'smtp.mailgun.org')
-EMAIL_PORT = int_env('EMAIL_PORT', 587)
-EMAIL_USE_TLS = bool_env('EMAIL_USE_TLS', True)
-EMAIL_HOST_USER = str_env('EMAIL_HOST_USER', '***REMOVED***')
-EMAIL_HOST_PASSWORD = str_env('EMAIL_HOST_PASSWORD', '***REMOVED***')
+EMAIL_HOST = env_str('EMAIL_HOST', 'smtp.mailgun.org')
+EMAIL_PORT = env_int('EMAIL_PORT', 587)
+EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
+EMAIL_HOST_USER = env_str('EMAIL_HOST_USER', '***REMOVED***')
+EMAIL_HOST_PASSWORD = env_str('EMAIL_HOST_PASSWORD', '***REMOVED***')
 
 ##### RACKSPACE #####
-RACKSPACE_USERNAME = str_env('RACKSPACE_USERNAME', '***REMOVED***')
-RACKSPACE_APIKEY = str_env('RACKSPACE_APIKEY', '***REMOVED***')
-CLOUDFILES_IMAGES_PREFIX = str_env('CLOUDFILES_IMAGES_PREFIX', 'dev_images_')
-CLOUDFILES_DOWNLOAD_PREFIX = str_env('CLOUDFILES_DOWNLOAD_PREFIX', 'dev_downloads_')
-CLOUDFILES_WATERMARK_PREFIX = str_env('CLOUDFILES_WATERMARK_PREFIX', 'dev_watermark')
+RACKSPACE_USERNAME = env_str('RACKSPACE_USERNAME', '***REMOVED***')
+RACKSPACE_APIKEY = env_str('RACKSPACE_APIKEY', '***REMOVED***')
+CLOUDFILES_IMAGES_PREFIX = env_str('CLOUDFILES_IMAGES_PREFIX', 'dev_images_')
+CLOUDFILES_DOWNLOAD_PREFIX = env_str('CLOUDFILES_DOWNLOAD_PREFIX', 'dev_downloads_')
+CLOUDFILES_WATERMARK_PREFIX = env_str('CLOUDFILES_WATERMARK_PREFIX', 'dev_watermark')
 CLOUDFILES_EVENTS_PER_CONTAINER = 10000
-CLOUDFILES_PUBLIC_NETWORK = bool_env('CLOUDFILES_PUBLIC_NETWORK', True)
+CLOUDFILES_PUBLIC_NETWORK = env_bool('CLOUDFILES_PUBLIC_NETWORK', True)
 
 ##### Redis #####
-REDIS_HOST = str_env('REDIS_HOST', docker_link_host('RD', '127.0.0.1'))
-REDIS_PORT = int_env('REDIS_PORT', docker_link_port('RD', 6379))
-REDIS_DB = int_env('REDIS_DB', 0)
+REDIS_HOST = env_str('REDIS_HOST', docker_link_host('RD', '127.0.0.1'))
+REDIS_PORT = env_int('REDIS_PORT', docker_link_port('RD', 6379))
+REDIS_DB = env_int('REDIS_DB', 0)
 
 ##### Tastypie #####
 API_LIMIT_PER_PAGE = 50
@@ -226,28 +226,27 @@ TASTYPIE_ABSTRACT_APIKEY = True
 TASTYPIE_DATETIME_FORMATTING = 'iso-8601-strict'
 
 ##### Stripe #####
-STRIPE_KEY_SECRET = str_env('STRIPE_KEY_SECRET', '***REMOVED***') # testing
-STRIPE_KEY_PUBLIC = str_env('STRIPE_KEY_PUBLIC', '***REMOVED***') # testing
-STRIPE_CURRENCY = str_env('STRIPE_CURRENCY', 'usd')
+STRIPE_KEY_SECRET = env_str('STRIPE_KEY_SECRET', '***REMOVED***') # testing
+STRIPE_KEY_PUBLIC = env_str('STRIPE_KEY_PUBLIC', '***REMOVED***') # testing
+STRIPE_CURRENCY = env_str('STRIPE_CURRENCY', 'usd')
 
 ##### sendwithus #####
-SENDWITHUS_KEY = str_env('SENDWITHUS_KEY', '***REMOVED***') # no email
+SENDWITHUS_KEY = env_str('SENDWITHUS_KEY', '***REMOVED***') # no email
 
 ##### Celery #####
-CELERY_BROKER_USER = str_env('CELERY_BROKER_USER', 'snap_api')
-CELERY_BROKER_PASSWORD = str_env('CELERY_BROKER_PASSWORD', 'snapable12345')
-CELERY_BROKER_HOST = str_env('CELERY_BROKER_HOST', docker_link_host('CELERY', '127.0.0.1'))
-CELERY_BROKER_PORT = int_env('CELERY_BROKER_PORT', docker_link_port('CELERY', 6379))
-CELERY_RESULT_HOST = str_env('CELERY_RESULT_HOST', docker_link_host('CELERY', '127.0.0.1'))
-CELERY_RESULT_PORT = int_env('CELERY_RESULT_PORT', docker_link_port('CELERY', 6379))
+CELERY_BROKER_USER = env_str('CELERY_BROKER_USER', 'snap_api')
+CELERY_BROKER_PASSWORD = env_str('CELERY_BROKER_PASSWORD', 'snapable12345')
+CELERY_BROKER_HOST = env_str('CELERY_BROKER_HOST', docker_link_host('CELERY', '127.0.0.1'))
+CELERY_BROKER_PORT = env_int('CELERY_BROKER_PORT', docker_link_port('CELERY', 6379))
+CELERY_RESULT_HOST = env_str('CELERY_RESULT_HOST', docker_link_host('CELERY', '127.0.0.1'))
+CELERY_RESULT_PORT = env_int('CELERY_RESULT_PORT', docker_link_port('CELERY', 6379))
 
-# Broker settings.
-BROKER_URL = str_env('CELERY_BROKER_URL', 'redis://{0}:{1}/0'.format(CELERY_BROKER_HOST, CELERY_BROKER_PORT))
+# Broker/Results settings.
+BROKER_URL = env_str('CELERY_BROKER_URL', 'redis://{0}:{1}/1'.format(CELERY_BROKER_HOST, CELERY_BROKER_PORT))
+CELERY_RESULT_BACKEND = env_str('CELERY_RESULT_URL', 'redis://{0}:{1}/1'.format(CELERY_RESULT_HOST, CELERY_RESULT_PORT))
 
-# Results backend.
-CELERY_RESULT_BACKEND = str_env('CELERY_RESULT_URL', 'redis://{0}:{1}/0'.format(CELERY_RESULT_HOST,  CELERY_RESULT_PORT))
-
-# Expire tasks after a set time
+# Celery settings
+CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_RESULT_EXPIRES = 3600  # 1h
 #CELERY_ANNOTATIONS = {'tasks.add': {'rate_limit': '10/s'}}
 
@@ -271,9 +270,9 @@ GRAPPELLI_ADMIN_TITLE = 'Snapable'
 
 # sentry/raven
 # Set your DSN value
-if len(str_env('SENTRY_DSN')) > 0:
+if len(env_str('SENTRY_DSN')) > 0:
     RAVEN_CONFIG = {
-        'dsn': str_env('SENTRY_DSN'),
+        'dsn': env_str('SENTRY_DSN'),
     }
 
 # set API keys for AJAX

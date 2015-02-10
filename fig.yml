@@ -14,9 +14,10 @@ api:
     - SNAP_AUTHENTICATION=false
     - SNAP_AUTHORIZATION=false
     - GUNICORN_HOST=0.0.0.0
+
 worker:
   build: .
-  command: /src/bin/celery worker -A worker
+  command: /src/bin/celery worker -A worker -l info
   links:
     - redis:rd
     - redis:celery
@@ -25,9 +26,10 @@ worker:
     - C_FORCE_ROOT=true # keep celery happy with docker
     - DEBUG=true
     - CLOUDFILES_IMAGES_PREFIX=marc_images_
+
 beat:
   build: .
-  command: /src/bin/celery beat -A worker
+  command: /src/bin/celery beat -A worker -l info
   links:
     - redis:rd
     - redis:celery
@@ -39,7 +41,7 @@ beat:
 
 # third-party
 mysql:
-  image: mysql
+  image: mysql:5.5
   ports:
     - "3306:3306" # to connect with an SQL client
   environment:
@@ -47,5 +49,14 @@ mysql:
     - MYSQL_USER=snapableusr
     - MYSQL_PASSWORD=snapable12345
     - MYSQL_DATABASE=snapabledb
+
 redis:
-  image: redis
+  image: redis:2.8
+
+flower:
+  image: johncosta/flower
+  command: flower --port=5555 --broker=redis://rd:6379/1
+  links:
+    - redis:rd
+  ports:
+    - "49555:5555"
