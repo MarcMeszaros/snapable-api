@@ -237,9 +237,9 @@ SENDWITHUS_KEY = str_env('SENDWITHUS_KEY', '***REMOVED***') # no email
 CELERY_BROKER_USER = str_env('CELERY_BROKER_USER', 'snap_api')
 CELERY_BROKER_PASSWORD = str_env('CELERY_BROKER_PASSWORD', 'snapable12345')
 CELERY_BROKER_HOST = str_env('CELERY_BROKER_HOST', docker_link_host('CELERY', '127.0.0.1'))
-CELERY_BROKER_PORT = int_env('CELERY_BROKER_PORT', docker_link_port('CELERY', 5672))
+CELERY_BROKER_PORT = int_env('CELERY_BROKER_PORT', docker_link_port('CELERY', 6379))
 CELERY_RESULT_HOST = str_env('CELERY_RESULT_HOST', docker_link_host('CELERY', '127.0.0.1'))
-CELERY_RESULT_PORT = int_env('CELERY_RESULT_PORT', docker_link_port('CELERY', 5672))
+CELERY_RESULT_PORT = int_env('CELERY_RESULT_PORT', docker_link_port('CELERY', 6379))
 
 # Broker settings.
 BROKER_URL = str_env('CELERY_BROKER_URL', 'redis://{0}:{1}/0'.format(CELERY_BROKER_HOST, CELERY_BROKER_PORT))
