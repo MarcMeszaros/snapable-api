@@ -37,10 +37,6 @@ RUN virtualenv /src
 COPY requirements.txt /tmp/requirements.txt
 RUN cd /tmp && /src/bin/pip install -r /tmp/requirements.txt
 
-# static files
-COPY static-www /src/html/static-www/
-COPY docs/build/html /src/html/docs/
-
 # app code
 COPY *.py /src/app/
 COPY *.ini /src/app/
@@ -51,6 +47,11 @@ COPY data /src/app/data/
 COPY hooks /src/app/hooks/
 COPY utils /src/app/utils/
 COPY worker /src/app/worker/
+
+# static files
+RUN cd /src/app && /src/bin/python ./manage.py collectstatic --noinput
+COPY static-www /src/html/static-www/
+COPY docs/build/html /src/html/docs/
 
 # running
 ENV NEW_RELIC_CONFIG_FILE /src/app/newrelic.ini
