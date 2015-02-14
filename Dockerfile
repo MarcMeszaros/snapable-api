@@ -1,16 +1,14 @@
-FROM        ubuntu:trusty
+FROM ubuntu:14.10
 MAINTAINER  Marc Meszaros <marc@snapable.com>
 
 # install dependencies
 RUN apt-get update && apt-get -y install \
-    git \
-    make \
+    build-essential \
+    curl \
     nginx \
     ntp \
     python \
-    python-apt \
     python-dev \
-    python-pip \
     python3 \
     python3-dev \
     libffi-dev \
@@ -18,12 +16,16 @@ RUN apt-get update && apt-get -y install \
     libjpeg8-dev \
     liblcms1-dev \
     libmysqlclient-dev \
-    libtiff4-dev \ 
+    libtiff5-dev \ 
     libwebp-dev \
     supervisor \
     zlib1g-dev \
-    && pip install virtualenv \
     && rm -rf /var/lib/apt/lists/*
+
+# install pip
+RUN curl -SL -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
+    && python /tmp/get-pip.py \
+    && pip install virtualenv
 
 # nginx
 RUN useradd -ms /bin/bash nginx

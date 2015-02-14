@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# compile all the assets
-./manage.py collectstatic --clear --noinput
-
 # generate the docs
 (cd docs && make html)
 
