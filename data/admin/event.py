@@ -6,7 +6,7 @@ from django.db.models import Q
 
 # models
 from .location import LocationAdminInline
-from ..models import Event
+from ..models import Event, Photo
 
 
 class UpcomingEventListFilter(admin.SimpleListFilter):
@@ -72,7 +72,7 @@ class EventAdmin(admin.ModelAdmin):
     actions = ['cleanup_photos', 'create_event_photo_zip', 'send_event_invites']
     exclude = ['access_count', 'are_photos_watermarked']
     list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'guest_count', 'is_enabled', 'created_at']
-    #list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
+    list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
     readonly_fields = ['id', 'pin', 'created_at']
     search_fields = ['title', 'url']
     raw_id_fields = ['account', 'cover']

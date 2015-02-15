@@ -7,6 +7,7 @@ from ..models import Location
 
 class LocationAdminInline(admin.StackedInline):
     model = Location
+    extra = 1
     fieldsets = (
         (None, {
             'fields': (

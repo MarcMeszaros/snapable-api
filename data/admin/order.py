@@ -9,7 +9,7 @@ from ..models import Order
 class OrderAdmin(admin.ModelAdmin):
     actions = ['charge', 'send_email']
     list_display = ['id', 'amount', 'amount_refunded', 'is_paid', 'coupon', 'created_at']
-    #list_filter = ['is_paid', 'created_at']
+    list_filter = ['is_paid', 'created_at']
     readonly_fields = ['id', 'charge_id', 'account', 'user']
     search_fields = ['coupon']
     fieldsets = (
