@@ -4,7 +4,6 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import dashboard
 from api.models import ApiAccount
 
 
@@ -36,7 +35,7 @@ class Account(models.Model):
 from .accountuser import AccountUserAdminInline
 from .event import EventAdminInline
 from .order import OrderAdminInline
-@admin.register(Account, site=dashboard.site)
+@admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
     inlines = [AccountUserAdminInline, EventAdminInline, OrderAdminInline]
     list_display = ['id', 'package', 'valid_until', 'api_account', 'account__users']

@@ -6,9 +6,6 @@ from django.template.loader import get_template
 from django.template import Context
 from django.utils.encoding import python_2_unicode_compatible
 
-# snapable
-import dashboard
-
 
 @python_2_unicode_compatible
 class Guest(models.Model):
@@ -66,7 +63,7 @@ class Guest(models.Model):
 
 #===== Admin =====#
 
-@admin.register(Guest, site=dashboard.site)
+@admin.register(Guest)
 class GuestAdmin(admin.ModelAdmin):
     actions = ['send_email_invite', 'reset_email_invite_flag']
     list_display = ['id', 'email', 'name', 'is_invited', 'created_at', 'event_id', 'event_title', 'event_url']

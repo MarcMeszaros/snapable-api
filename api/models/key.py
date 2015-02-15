@@ -10,7 +10,6 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import dashboard
 import utils.redis
 
 
@@ -81,8 +80,8 @@ class ApiKey(models.Model):
         return hashlib.sha256(uuid.uuid4().hex).hexdigest()
 
 #===== Admin =====#
-# base details for direct and inline admin models
-class ApiKeyAdminDetails(object):
+@admin.register(ApiKey)
+class ApiKeyAdmin(admin.ModelAdmin):
     list_display = ['id', 'key', 'secret', 'version', 'is_enabled', 'created_at']
     readonly_fields = ['id', 'created_at']
     search_fields = ['key', 'secret']
@@ -112,12 +111,16 @@ class ApiKeyAdminDetails(object):
     )
 
 
-@admin.register(ApiKey, site=dashboard.site)
-class ApiKeyAdmin(ApiKeyAdminDetails, admin.ModelAdmin):
-    pass
-
-
 # add the inline admin model
-class ApiKeyAdminInline(ApiKeyAdminDetails, admin.StackedInline):
+class ApiKeyAdminInline(admin.StackedInline):
     model = ApiKey
     extra = 0
+    fieldsets = (
+        (None, {
+            'fields': (
+                ('key', 'secret'),
+                ('version', 'is_enabled'),
+                'permission_mask',
+            ),
+        }),
+    )

@@ -9,7 +9,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 
 # snapable
-import dashboard
 from data.images import SnapImage
 from guest import Guest
 from utils import rackspace
@@ -167,7 +166,7 @@ class Photo(models.Model):
 
 
 #===== Admin =====#
-@admin.register(Photo, site=dashboard.site)
+@admin.register(Photo)
 class PhotoAdmin(admin.ModelAdmin):
     exclude = ['metrics']
     list_display = ['id', 'event', 'caption', 'is_streamable', 'created_at']

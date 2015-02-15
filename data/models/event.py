@@ -15,7 +15,6 @@ from PIL import Image
 from uuidfield import UUIDField
 
 # snapable
-import dashboard
 from photo import Photo
 from utils import rackspace
 
@@ -179,7 +178,7 @@ class UpcomingEventListFilter(admin.SimpleListFilter):
 
 #===== Admin =====#
 from .location import LocationAdminInline
-@admin.register(Event, site=dashboard.site)
+@admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     inlines = [LocationAdminInline]
     actions = ['cleanup_photos', 'create_event_photo_zip', 'send_event_invites']

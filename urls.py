@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.contrib import admin 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
@@ -23,7 +24,7 @@ urlpatterns = patterns('',
     url(r'^humans\.txt$', lambda r: render(r, 'humans.txt', content_type='text/plain')),
 
     # add admin
-    (r'^grappelli/', include('grappelli.urls')), # grappelli URLS
+    (r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
     (r'^control_tower/', include(dashboard.site.urls)),
     (r'^control_tower/ajax/', include(ajax.urls)),
 

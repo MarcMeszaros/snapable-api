@@ -37,7 +37,7 @@ INSTALLED_APPS = (
 
     # django related
     'grappelli',
-    'django.contrib.admin.apps.SimpleAdminConfig',
+    'django.contrib.admin',
     # required for admin
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -14,7 +14,6 @@ from django.template import Context
 from django.utils.encoding import python_2_unicode_compatible
 
 # snapable
-import dashboard
 from data.models import PasswordNonce
 
 
@@ -173,7 +172,7 @@ class User(AbstractBaseUser):
 
 #===== Admin =====#
 from .accountuser import AccountUserAdminInline
-@admin.register(User, site=dashboard.site)
+@admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     inlines = [AccountUserAdminInline]
     list_display = ['id', 'email', 'first_name', 'last_name', 'created_at']

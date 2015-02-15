@@ -11,7 +11,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
 # snapable
-import dashboard
 import utils.currency
 import utils.sendwithus
 from accountaddon import AccountAddon
@@ -190,7 +189,7 @@ class Order(models.Model):
 
 
 #===== Admin =====#
-@admin.register(Order, site=dashboard.site)
+@admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     actions = ['charge', 'send_email']
     list_display = ['id', 'amount', 'amount_refunded', 'is_paid', 'coupon', 'created_at']
