@@ -178,11 +178,14 @@ class UpcomingEventListFilter(admin.SimpleListFilter):
 
 
 #===== Admin =====#
-# base details for direct and inline admin models
-class EventAdminDetails(object):
+from .location import LocationAdminInline
+@admin.register(Event, site=dashboard.site)
+class EventAdmin(admin.ModelAdmin):
+    inlines = [LocationAdminInline]
+    actions = ['cleanup_photos', 'create_event_photo_zip', 'send_event_invites']
     exclude = ['access_count', 'are_photos_watermarked']
     list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'guest_count', 'is_enabled', 'created_at']
-    list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
+    #list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
     readonly_fields = ['id', 'pin', 'created_at']
     search_fields = ['title', 'url']
     raw_id_fields = ['account', 'cover']
@@ -207,14 +210,6 @@ class EventAdminDetails(object):
             )
         }),
     )
-
-
-# base details for direct and inline admin models
-from .location import LocationAdminInline
-@admin.register(Event, site=dashboard.site)
-class EventAdmin(admin.ModelAdmin, EventAdminDetails):
-    actions = ['cleanup_photos', 'create_event_photo_zip', 'send_event_invites']
-    inlines = [LocationAdminInline]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         try:
@@ -245,6 +240,17 @@ class EventAdmin(admin.ModelAdmin, EventAdminDetails):
 
 
 # add the inline admin model
-class EventAdminInline(admin.StackedInline, EventAdminDetails):
+class EventAdminInline(admin.StackedInline):
     model = Event
     extra = 1
+    readonly_fields = ['id', 'pin', 'created_at']
+    fieldsets = (
+        (None, {
+            'fields': (
+                'title',
+                'url',
+                ('start_at', 'end_at', 'tz_offset'),
+                ('is_public', 'are_photos_streamable'),
+            ),
+        }),
+    )

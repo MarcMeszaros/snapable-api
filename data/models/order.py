@@ -190,10 +190,11 @@ class Order(models.Model):
 
 
 #===== Admin =====#
-# base details for direct and inline admin models
-class OrderAdminDetails(object):
+@admin.register(Order, site=dashboard.site)
+class OrderAdmin(admin.ModelAdmin):
+    actions = ['charge', 'send_email']
     list_display = ['id', 'amount', 'amount_refunded', 'is_paid', 'coupon', 'created_at']
-    list_filter = ['is_paid', 'created_at']
+    #list_filter = ['is_paid', 'created_at']
     readonly_fields = ['id', 'charge_id', 'account', 'user']
     search_fields = ['coupon']
     fieldsets = (
@@ -215,12 +216,6 @@ class OrderAdminDetails(object):
         }),
     )
 
-
-# add the direct admin model
-@admin.register(Order, site=dashboard.site)
-class OrderAdmin(admin.ModelAdmin, OrderAdminDetails):
-    actions = ['charge', 'send_email']
-
     def send_email(self, request, queryset):
         for order in queryset.iterator():
             order.send_email()
@@ -239,8 +234,17 @@ class OrderAdmin(admin.ModelAdmin, OrderAdminDetails):
 
 
 # add the inline admin model
-class OrderAdminInline(admin.StackedInline, OrderAdminDetails):
+class OrderAdminInline(admin.StackedInline):
     model = Order
+    fieldsets = (
+        (None, {
+            'fields': (
+                ('amount', 'amount_refunded', 'coupon'),
+                'items',
+                'is_paid',
+            ),
+        }),
+    )
 
     def has_add_permission(self, request):
         return False
