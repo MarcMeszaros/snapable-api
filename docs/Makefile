@@ -26,10 +26,10 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html html-code api latex changes linkcheck
+.PHONY: help clean html html-code latex changes linkcheck
 
 help:
-	@echo "Please use \`make <target>' where <target> is one of"
+	@echo "Please use 'make <target>' where <target> is one of"
 	@echo "  html       to make standalone HTML files"
 	@echo "  html-code  to make standalone HTML files (with project code)"
 	@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"

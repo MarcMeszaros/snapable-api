@@ -61,6 +61,17 @@ MIDDLEWARE_CLASSES = (
     'api.utils.middleware.RequestLoggingMiddleware',
 )
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.6/howto/static-files/
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static-www')
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',  # Admin
+    'django.contrib.messages.context_processors.messages',  # Admin
+    'django.core.context_processors.request',
+)
+
 ROOT_URLCONF = 'urls'
 WSGI_APPLICATION = 'wsgi.application'
 
@@ -89,17 +100,6 @@ DATABASES = {
         'PORT': env_str('DATABASE_PORT', docker_link_port('DB', 3306)),
     }
 }
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.6/howto/static-files/
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static-www')
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',  # Admin
-    'django.contrib.messages.context_processors.messages',  # Admin
-    'django.core.context_processors.request',
-)
 
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
@@ -280,7 +280,6 @@ if len(env_str('SENTRY_DSN')) > 0:
 APIKEY = {
     'key123': 'sec123',
 }
-
 
 # setup stripe
 import stripe

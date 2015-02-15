@@ -5,6 +5,7 @@ MAINTAINER  Marc Meszaros <marc@snapable.com>
 RUN apt-get update && apt-get -y install \
     build-essential \
     curl \
+    make \
     nginx \
     ntp \
     python \
@@ -22,10 +23,15 @@ RUN apt-get update && apt-get -y install \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# install pip
+# install pip (and sphinx for docs)
 RUN curl -SL -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
     && python /tmp/get-pip.py \
-    && pip install virtualenv
+    && pip install virtualenv sphinx
+
+# install nodejs (and aglio for docs)
+RUN curl -sL https://deb.nodesource.com/setup | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g aglio
 
 # nginx
 RUN useradd -ms /bin/bash nginx
@@ -46,14 +52,17 @@ COPY ajax /src/app/ajax/
 COPY api /src/app/api/
 COPY dashboard /src/app/dashboard/
 COPY data /src/app/data/
+COPY docs /src/app/docs
 COPY hooks /src/app/hooks/
 COPY utils /src/app/utils/
 COPY worker /src/app/worker/
 
-# static files
+# static files & docs
 RUN cd /src/app && /src/bin/python ./manage.py collectstatic --noinput
-COPY static-www /src/html/static-www/
-COPY docs/build/html /src/html/docs/
+RUN cd /src/app/docs && make html
+RUN mkdir -p /src/html \
+    && mv /src/app/static-www /src/html/static-www/ \
+    && mv /src/app/docs/build/html /src/html/docs/
 
 # running
 ENV NEW_RELIC_CONFIG_FILE /src/app/newrelic.ini

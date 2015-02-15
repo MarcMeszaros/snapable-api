@@ -11,8 +11,6 @@ The required tools that need to be installed on your development machine.
 
 * [Docker](https://www.docker.com/)
 * [Fig](http://www.fig.sh/)
-* python/pip (docs)
-* node.js (docs)
 
 ## Application Requirements ##
 Linux system libraries are required for some python libraries to work. This is based 
@@ -33,18 +31,6 @@ system libraries are part of the build process and update this section.
 Development is mostly done in python and using docker. There is currently one suggestion
 that should be followed when setting up the project for the first time to make it
 easier to build releases. The recommended setup is below.
-
-## Setup ##
-Run the following commands:
-
-    > sudo pip install --upgrade
-    > sudo pip install virtualenv
-    > virtualenv ~/snap_api/
-    > cd ~/snap_api/
-    > source bin/activate
-    > git clone git@bitbucket.org:snapable/api.git
-    > cd api
-    > pip install -r requirements.txt
 
 ## Docker ##
 Docker is used for both development and production. The only difference between
@@ -68,11 +54,8 @@ container, the API documentation is generated on the development machine and sim
 packaged into the final container. Because of this, please make sure to read the
 development section above to make it easier to build a release docker container.
 
-    > cd ~/snap_api/
-    > source bin/activate
-    > cd api
-    > pip install -r requirements.txt
-    > ./build.sh
+    > docker build -t quay.io/<user>/api .
+    > docker push quay.io/<user>/api
 
 # CONFIGURATION #
 Configuration is done at runtime using environment variables. Below is a list of
@@ -109,9 +92,9 @@ defaults.
 | STRIPE_CURRENCY               | The currency to charge in (default: usd)
 | CELERY_BROKER_HOST            | The celery broker host (default: 127.0.0.1)
 | CELERY_BROKER_PORT            | The celery broker port (default: 5672)
-| CELERY_BROKER_URL             | The complete broker url (default: redis://CELERY_BROKER_HOST:CELERY_BROKER_PORT/0)
+| CELERY_BROKER_URL             | The complete broker url (default: redis://CELERY_BROKER_HOST:CELERY_BROKER_PORT/1)
 | CELERY_RESULT_HOST            | The celery result host (default: 127.0.0.1)
 | CELERY_RESULT_PORT            | The celery result port (default: 5672)
-| CELERY_RESULT_URL             | The complete result url (default: redis://CELERY_RESULT_HOST:CELERY_RESULT_PORT/0)
+| CELERY_RESULT_URL             | The complete result url (default: redis://CELERY_RESULT_HOST:CELERY_RESULT_PORT/1)
 | SENTRY_DSN                    | The DSN string to use for Sentry (default: '')
 | NEW_RELIC_ENVIRONMENT         | The environment for logging [staging/production] (default: development)
