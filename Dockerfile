@@ -1,5 +1,5 @@
 FROM ubuntu:14.10
-MAINTAINER  Marc Meszaros <marc@snapable.com>
+MAINTAINER Marc Meszaros <marc@snapable.com>
 
 # install dependencies
 RUN apt-get update && apt-get -y install \
@@ -12,7 +12,6 @@ RUN apt-get update && apt-get -y install \
     python-dev \
     python3 \
     python3-dev \
-    libffi-dev \
     libfreetype6-dev \
     libjpeg8-dev \
     liblcms1-dev \

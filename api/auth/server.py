@@ -37,11 +37,7 @@ def legacyIsAuthorized(request):
             pass_data = {}
 
             # various data based on db_pass type
-            if db_pass[0] == 'bcrypt':
-                pass_data['password_algorithm'] = db_pass[0]
-                pass_data['password_data'] = db_pass[1]
-
-            elif db_pass[0] == 'pbkdf2_sha256':
+            if db_pass[0] == 'pbkdf2_sha256':
                 pass_parts = db_pass[1].split('$')
                 pass_data['password_hash'] = pass_parts[2]
 

@@ -19,7 +19,6 @@ are changed or added, make sure to update the ``Dockerfile`` to make sure the
 system libraries are part of the build process and update this section.
 
 * python-dev (generic)
-* libffi-dev (bcrypt)
 * libtiff4-dev  (pillow)
 * libjpeg8-dev (pillow)
 * zlib1g-dev (pillow)
