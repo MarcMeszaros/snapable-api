@@ -33,8 +33,12 @@ class Account(models.Model):
 
 
 #===== Admin =====#
-# base details for direct and inline admin models
-class AccountAdminDetails(object):
+from .accountuser import AccountUserAdminInline
+from .event import EventAdminInline
+from .order import OrderAdminInline
+@admin.register(Account, site=dashboard.site)
+class AccountAdmin(admin.ModelAdmin):
+    inlines = [AccountUserAdminInline, EventAdminInline, OrderAdminInline]
     list_display = ['id', 'package', 'valid_until', 'api_account', 'account__users']
     readonly_fields = ['id']
     search_fields = ['api_account__company', 'users__email']
@@ -55,12 +59,3 @@ class AccountAdminDetails(object):
 
     def account__users(self, obj):
         return ','.join([u.email for u in obj.users.all()])
-
-
-# add the direct admin model
-from .accountuser import AccountUserAdminInline
-from .event import EventAdminInline
-from .order import OrderAdminInline
-@admin.register(Account, site=dashboard.site)
-class AccountAdmin(admin.ModelAdmin, AccountAdminDetails):
-    inlines = [AccountUserAdminInline, EventAdminInline, OrderAdminInline]

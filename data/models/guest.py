@@ -65,8 +65,10 @@ class Guest(models.Model):
 
 
 #===== Admin =====#
-# base details for direct and inline admin models
-class GuestAdminDetails(object):
+
+@admin.register(Guest, site=dashboard.site)
+class GuestAdmin(admin.ModelAdmin):
+    actions = ['send_email_invite', 'reset_email_invite_flag']
     list_display = ['id', 'email', 'name', 'is_invited', 'created_at', 'event_id', 'event_title', 'event_url']
     list_select_related = ['event']
     readonly_fields = ['id', 'created_at', 'event']
@@ -97,11 +99,6 @@ class GuestAdminDetails(object):
 
     def event_url(self, object):
         return object.event.url
-
-
-@admin.register(Guest, site=dashboard.site)
-class GuestAdmin(admin.ModelAdmin, GuestAdminDetails):
-    actions = ['send_email_invite', 'reset_email_invite_flag']
 
     def send_email_invite(self, request, queryset):
         for guest in queryset.iterator():

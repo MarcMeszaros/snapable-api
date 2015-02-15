@@ -167,8 +167,8 @@ class Photo(models.Model):
 
 
 #===== Admin =====#
-# base details for direct and inline admin models
-class PhotoAdminDetails(object):
+@admin.register(Photo, site=dashboard.site)
+class PhotoAdmin(admin.ModelAdmin):
     exclude = ['metrics']
     list_display = ['id', 'event', 'caption', 'is_streamable', 'created_at']
     list_display_links = ['id', 'event']
@@ -192,10 +192,6 @@ class PhotoAdminDetails(object):
         }),
     )
 
-
-# add the direct admin model
-@admin.register(Photo, site=dashboard.site)
-class PhotoAdmin(admin.ModelAdmin, PhotoAdminDetails):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         object_id = filter(None, request.path.split('/'))[-1]
         photo = Photo.objects.get(pk=object_id)

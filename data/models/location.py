@@ -26,8 +26,8 @@ class Location(models.Model):
 
 
 #===== Admin =====#
-# base details for direct and inline admin models
-class LocationAdminDetails(object):
+class LocationAdminInline(admin.StackedInline):
+    model = Location
     fieldsets = (
         (None, {
             'fields': (
@@ -36,8 +36,3 @@ class LocationAdminDetails(object):
             ),
         }),
     )
-
-
-# add the inline admin model
-class LocationAdminInline(admin.StackedInline, LocationAdminDetails):
-    model = Location
