@@ -4,8 +4,6 @@ import uuid
 
 # django/tastypie/libs
 from bitfield import BitField
-from bitfield.forms import BitFieldCheckboxSelectMultiple
-from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -78,49 +76,3 @@ class ApiKey(models.Model):
     @staticmethod
     def generate_secret():
         return hashlib.sha256(uuid.uuid4().hex).hexdigest()
-
-#===== Admin =====#
-@admin.register(ApiKey)
-class ApiKeyAdmin(admin.ModelAdmin):
-    list_display = ['id', 'key', 'secret', 'version', 'is_enabled', 'created_at']
-    readonly_fields = ['id', 'created_at']
-    search_fields = ['key', 'secret']
-    raw_id_fields = ['account']
-    related_lookup_fields = {
-        'fk': ['account', 'cover'],
-    }
-    formfield_overrides = {
-        BitField: {'widget': BitFieldCheckboxSelectMultiple},
-    }
-    fieldsets = (
-        (None, {
-            'fields': (
-                'id',
-                ('key', 'secret'),
-                ('version', 'is_enabled'),
-                'permission_mask',
-                'created_at',
-            ),
-        }),
-        ('Ownership', {
-            'classes': ('collapse',),
-            'fields': (
-                'account',
-            )
-        }),
-    )
-
-
-# add the inline admin model
-class ApiKeyAdminInline(admin.StackedInline):
-    model = ApiKey
-    extra = 0
-    fieldsets = (
-        (None, {
-            'fields': (
-                ('key', 'secret'),
-                ('version', 'is_enabled'),
-                'permission_mask',
-            ),
-        }),
-    )

@@ -1,5 +1,4 @@
-# django/tastypie/libs
-from django.contrib import admin
+# -*- coding: utf-8 -*-
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -23,16 +22,3 @@ class Location(models.Model):
             'lat': self.lat,
             'lng': self.lng,
         })
-
-
-#===== Admin =====#
-class LocationAdminInline(admin.StackedInline):
-    model = Location
-    fieldsets = (
-        (None, {
-            'fields': (
-                'address',
-                ('lat', 'lng'),
-            ),
-        }),
-    )

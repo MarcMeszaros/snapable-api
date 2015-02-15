@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # modules to import for 'import *'
 #__all__ = ['']
 
@@ -12,11 +13,11 @@ from guest import Guest
 from location import Location
 from package import Package
 from passwordnonce import PasswordNonce
+from photo import Photo
 from user import User
 
 # second level: depends on independent models
 from order import Order # depends: Package, EventAddon, AccountAddon
-from photo import Photo # depends: Guest
 
 # third level: depends on second level models or below
 from event import Event # depends: Photo

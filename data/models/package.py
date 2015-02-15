@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 # django/tastypies/libs
-from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
@@ -39,24 +39,3 @@ class Package(models.Model):
             'name': self.name,
             'short_name': self.short_name,
         })
-
-
-#===== Admin =====#
-@admin.register(Package)
-class PackageAdmin(admin.ModelAdmin):
-    list_display = ['id', 'short_name', 'name', 'amount', 'is_enabled']
-    readonly_fields = ['id']
-    search_fields = ['short_name', 'name']
-    fieldsets = (
-        (None, {
-            'fields': (
-                'id',
-                'is_enabled',
-                'name',
-                'short_name',
-                'amount',
-                'items',
-                ('interval', 'interval_count', 'trial_period_days'),
-            ),
-        }),
-    )

@@ -1,9 +1,8 @@
+# -*- coding: utf-8 -*-
 # python
 import re
 
 # django/tastypie/libs
-import bcrypt
-from django.contrib import admin
 from django.conf import settings
 from django.contrib.auth.hashers import (check_password, make_password, is_password_usable)
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -124,8 +123,6 @@ class User(AbstractBaseUser):
 
     @staticmethod
     def generate_password(raw_password, hasher='pbkdf2_sha256'):
-        #if hasher == 'bcrypt':
-        #    return make_password(raw_password, hasher='bcrypt')
         if hasher == 'pbkdf2_sha256':
             return make_password(raw_password, hasher='pbkdf2_sha256')
         else:
@@ -168,36 +165,3 @@ class User(AbstractBaseUser):
             return True
         else:
             return False
-
-
-#===== Admin =====#
-from .accountuser import AccountUserAdminInline
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    inlines = [AccountUserAdminInline]
-    list_display = ['id', 'email', 'first_name', 'last_name', 'created_at']
-    readonly_fields = ['id', 'created_at', 'last_login']
-    search_fields = ['email', 'first_name', 'last_name']
-    fieldsets = (
-        (None, {
-            'fields': (
-                'id',
-                'email',
-                'password',
-                ('first_name', 'last_name'),
-                ('last_login', 'created_at'),
-            ),
-            'description': '<strong>NOTE: <em>A "plaintext" password in the "password" field will be hashed and saved and will overwrite the existing password.</em></strong>'
-        }),
-        ('Stripe', {
-            'classes': ('collapse',),
-            'fields': (
-                'payment_gateway_user_id',
-            )
-        }),
-    )
-
-    def save_model(self, request, obj, form, change):
-        if obj.password[:14] != 'pbkdf2_sha256$':
-            obj.set_password(obj.password)
-        obj.save()

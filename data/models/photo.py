@@ -1,8 +1,8 @@
+# -*- coding: utf-8 -*-
 # python
 import cStringIO
 
 # django/tastypie/libs
-from django.contrib import admin
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -10,7 +10,6 @@ from PIL import Image
 
 # snapable
 from data.images import SnapImage
-from guest import Guest
 from utils import rackspace
 from utils.loggers import Log
 
@@ -163,37 +162,3 @@ class Photo(models.Model):
                     obj = cont.store_object(self._image_name('crop'), image.img.convert('RGB').tobytes('jpeg', 'RGB'))
             except rackspace.pyrax.exceptions.NoSuchContainer as e:
                 return None
-
-
-#===== Admin =====#
-@admin.register(Photo)
-class PhotoAdmin(admin.ModelAdmin):
-    exclude = ['metrics']
-    list_display = ['id', 'event', 'caption', 'is_streamable', 'created_at']
-    list_display_links = ['id', 'event']
-    readonly_fields = ['id', 'event', 'created_at']
-    search_fields = ['caption']
-    fieldsets = (
-        (None, {
-            'fields': (
-                'id',
-                'caption',
-                'is_streamable',
-                'created_at',
-            )
-        }),
-        ('Ownership', {
-            'classes': ('collapse',),
-            'fields': (
-                'event',
-                'guest',
-            )
-        }),
-    )
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        object_id = filter(None, request.path.split('/'))[-1]
-        photo = Photo.objects.get(pk=object_id)
-        if db_field.name == 'guest':
-            kwargs['queryset'] = Guest.objects.filter(event=photo.event)
-        return super(PhotoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)

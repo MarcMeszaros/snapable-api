@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 # django/tastypie/libs
-from django.contrib import admin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -29,32 +29,3 @@ class Account(models.Model):
             'users': self.users,
             'valid_until': self.valid_until,
         })
-
-
-#===== Admin =====#
-from .accountuser import AccountUserAdminInline
-from .event import EventAdminInline
-from .order import OrderAdminInline
-@admin.register(Account)
-class AccountAdmin(admin.ModelAdmin):
-    inlines = [AccountUserAdminInline, EventAdminInline, OrderAdminInline]
-    list_display = ['id', 'package', 'valid_until', 'api_account', 'account__users']
-    readonly_fields = ['id']
-    search_fields = ['api_account__company', 'users__email']
-    fieldsets = (
-        (None, {
-            'fields': (
-                'id',
-                'package',
-            ),
-        }),
-        ('Ownership', {
-            'classes': ('collapse',),
-            'fields': (
-                'api_account',
-            )
-        }),
-    )
-
-    def account__users(self, obj):
-        return ','.join([u.email for u in obj.users.all()])
