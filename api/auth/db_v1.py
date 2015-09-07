@@ -24,17 +24,20 @@ from utils import env_bool
 
 
 def get_api_key(key):
-    redis_key = 'api_key_{0}'.format(key)
-    utils.redis.client.expire(redis_key, 900)  # update the ttl if possible
-    api_redis_string = utils.redis.client.get(redis_key)  # get the key
-    if api_redis_string:
-        api_key = pickle.loads(api_redis_string)
-        return api_key
-    else:
-        api_key = ApiKey.objects.get(key=key)
-        api_redis_string = pickle.dumps(api_key)
-        utils.redis.client.setex(redis_key, 900, api_redis_string)
-        return api_key
+    try:
+        redis_key = 'api_key_{0}'.format(key)
+        utils.redis.client.expire(redis_key, 900)  # update the ttl if possible
+        api_redis_string = utils.redis.client.get(redis_key)  # get the key
+        if api_redis_string:
+            api_key = pickle.loads(api_redis_string)
+            return api_key
+        else:
+            api_key = ApiKey.objects.get(key=key)
+            api_redis_string = pickle.dumps(api_key)
+            utils.redis.client.setex(redis_key, 900, api_redis_string)
+            return api_key
+    except:
+        return ApiKey.objects.get(key=key)
 
 
 def apiAuthorizationChecks(request):
