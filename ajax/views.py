@@ -1,16 +1,14 @@
+"""AJAX enpoints"""
 # python
 import json
 from datetime import datetime
 
 # django/libs
-from django.conf import settings
 from django.db.models import Sum
 from django.http import HttpResponse
 
 # snapable
-from api.auth import DatabaseAuthentication
-from api.private_v1.resources import EventResource, PhotoResource, UserResource
-from data.models import Event, Order, Photo
+from data.models import Event, Order, Photo, User
 
 ### Helper Functions ###
 def _event_photo_count_avg(start, end):
@@ -37,106 +35,18 @@ def _event_guest_count_avg(start, end):
     else:
         return 0
 
+def _events_with_photos(start, end):
+    events = Event.objects.filter(end_at__gte=start, end_at__lte=end)
+    events_with_photos = 0
+    for event in events:
+        if event.photo_count > 0:
+            events_with_photos += 1
+
+    return events_with_photos
+
 ### Actual Functions ###
 def index(request):
     return HttpResponse("You're looking at ajax index.")
-
-def total_signups(request, start=0, end=None):
-    startdate = datetime.utcfromtimestamp(float(start))
-    enddate = datetime.utcnow()
-    if end is not None:
-        enddate = datetime.utcfromtimestamp(float(end))
-
-    kwargs = {
-        'created_at__gte': startdate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-        'created_at__lte': enddate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-    }
-
-    # sign the API request
-    key, secret = settings.APIKEY.items()[0]
-    res = UserResource()
-    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
-
-def total_actives(request, start=0, end=None):
-    startdate = datetime.utcfromtimestamp(float(start))
-    enddate = datetime.utcnow()
-    if end is not None:
-        enddate = datetime.utcfromtimestamp(float(end))
-
-    kwargs = {
-        'last_login__gte': startdate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-        'last_login__lte': enddate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-    }
-
-    # sign the API request
-    key, secret = settings.APIKEY.items()[0]
-    res = UserResource()
-    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
-
-def past_events(request, start=0, end=None):
-    startdate = datetime.utcfromtimestamp(float(start))
-    enddate = datetime.utcnow()
-    if end is not None:
-        enddate = datetime.utcfromtimestamp(float(end))
-
-    kwargs = {
-        'end_at__gte': startdate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-        'end_at__lte': enddate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-    }
-
-    # sign the API request
-    key, secret = settings.APIKEY.items()[0]
-    res = EventResource()
-    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
-
-def photos_count(request, start=0, end=None):
-    startdate = datetime.utcfromtimestamp(float(start))
-    enddate = datetime.utcnow()
-    if end is not None:
-        enddate = datetime.utcfromtimestamp(float(end))
-
-    kwargs = {
-        'created_at__gte': startdate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-        'created_at__lte': enddate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-    }
-
-    # sign the API request
-    key, secret = settings.APIKEY.items()[0]
-    res = PhotoResource()
-    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
-
-def upcoming_events(request, start=0, end=None):
-    startdate = datetime.utcfromtimestamp(float(start))
-    enddate = datetime.utcnow()
-    if end is not None:
-        enddate = datetime.utcfromtimestamp(float(end))
-
-    kwargs = {
-        'end_at__gte': enddate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-        'order_by': 'start',
-    }
-
-    # sign the API request
-    key, secret = settings.APIKEY.items()[0]
-    res = EventResource()
-    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
-
-def events_with_photo_count(request, photo_count, start=0, end=None):
-    startdate = datetime.utcfromtimestamp(float(start))
-    enddate = datetime.utcnow()
-    if end is not None:
-        enddate = datetime.utcfromtimestamp(float(end))
-
-    kwargs = {
-        'photo_count__gte': photo_count,
-        'end_at__gte': startdate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-        'end_at__lte': enddate.strftime('%Y-%m-%dT%H:%M:%SZ'),
-    }
-
-    # sign the API request
-    key, secret = settings.APIKEY.items()[0]
-    res = EventResource()
-    return res.dispatch_list(DatabaseAuthentication.sign_request(request, key, secret), **kwargs)
 
 def metrics(request, start=0, end=None):
     startdate = datetime.utcfromtimestamp(float(start))
@@ -151,6 +61,12 @@ def metrics(request, start=0, end=None):
             'avg_photos_per_event': _event_photo_count_avg(startdate, enddate),
             'avg_guests_per_event': _event_guest_count_avg(startdate, enddate),
             'orders': orders_metrics,
+            'past_events_count': Event.objects.filter(end_at__gte=startdate, end_at__lte=enddate).count(),
+            'past_events_with_photos_count': _events_with_photos(startdate, enddate),
+            'photo_count': Photo.objects.filter(created_at__gte=startdate, created_at__lte=enddate).count(),
+            'total_actives': User.objects.filter(last_login__gte=startdate, last_login__lte=enddate).count(),
+            'total_signups': User.objects.filter(created_at__gte=startdate, created_at__lte=enddate).count(),
+            'upcoming_events_count': Event.objects.filter(end_at__gte=enddate).count(),
         }
     }
 

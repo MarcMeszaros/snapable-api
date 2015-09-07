@@ -1,5 +1,5 @@
 // document load
-$(document).ready(function(){
+$(document).ready(function() {
     update_metrics();
 
     $('#metrics-refresh').click(function(){
@@ -12,74 +12,38 @@ $(document).ready(function(){
 
 // simple wrapper to call all the metric update functions
 function update_metrics() {
-    metric_signups();
-    metric_actives();
-    past_events();
-    photos_count();
-    upcoming_events();
-    past_events_photos();
-    metrics();
-}
-
-
-// functions
-function metric_signups() {
     var start = get_unix_start();
-    $.getJSON('ajax/total_signups/'+start, function(json){
+    $.getJSON('ajax/metrics/'+start, function(json) {
+        // signups
         $('#metric-signups .value').hide();
-        $('#metric-signups .value').html(json.meta.total_count);
+        $('#metric-signups .value').html(json.metrics.total_signups);
         $('#metric-signups .value').fadeIn();
-    });
-}
 
-function metric_actives() {
-    var start = get_unix_start();
-    $.getJSON('ajax/total_actives/'+start, function(json){
+        // total active users
         $('#metric-actives .value').hide();
-        $('#metric-actives .value').html(json.meta.total_count);
+        $('#metric-actives .value').html(json.metrics.total_actives);
         $('#metric-actives .value').fadeIn();
-    });
-}
 
-function past_events() {
-    var start = get_unix_start();
-    $.getJSON('ajax/past_events/'+start, function(json){
+        // past events count
         $('#metric-past-events-count .value').hide();
-        $('#metric-past-events-count .value').html(json.meta.total_count);
+        $('#metric-past-events-count .value').html(json.metrics.past_events_count);
         $('#metric-past-events-count .value').fadeIn();
-    });
-}
 
-function photos_count() {
-    var start = get_unix_start();
-    $.getJSON('ajax/photos_count/'+start, function(json){
-        $('#metric-photos-count .value').hide();
-        $('#metric-photos-count .value').html(json.meta.total_count);
-        $('#metric-photos-count .value').fadeIn();
-    });
-}
-
-function upcoming_events() {
-    var start = get_unix_start();
-    $.getJSON('ajax/upcoming_events/'+start, function(json){
-        $('#metric-upcoming-events .value').hide();
-        $('#metric-upcoming-events .value').html(json.meta.total_count);
-        $('#metric-upcoming-events .value').fadeIn();
-    });
-}
-
-function past_events_photos() {
-    var start = get_unix_start();
-    $.getJSON('ajax/events_with_photo_count/1/'+start, function(json){
+        // past events with at least one photo
         $('#metric-past-events-photos .value').hide();
-        $('#metric-past-events-photos .value').html(json.meta.total_count);
+        $('#metric-past-events-photos .value').html(json.metrics.past_events_with_photos_count);
         $('#metric-past-events-photos .value').fadeIn();
-    });
-}
 
-function metrics() {
-    var start = get_unix_start();
-    $.getJSON('ajax/metrics/'+start, function(json){
+        // photo count
+        $('#metric-photos-count .value').hide();
+        $('#metric-photos-count .value').html(json.metrics.photo_count);
+        $('#metric-photos-count .value').fadeIn();
+
+        // upcoming_events_count
+        $('#metric-upcoming-events .value').hide();
+        $('#metric-upcoming-events .value').html(json.metrics.upcoming_events_count);
+        $('#metric-upcoming-events .value').fadeIn();
+
         // average photo
         $('#metric-avg-event-photos .value').hide();
         $('#metric-avg-event-photos .value').html(json.metrics.avg_photos_per_event.toFixed(2));
