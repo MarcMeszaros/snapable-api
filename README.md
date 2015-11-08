@@ -10,12 +10,11 @@ your development machine to build the docker container and generate the docs.
 The required tools that need to be installed on your development machine.
 
 * [Docker](https://www.docker.com/)
-* [Fig](http://www.fig.sh/)
 
 ## Application Requirements ##
-Linux system libraries are required for some python libraries to work. This is based 
-on the list of python libraries inside the "requirements.txt" file. If libraries 
-are changed or added, make sure to update the ``Dockerfile`` to make sure the 
+Linux system libraries are required for some python libraries to work. This is based
+on the list of python libraries inside the "requirements.txt" file. If libraries
+are changed or added, make sure to update the ``Dockerfile`` to make sure the
 system libraries are part of the build process and update this section.
 
 * python-dev (generic)
@@ -35,17 +34,17 @@ easier to build releases. The recommended setup is below.
 Docker is used for both development and production. The only difference between
 development and production are runtime configuration variables and cloud infrastructure.
 
-1. Install [Fig](http://www.fig.sh/)
-2. Run ``fig build``
-3. Run ``fig up``
-4. Run ``fig run api /src/bin/python ./manage.py migrate``
-5. Run ``fig run api /src/bin/python ./manage.py loaddata /src/app/data/fixtures/packages.json``
+1. Install [Docker Compose](http://docs.docker.com/compose/)
+2. Run ``docker-compose build``
+3. Run ``docker-compose up``
+4. Run ``docker-compose run api /src/bin/python ./manage.py migrate``
+5. Run ``docker-compose run api /src/bin/python ./manage.py loaddata /src/app/data/fixtures/packages.json``
 
 ## Unit Tests ##
 To run the unit tests, you first need to build the code into a docker:
 
-    > fig build
-    > fig run api /src/bin/python ./manage.py test
+    > docker-compose build
+    > docker-compose run api /src/bin/python ./manage.py test
 
 # RELEASE #
 Releasing and deploying the code is relatively simple. To save on space for the docker
@@ -59,7 +58,7 @@ development section above to make it easier to build a release docker container.
 # CONFIGURATION #
 Configuration is done at runtime using environment variables. Below is a list of
 environment variables that can be set for production use instead of the development
-defaults. 
+defaults.
 
 | Name                          | Description                                      
 |-------------------------------|---------------------------------------------------------------------

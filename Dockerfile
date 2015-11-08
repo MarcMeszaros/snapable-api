@@ -1,4 +1,4 @@
-FROM ubuntu:14.10
+FROM ubuntu:15.04
 MAINTAINER Marc Meszaros <marc@snapable.com>
 
 # install dependencies
@@ -14,9 +14,8 @@ RUN apt-get update && apt-get -y install \
     python3-dev \
     libfreetype6-dev \
     libjpeg8-dev \
-    liblcms1-dev \
     libmysqlclient-dev \
-    libtiff5-dev \ 
+    libtiff5-dev \
     libwebp-dev \
     supervisor \
     zlib1g-dev \
@@ -44,24 +43,18 @@ RUN virtualenv /src
 COPY requirements.txt /tmp/requirements.txt
 RUN cd /tmp && /src/bin/pip install -r /tmp/requirements.txt
 
-# app code
-COPY *.py /src/app/
-COPY *.ini /src/app/
-COPY ajax /src/app/ajax/
-COPY api /src/app/api/
-COPY dashboard /src/app/dashboard/
-COPY data /src/app/data/
-COPY docs /src/app/docs
-COPY hooks /src/app/hooks/
-COPY utils /src/app/utils/
-COPY worker /src/app/worker/
-
 # static files & docs
+COPY docs /src/docs
+RUN cd /src/docs && make html
+
+# app code
+COPY app /src/app/
 RUN cd /src/app && /src/bin/python ./manage.py collectstatic --noinput
-RUN cd /src/app/docs && make html
+
+# move all the static files into place
 RUN mkdir -p /src/html \
-    && mv /src/app/static-www /src/html/static-www/ \
-    && mv /src/app/docs/build/html /src/html/docs/
+  && mv /src/app/static-www /src/html/static-www/ \
+  && mv /src/docs/build/html /src/html/docs/
 
 # running
 ENV NEW_RELIC_CONFIG_FILE /src/app/newrelic.ini
