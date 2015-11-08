@@ -9,6 +9,7 @@ celery==3.1.18                                  # python 3
 redis==2.10.3                                   # python 3
 
 ## SECONDARY (SHOULD be stable packages) ##
+envitro>=0.2.1                                  # python 3
 django-grappelli>=2.7.1                         # python 3
 jsonfield>=1.0.3                                # python 3
 django-uuidfield>=0.5.0                         # python 3

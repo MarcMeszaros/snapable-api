@@ -8,7 +8,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 from datetime import timedelta
-from utils import env_str, env_int, env_bool, docker_link_host, docker_link_port
+import envitro
+import envitro.docker
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -19,11 +21,11 @@ PROJECT_PATH = BASE_DIR  # deprecated
 SECRET_KEY = '***REMOVED***'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env_bool('DEBUG', False)
+DEBUG = envitro.bool('DEBUG', False)
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['127.0.0.1:8000', '.snapable.com']
-if len(env_str('HOST_IP')) > 0:
-    ALLOWED_HOSTS.append(env_str('HOST_IP'))
+if envitro.isset('HOST_IP'):
+    ALLOWED_HOSTS.append(envitro.str('HOST_IP'))
 
 # Application definition
 INSTALLED_APPS = (
@@ -93,11 +95,11 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': env_str('DATABASE_NAME', 'snapabledb'),
-        'USER': env_str('DATABASE_USER', 'snapableusr'),
-        'PASSWORD': env_str('DATABASE_PASSWORD', 'snapable12345'),
-        'HOST': env_str('DATABASE_HOST', docker_link_host('DB', '127.0.0.1')),
-        'PORT': env_str('DATABASE_PORT', docker_link_port('DB', 3306)),
+        'NAME': envitro.str('DATABASE_NAME', 'snapabledb'),
+        'USER': envitro.str('DATABASE_USER', 'snapableusr'),
+        'PASSWORD': envitro.str('DATABASE_PASSWORD', 'snapable12345'),
+        'HOST': envitro.str('DATABASE_HOST', envitro.docker.host('DB', '127.0.0.1')),
+        'PORT': envitro.str('DATABASE_PORT', envitro.docker.port('DB', 3306)),
     }
 }
 
@@ -198,25 +200,25 @@ PASSWORD_HASHERS = (
 
 ##### Email #####
 EMAIL_BACKEND = 'api.utils.email.SnapEmailBackend'
-EMAIL_HOST = env_str('EMAIL_HOST', 'smtp.mailgun.org')
-EMAIL_PORT = env_int('EMAIL_PORT', 587)
-EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
-EMAIL_HOST_USER = env_str('EMAIL_HOST_USER', '***REMOVED***')
-EMAIL_HOST_PASSWORD = env_str('EMAIL_HOST_PASSWORD', '***REMOVED***')
+EMAIL_HOST = envitro.str('EMAIL_HOST', 'smtp.mailgun.org')
+EMAIL_PORT = envitro.int('EMAIL_PORT', 587)
+EMAIL_USE_TLS = envitro.bool('EMAIL_USE_TLS', True)
+EMAIL_HOST_USER = envitro.str('EMAIL_HOST_USER', '***REMOVED***')
+EMAIL_HOST_PASSWORD = envitro.str('EMAIL_HOST_PASSWORD', '***REMOVED***')
 
 ##### RACKSPACE #####
-RACKSPACE_USERNAME = env_str('RACKSPACE_USERNAME', '***REMOVED***')
-RACKSPACE_APIKEY = env_str('RACKSPACE_APIKEY', '***REMOVED***')
-CLOUDFILES_IMAGES_PREFIX = env_str('CLOUDFILES_IMAGES_PREFIX', 'dev_images_')
-CLOUDFILES_DOWNLOAD_PREFIX = env_str('CLOUDFILES_DOWNLOAD_PREFIX', 'dev_downloads_')
-CLOUDFILES_WATERMARK_PREFIX = env_str('CLOUDFILES_WATERMARK_PREFIX', 'dev_watermark')
+RACKSPACE_USERNAME = envitro.str('RACKSPACE_USERNAME', '***REMOVED***')
+RACKSPACE_APIKEY = envitro.str('RACKSPACE_APIKEY', '***REMOVED***')
+CLOUDFILES_IMAGES_PREFIX = envitro.str('CLOUDFILES_IMAGES_PREFIX', 'dev_images_')
+CLOUDFILES_DOWNLOAD_PREFIX = envitro.str('CLOUDFILES_DOWNLOAD_PREFIX', 'dev_downloads_')
+CLOUDFILES_WATERMARK_PREFIX = envitro.str('CLOUDFILES_WATERMARK_PREFIX', 'dev_watermark')
 CLOUDFILES_EVENTS_PER_CONTAINER = 10000
-CLOUDFILES_PUBLIC_NETWORK = env_bool('CLOUDFILES_PUBLIC_NETWORK', True)
+CLOUDFILES_PUBLIC_NETWORK = envitro.bool('CLOUDFILES_PUBLIC_NETWORK', True)
 
 ##### Redis #####
-REDIS_HOST = env_str('REDIS_HOST', docker_link_host('RD', '127.0.0.1'))
-REDIS_PORT = env_int('REDIS_PORT', docker_link_port('RD', 6379))
-REDIS_DB = env_int('REDIS_DB', 0)
+REDIS_HOST = envitro.str('REDIS_HOST', envitro.docker.host('RD', '127.0.0.1'))
+REDIS_PORT = envitro.int('REDIS_PORT', envitro.docker.port('RD', 6379))
+REDIS_DB = envitro.int('REDIS_DB', 0)
 
 ##### Tastypie #####
 API_LIMIT_PER_PAGE = 50
@@ -225,26 +227,26 @@ TASTYPIE_ABSTRACT_APIKEY = True
 TASTYPIE_DATETIME_FORMATTING = 'iso-8601-strict'
 
 ##### Stripe #####
-STRIPE_KEY_SECRET = env_str('STRIPE_KEY_SECRET', '***REMOVED***') # testing
-STRIPE_KEY_PUBLIC = env_str('STRIPE_KEY_PUBLIC', '***REMOVED***') # testing
-STRIPE_CURRENCY = env_str('STRIPE_CURRENCY', 'usd')
+STRIPE_KEY_SECRET = envitro.str('STRIPE_KEY_SECRET', '***REMOVED***') # testing
+STRIPE_KEY_PUBLIC = envitro.str('STRIPE_KEY_PUBLIC', '***REMOVED***') # testing
+STRIPE_CURRENCY = envitro.str('STRIPE_CURRENCY', 'usd')
 
 ##### sendwithus #####
-SENDWITHUS_KEY = env_str('SENDWITHUS_KEY', '***REMOVED***') # no email
+SENDWITHUS_KEY = envitro.str('SENDWITHUS_KEY', '***REMOVED***') # no email
 
 ##### Celery #####
-CELERY_BROKER_USER = env_str('CELERY_BROKER_USER', 'snap_api')
-CELERY_BROKER_PASSWORD = env_str('CELERY_BROKER_PASSWORD', 'snapable12345')
-CELERY_BROKER_HOST = env_str('CELERY_BROKER_HOST', docker_link_host('CELERY', '127.0.0.1'))
-CELERY_BROKER_PORT = env_int('CELERY_BROKER_PORT', docker_link_port('CELERY', 6379))
-CELERY_BROKER_DB = env_int('CELERY_BROKER_DB', 1)
-CELERY_RESULT_HOST = env_str('CELERY_RESULT_HOST', docker_link_host('CELERY', '127.0.0.1'))
-CELERY_RESULT_PORT = env_int('CELERY_RESULT_PORT', docker_link_port('CELERY', 6379))
-CELERY_RESULT_DB = env_int('CELERY_RESULT_DB', 1)
+CELERY_BROKER_USER = envitro.str('CELERY_BROKER_USER', 'snap_api')
+CELERY_BROKER_PASSWORD = envitro.str('CELERY_BROKER_PASSWORD', 'snapable12345')
+CELERY_BROKER_HOST = envitro.str('CELERY_BROKER_HOST', envitro.docker.host('CELERY', '127.0.0.1'))
+CELERY_BROKER_PORT = envitro.int('CELERY_BROKER_PORT', envitro.docker.port('CELERY', 6379))
+CELERY_BROKER_DB = envitro.int('CELERY_BROKER_DB', 1)
+CELERY_RESULT_HOST = envitro.str('CELERY_RESULT_HOST', envitro.docker.host('CELERY', '127.0.0.1'))
+CELERY_RESULT_PORT = envitro.int('CELERY_RESULT_PORT', envitro.docker.port('CELERY', 6379))
+CELERY_RESULT_DB = envitro.int('CELERY_RESULT_DB', 1)
 
 # Broker/Results settings.
-BROKER_URL = env_str('CELERY_BROKER_URL', 'redis://{0}:{1}/{2}'.format(CELERY_BROKER_HOST, CELERY_BROKER_PORT, CELERY_BROKER_DB))
-CELERY_RESULT_BACKEND = env_str('CELERY_RESULT_URL', 'redis://{0}:{1}/{2}'.format(CELERY_RESULT_HOST, CELERY_RESULT_PORT, CELERY_RESULT_DB))
+BROKER_URL = envitro.str('CELERY_BROKER_URL', 'redis://{0}:{1}/{2}'.format(CELERY_BROKER_HOST, CELERY_BROKER_PORT, CELERY_BROKER_DB))
+CELERY_RESULT_BACKEND = envitro.str('CELERY_RESULT_URL', 'redis://{0}:{1}/{2}'.format(CELERY_RESULT_HOST, CELERY_RESULT_PORT, CELERY_RESULT_DB))
 
 # Celery settings
 CELERY_TASK_SERIALIZER = 'json'
@@ -272,9 +274,9 @@ GRAPPELLI_ADMIN_TITLE = 'Snapable'
 
 # sentry/raven
 # Set your DSN value
-if len(env_str('SENTRY_DSN')) > 0:
+if envitro.isset('SENTRY_DSN'):
     RAVEN_CONFIG = {
-        'dsn': env_str('SENTRY_DSN'),
+        'dsn': envitro.str('SENTRY_DSN'),
     }
 
 # set API keys for AJAX
