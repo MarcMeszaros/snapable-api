@@ -44,7 +44,7 @@ development and production are runtime configuration variables and cloud infrast
 To run the unit tests, you first need to build the code into a docker:
 
     > docker-compose build
-    > docker-compose run api /src/bin/python ./manage.py test
+    > docker-compose run -e SNAP_AUTHENTICATION=true -e SNAP_AUTHORIZATION=true api /src/bin/python ./manage.py test
 
 # RELEASE #
 Releasing and deploying the code is relatively simple. To save on space for the docker

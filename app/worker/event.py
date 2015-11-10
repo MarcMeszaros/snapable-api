@@ -17,7 +17,7 @@ from django.template.loader import get_template
 from uuidfield import UUIDField
 
 # snapable
-from data.models import AccountUser, Event, Guest, Photo 
+from data.models import AccountUser, Event, Guest, Photo
 from utils import rackspace
 from utils.loggers import Log
 
@@ -53,7 +53,7 @@ def create_album_zip(event_id):
 
     # create tempdir and get the photos
     tempdir = tempfile.mkdtemp(prefix='snap_api_event_{0}_'.format(event_id))
-    photos = event.photo_set.all().values_list('pk', flat=True)
+    photos = list(event.photo_set.all().values_list('pk', flat=True))
 
     # loop through all the photo ids, and save to disk on the worker server
     for photo_id in photos:
@@ -72,7 +72,7 @@ def create_album_zip(event_id):
     shutil.rmtree(tempdir)
 
     # TODO remove this 'if' hack once pyrax starts behaving
-    # & cont.cdn_uri isn't None 
+    # & cont.cdn_uri isn't None
     cdn_uri = cont.cdn_uri
     if cdn_uri is None:
         if 'dev' in settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX:

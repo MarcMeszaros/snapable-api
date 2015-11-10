@@ -8,6 +8,7 @@ import re
 import time
 
 # django/tastypie/libs
+import envitro
 import pytz
 
 from datetime import datetime, timedelta
@@ -77,7 +78,7 @@ class ServerAuthentication(Authentication):
 
     def is_authenticated(self, request, **kwargs):
         # check for the environment variable to skip auth
-        if os.environ.get('SNAP_AUTHENTICATION', 'true').lower()[0] == 'f':
+        if not envitro.bool('SNAP_AUTHENTICATION', True):
             return True
 
         try:
@@ -193,4 +194,3 @@ class ServerAuthorization(Authorization):
 
     def delete_detail(self, object_list, bundle):
         return legacyIsAuthorized(bundle.request)
-    
