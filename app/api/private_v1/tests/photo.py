@@ -88,6 +88,20 @@ class Private_v1__PhotoResourceTest(ResourceTestCase):
         # test to make sure all the keys are in the response
         self.assertEqual(data['caption'], put_data['caption'])
 
+    def test_patch_photo(self):
+        uri = '/private_v1/photo/1/'
+        patch_data = {
+            'is_streamable': False
+        }
+        resp = self.api_client.patch(uri, data=patch_data, format='json', authentication=self.get_credentials('PATCH', uri))
+        data = self.deserialize(resp)
+
+        # make sure the resource has a valid response
+        self.assertHttpAccepted(resp)
+
+        # test to make sure all the keys are in the response
+        self.assertEqual(data['is_streamable'], patch_data['is_streamable'])
+
     def test_delete_photo(self):
         uri = '/private_v1/photo/1/'
         resp = self.api_client.delete(uri, format='json', authentication=self.get_credentials('DELETE', uri))
