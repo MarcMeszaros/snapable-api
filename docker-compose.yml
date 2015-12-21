@@ -1,6 +1,7 @@
 # application
 api:
   build: .
+  command: api
   ports:
     - "80:80"
     - "8000:8000"
@@ -17,7 +18,7 @@ api:
 
 worker:
   build: .
-  command: /src/bin/celery worker -A worker -l info
+  command: worker
   links:
     - redis:rd
     - redis:celery
@@ -29,7 +30,7 @@ worker:
 
 beat:
   build: .
-  command: /src/bin/celery beat -A worker -l info
+  command: beat
   links:
     - redis:rd
     - redis:celery

@@ -3,9 +3,9 @@ gunicorn==19.4.1                                # python 3
 Django==1.7.10                                  # python 3
 django-tastypie==0.12.2                         # python 3
 PyMySQL==0.6.7                                  # python 3
-python-novaclient>=2.13.0,<3.0.0 #pinned for pyrax
+python-novaclient>=2.20.0,<3.0.0 #pinned for pyrax
 pyrax==1.9.5                                    # python 2 x
-Pillow==2.6.1                                   # python 3
+Pillow==2.6.2                                   # python 3
 celery==3.1.19                                  # python 3
 redis==2.10.5                                   # python 3
 
@@ -15,7 +15,6 @@ django-grappelli>=2.7.2,<3.0.0                  # python 3
 jsonfield>=1.0.3                                # python 3
 django-uuidfield>=0.5.0                         # python 3
 django-bitfield>=1.8.0                          # python 3
-setproctitle>=1.1.9                             # python 3
 pytz>=2015.7                                    # python 3
 python-dateutil>=2.4.2                          # python 3
 MonthDelta>=1.0b,<2.0                           # python 3
