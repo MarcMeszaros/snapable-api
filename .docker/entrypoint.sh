@@ -6,7 +6,7 @@ start_api () {
   nginx
 
   # start gunicorn
-  /src/bin/newrelic-admin run-program /src/bin/gunicorn wsgi:application --pid gunicorn.pid
+  /src/bin/newrelic-admin run-program /src/bin/gunicorn wsgi:application
 }
 
 start_worker () {

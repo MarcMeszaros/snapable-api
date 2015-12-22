@@ -1,0 +1,7 @@
+# -*- coding: utf-8 -*-
+
+##### Tastypie #####
+API_LIMIT_PER_PAGE = 50
+TASTYPIE_DEFAULT_FORMATS = ['json']
+TASTYPIE_ABSTRACT_APIKEY = True
+TASTYPIE_DATETIME_FORMATTING = 'iso-8601-strict'

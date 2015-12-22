@@ -10,7 +10,7 @@ api:
     - redis:celery
     - mysql:db
   environment:
-    - DEBUG=true
+    - DJANGO_DEBUG=true
     - CLOUDFILES_IMAGES_PREFIX=marc_images_
     - SNAP_AUTHENTICATION=false
     - SNAP_AUTHORIZATION=false
@@ -25,7 +25,7 @@ worker:
     - mysql:db
   environment:
     - C_FORCE_ROOT=true # keep celery happy with docker
-    - DEBUG=true
+    - DJANGO_DEBUG=true
     - CLOUDFILES_IMAGES_PREFIX=marc_images_
 
 beat:
@@ -37,7 +37,7 @@ beat:
     - mysql:db
   environment:
     - C_FORCE_ROOT=true # keep celery happy with docker
-    - DEBUG=true
+    - DJANGO_DEBUG=true
     - CLOUDFILES_IMAGES_PREFIX=marc_images_
 
 # third-party
