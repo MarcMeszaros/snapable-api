@@ -17,9 +17,19 @@ start_beat () {
   /src/bin/celery beat -A worker -l info
 }
 
-help () {
-  echo 'entrypoint.sh {api,worker,beat}'
+migrate () {
+  # run migrations
+  /src/bin/python manage.py migrate
 }
+
+help () {
+  echo 'entrypoint.sh {api,worker,beat} [migrate]'
+}
+
+#run migrations if the extra param is appended
+if [ "$2" = "migrate" ]; then
+  migrate
+fi
 
 # start the correct application
 if [ "$1" = "api" ]; then
