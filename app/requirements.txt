@@ -11,7 +11,7 @@ redis==2.10.5                                   # python 3
 python-etcd==0.4.3                              # python 3
 
 ## SECONDARY (SHOULD be stable packages) ##
-envitro>=0.3.0,<1.0.0                           # python 3
+envitro>=0.4.0,<1.0.0                           # python 3
 django-grappelli>=2.7.2,<3.0.0                  # python 3
 jsonfield>=1.0.3                                # python 3
 django-uuidfield>=0.5.0                         # python 3

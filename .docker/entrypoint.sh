@@ -22,6 +22,10 @@ migrate () {
   /src/bin/python manage.py migrate
 }
 
+test () {
+  /src/bin/python manage.py test
+}
+
 help () {
   echo 'entrypoint.sh {api,worker,beat} [migrate]'
 }
@@ -38,6 +42,8 @@ elif [ "$1" = "worker" ]; then
   start_worker
 elif [ "$1" = "beat" ]; then
   start_beat
+elif [ "$1" = "test" ]; then
+  test
 else
   help
 fi
