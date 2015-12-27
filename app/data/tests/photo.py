@@ -5,7 +5,7 @@ from data.models import Event
 from data.models import Photo
 
 class PhotoTestCase(TestCase):
-    fixtures = ['packages.json', 'accounts_and_users.json', 'events.json']
+    fixtures = ['accounts_and_users.json', 'events.json']
 
     def setUp(self):
         """Setup the necessary objects for testing."""

@@ -37,8 +37,6 @@ development and production are runtime configuration variables and cloud infrast
 1. Install [Docker Compose](http://docs.docker.com/compose/)
 2. Run ``docker-compose build``
 3. Run ``docker-compose up``
-4. Run ``docker-compose run api migrate``
-5. Run ``docker-compose run api /src/bin/python ./manage.py loaddata /src/app/data/fixtures/packages.json``
 
 ## Unit Tests ##
 To run the unit tests, you first need to build the code into a docker:

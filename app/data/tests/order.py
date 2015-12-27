@@ -5,7 +5,7 @@ from django.test import TestCase
 from data.models import Order
 
 class OrderTestCase(TestCase):
-    fixtures = ['accounts_and_users.json', 'packages.json', 'orders.json']
+    fixtures = ['accounts_and_users.json', 'orders.json']
 
     def setUp(self):
         """Setup the necessary objects for testing."""
