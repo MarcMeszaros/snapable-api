@@ -3,14 +3,16 @@ import envitro
 import envitro.docker
 from datetime import timedelta
 
+from .redis import REDIS_HOST, REDIS_PORT
+
 ##### Celery #####
 CELERY_BROKER_USER = envitro.str('CELERY_BROKER_USER', 'snap_api')
 CELERY_BROKER_PASSWORD = envitro.str('CELERY_BROKER_PASSWORD', 'snapable12345')
-CELERY_BROKER_HOST = envitro.str('CELERY_BROKER_HOST', envitro.docker.host('CELERY', '127.0.0.1'))
-CELERY_BROKER_PORT = envitro.int('CELERY_BROKER_PORT', envitro.docker.port('CELERY', 6379))
+CELERY_BROKER_HOST = envitro.str('CELERY_BROKER_HOST', envitro.docker.host('CELERY', REDIS_HOST))
+CELERY_BROKER_PORT = envitro.int('CELERY_BROKER_PORT', envitro.docker.port('CELERY', REDIS_PORT))
 CELERY_BROKER_DB = envitro.int('CELERY_BROKER_DB', 1)
-CELERY_RESULT_HOST = envitro.str('CELERY_RESULT_HOST', envitro.docker.host('CELERY', '127.0.0.1'))
-CELERY_RESULT_PORT = envitro.int('CELERY_RESULT_PORT', envitro.docker.port('CELERY', 6379))
+CELERY_RESULT_HOST = envitro.str('CELERY_RESULT_HOST', envitro.docker.host('CELERY', REDIS_HOST))
+CELERY_RESULT_PORT = envitro.int('CELERY_RESULT_PORT', envitro.docker.port('CELERY', REDIS_PORT))
 CELERY_RESULT_DB = envitro.int('CELERY_RESULT_DB', 1)
 
 # Broker/Results settings.
