@@ -155,7 +155,7 @@ class DatabaseAuthorization(Authorization):
             raise Unauthorized('Not authorized to read resource.')
 
         # empty list or private API account, allowed to access all objects
-        if len(object_list) <= 0 or api_key.version[:7] == 'private' or not SNAP_AUTHORIZATION:
+        if not SNAP_AUTHORIZATION or len(object_list) <= 0 or api_key.version[:7] == 'private':
             return object_list
 
         # filter objects as required
