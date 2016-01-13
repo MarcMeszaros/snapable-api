@@ -9,5 +9,5 @@ from .rackspace import *
 from .stripe import *
 from .tastypie import *
 from .logging import *
-#from .testing import *
+from .testing import *
 from .snapable import *
