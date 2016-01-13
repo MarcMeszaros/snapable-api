@@ -26,8 +26,12 @@ test () {
   /src/bin/python manage.py test
 }
 
+shell () {
+  /src/bin/python manage.py shell
+}
+
 help () {
-  echo 'entrypoint.sh {api,worker,beat} [migrate]'
+  echo 'entrypoint.sh {api,worker,beat,shell} [migrate]'
 }
 
 #run migrations if the extra param is appended
@@ -44,6 +48,8 @@ elif [ "$1" = "beat" ]; then
   start_beat
 elif [ "$1" = "test" ]; then
   test
+elif [ "$1" = "shell" ]; then
+  shell
 else
   help
 fi
