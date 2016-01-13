@@ -47,6 +47,7 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
             'address': '1 Infinite Loop',
             'lat': '0.000000',
             'lng': '0.000000',
+            'stripeToken': 'tok_7iOJgcfZXJ7SYv',
         }
 
     def get_credentials(self, method, uri):
@@ -111,6 +112,7 @@ class Private_v1__OrderResourceTest(ResourceTestCase):
             'price',
             'resource_uri',
             'start',
+            'stripeToken',
             'title',
             'tz_offset',
             'url',

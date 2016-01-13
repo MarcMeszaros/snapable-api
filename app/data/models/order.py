@@ -101,6 +101,8 @@ class Order(models.Model):
         self.amount = total - discount
 
     def charge(self, stripe_token=None):
+        stripe.api_key = settings.STRIPE_KEY_SECRET
+
         if self.is_paid or self.amount < 50:
             logger.info('Already paid or amount less than 50c')
             return False

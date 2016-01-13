@@ -216,8 +216,7 @@ class OrderResource(BaseModelResource):
             account.save()
 
         if 'stripeToken' in bundle.data:
-            if not bundle.obj.charge(bundle.data['stripeToken']):
-                logger.warning('Error processing the charge')
+            bundle.obj.charge(stripe_token=bundle.data['stripeToken'])
 
         ## send the receipt ##
         bundle.obj.send_email()
