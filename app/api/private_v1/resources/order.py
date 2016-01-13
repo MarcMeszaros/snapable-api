@@ -1,10 +1,10 @@
 # python
+import logging
 from datetime import datetime, timedelta
 
 # django/tastypie/libs
 import django
 import pytz
-
 from django.conf.urls import url
 from monthdelta import MonthDelta
 from tastypie import fields, http
@@ -21,6 +21,7 @@ from .event import EventResource
 from .user import UserResource
 from data.models import Account, AccountAddon, Event, EventAddon, Package, Order, User
 
+logger = logging.getLogger('snapable')
 
 class OrderValidation(Validation):
     def is_valid(self, bundle, request=None):
@@ -187,10 +188,6 @@ class OrderResource(BaseModelResource):
         bundle.obj.calculate()
         bundle.obj.save()
 
-        if 'stripeToken' in bundle.data:
-            if not bundle.obj.charge(bundle.data['stripeToken']):
-                raise ImmediateHttpResponse('Error processing Credit Card')
-
         if 'event' in bundle.data:
             event_resource = EventResource()
             event = event_resource.get_via_uri(bundle.data['event'], request=bundle.request)
@@ -217,6 +214,10 @@ class OrderResource(BaseModelResource):
             account.package = package
             account.valid_until = expire
             account.save()
+
+        if 'stripeToken' in bundle.data:
+            if not bundle.obj.charge(bundle.data['stripeToken']):
+                logger.warning('Error processing the charge')
 
         ## send the receipt ##
         bundle.obj.send_email()

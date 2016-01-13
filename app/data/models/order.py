@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# python
+import logging
 import re
 
 # django/libs
@@ -16,6 +16,7 @@ from accountaddon import AccountAddon
 from eventaddon import EventAddon
 from package import Package
 
+logger = logging.getLogger('snapable')
 
 @python_2_unicode_compatible
 class Order(models.Model):
@@ -101,6 +102,7 @@ class Order(models.Model):
 
     def charge(self, stripe_token=None):
         if self.is_paid or self.amount < 50:
+            logger.info('Already paid or amount less than 50c')
             return False
 
         try:
@@ -109,7 +111,7 @@ class Order(models.Model):
                 # if there is no customer on stripe, create them
                 if self.user.stripe_customer_id is None:
                     customer = stripe.Customer.create(
-                        card=stripe_token,
+                        source=stripe_token,
                         email=self.user.email
                     )
                     # save the id for later
@@ -126,7 +128,7 @@ class Order(models.Model):
                 charge = stripe.Charge.create(
                     amount=self.amount,  # amount in cents, again
                     currency=settings.STRIPE_CURRENCY,
-                    card=stripe_token,
+                    source=stripe_token,
                     description='Charge to {0}'.format(self.user.email)
                 )
             self.charge_id = charge.id
@@ -149,7 +151,8 @@ class Order(models.Model):
                     addon.save()
 
             return True
-        except:
+        except Exception as err:
+            logger.warning('Could not charge the customer', exc_info=True)
             return False
 
     def send_email(self):
