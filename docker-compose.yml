@@ -4,7 +4,6 @@ api:
   command: api migrate
   ports:
     - "80:80"
-    - "8000:8000"
   links:
     - redis:rd
     - redis:celery
@@ -14,7 +13,6 @@ api:
     - CLOUDFILES_IMAGES_PREFIX=marc_images_
     - SNAP_AUTHENTICATION=false
     - SNAP_AUTHORIZATION=false
-    - GUNICORN_HOST=0.0.0.0
 
 worker:
   build: .
