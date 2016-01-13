@@ -4,13 +4,11 @@ import hmac
 import os
 import pickle
 import time
-
 from datetime import datetime, timedelta
 
 # django/tastypie/libs
 import envitro
 import pytz
-
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
 from tastypie.exceptions import BadRequest, Unauthorized
@@ -19,8 +17,10 @@ from tastypie.exceptions import BadRequest, Unauthorized
 import api.auth
 import data.models
 import utils.redis
-
 from api.models import ApiKey
+
+SNAP_AUTHENTICATION = envitro.bool('SNAP_AUTHENTICATION', True)
+SNAP_AUTHORIZATION = envitro.bool('SNAP_AUTHORIZATION', True)
 
 
 def get_api_key(key):
@@ -66,7 +66,8 @@ class DatabaseAuthentication(Authentication):
         # add the parts to proper varibles for signature
         snap_nonce = api.auth.get_nonce()
         snap_timestamp = time.strftime('%s', time.localtime())
-        raw = api_key + method + uri + snap_nonce + snap_timestamp
+        sanitized_uri = uri.split('?', 1)[0]
+        raw = api_key + method + sanitized_uri + snap_nonce + snap_timestamp
         signature = hmac.new(api_secret, raw, hashlib.sha1).hexdigest()
         return 'SNAP key="{0}",signature="{1}",nonce="{2}",timestamp="{3}"'.format(api_key, signature, snap_nonce, snap_timestamp)
 
@@ -130,7 +131,7 @@ class DatabaseAuthorization(Authorization):
 
     def create_detail(self, object_list, bundle):
         # check for the environment variable to skip auth
-        if not envitro.bool('SNAP_AUTHORIZATION', True):
+        if not SNAP_AUTHORIZATION:
             return True
 
         # check if authorized to access the API and get the API key
@@ -144,19 +145,17 @@ class DatabaseAuthorization(Authorization):
 
     def read_list(self, object_list, bundle):
         # check for the environment variable to skip auth
-        if not envitro.bool('SNAP_AUTHORIZATION', True):
-            return True
-
-        # check if authorized to access the API and get the API key
-        apiAuthorizationChecks(bundle.request)
-        api_key = DatabaseAuthentication().get_identifier(bundle.request)
+        if SNAP_AUTHORIZATION:
+            # check if authorized to access the API and get the API key
+            apiAuthorizationChecks(bundle.request)
+            api_key = DatabaseAuthentication().get_identifier(bundle.request)
 
         # no read permission, return empty list
-        if not api_key.permission_mask.read:
+        if SNAP_AUTHORIZATION and not api_key.permission_mask.read:
             raise Unauthorized('Not authorized to read resource.')
 
         # empty list or private API account, allowed to access all objects
-        if len(object_list) <= 0 or api_key.version[:7] == 'private':
+        if len(object_list) <= 0 or api_key.version[:7] == 'private' or not SNAP_AUTHORIZATION:
             return object_list
 
         # filter objects as required
@@ -176,12 +175,12 @@ class DatabaseAuthorization(Authorization):
             return []
 
     def read_detail(self, object_list, bundle):
-        # allow schema to be read
+        # disable schema to be read
         if 'schema' in bundle.request.path and bundle.request.path.split('/')[-2] == 'schema':
-            return True
+            return False
 
         # check for the environment variable to skip auth
-        if not envitro.bool('SNAP_AUTHORIZATION', True):
+        if not SNAP_AUTHORIZATION:
             return True
 
         # check if authorized to access the API and get the API key
@@ -220,7 +219,7 @@ class DatabaseAuthorization(Authorization):
 
     def update_detail(self, object_list, bundle):
         # check for the environment variable to skip auth
-        if not envitro.bool('SNAP_AUTHORIZATION', True):
+        if not SNAP_AUTHORIZATION:
             return True
 
         # check if authorized to access the API and get the API key
@@ -259,7 +258,7 @@ class DatabaseAuthorization(Authorization):
 
     def delete_detail(self, object_list, bundle):
         # check for the environment variable to skip auth
-        if not envitro.bool('SNAP_AUTHORIZATION', True):
+        if not SNAP_AUTHORIZATION:
             return True
 
         # check if authorized to access the API and get the API key
