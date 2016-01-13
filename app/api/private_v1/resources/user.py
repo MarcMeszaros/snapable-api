@@ -48,7 +48,7 @@ class UserResource(BaseModelResource):
     def dehydrate(self, bundle):
         db_pass = bundle.obj.password.split('$', 1)
 
-        # various data based on db_pass type 
+        # various data based on db_pass type
         if db_pass[0] == 'pbkdf2_sha256':
             pass_parts = db_pass[1].split('$')
 
@@ -88,7 +88,7 @@ class UserResource(BaseModelResource):
 
                 else:
                     raise BadRequest('Unsupported password hashing algorithm: ' + bundle.data['password_algorithm'])
-                    
+
                 bundle.obj.password = "$".join(password)
             except KeyError as key:
                 raise BadRequest('Missing field: ' + str(key))

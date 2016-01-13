@@ -7,7 +7,7 @@ from data.models import PasswordNonce, User
 
 
 class Private_v1__UserResourceTest(ResourceTestCase):
-    fixtures = ['packages.json', 'api_accounts_and_keys.json', 'accounts_and_users.json', 'events.json', 'guests.json']
+    fixtures = ['api_accounts_and_keys.json', 'accounts_and_users.json', 'events.json', 'guests.json']
 
     def setUp(self):
         super(Private_v1__UserResourceTest, self).setUp()
@@ -81,6 +81,19 @@ class Private_v1__UserResourceTest(ResourceTestCase):
             'password_salt',
             'resource_uri',
             'terms',
+        ])
+
+    def test_get_user_email(self):
+        uri = '/private_v1/user/?email={0}'.format(self.user_1.email)
+        resp = self.api_client.get(uri, format='json', authentication=self.get_credentials('GET', uri))
+
+        # make sure the resource is valid
+        self.assertValidJSONResponse(resp)
+
+        # test to make sure all the keys are in the response
+        self.assertKeys(self.deserialize(resp), [
+            'meta',
+            'objects',
         ])
 
     def test_post_user(self):
