@@ -22,7 +22,7 @@ MonthDelta>=1.0b,<2.0                           # python 3
 raven>=5.9.2,<6.0                               # python 3
 
 ## Third-Party Services ##
-stripe>=1.27.1,<2.0                             # python 3
+stripe>=1.28.0,<1.29.0                          # python 3
 sendwithus>=1.7.0,<2.0.0                        # python 3
 newrelic>=2.56.0.42                             # python 3
 
