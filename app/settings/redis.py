@@ -4,12 +4,13 @@ import envitro.docker
 import etcd
 
 ETCD_HOST = envitro.str('ETCD_HOST', '172.17.42.1') # coreos default
+ETCD_PORT = envitro.int('ETCD_PORT', 2379)
 ETCD_KEY_REDIS = envitro.str('ETCD_KEY_REDIS', '/services/redis')
 
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 6379
 try:
-    client = etcd.Client(host=ETCD_HOST)
+    client = etcd.Client(host=ETCD_HOST, port=ETCD_PORT)
     vals = client.read(ETCD_KEY_REDIS).value.rsplit(':', 1)
     REDIS_HOST = vals[0]
     REDIS_PORT = int(vals[1])
