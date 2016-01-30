@@ -78,7 +78,7 @@ class DatabaseAuthentication(Authentication):
 
     def is_authenticated(self, request, **kwargs):
         # check for the environment variable to skip auth
-        if not envitro.bool('SNAP_AUTHENTICATION', True):
+        if not SNAP_AUTHENTICATION:
             return True
 
         try:
@@ -122,7 +122,7 @@ class DatabaseAuthentication(Authentication):
     # Optional but recommended
     def get_identifier(self, request):
         # check for the environment variable to skip auth
-        if envitro.bool('SNAP_AUTHENTICATION', True):
+        if SNAP_AUTHENTICATION:
             auth_params = api.auth.get_auth_params(request)
             return get_api_key(auth_params['key'])
 
@@ -144,18 +144,19 @@ class DatabaseAuthorization(Authorization):
             raise Unauthorized('Not authorized to create resource.')
 
     def read_list(self, object_list, bundle):
-        # check for the environment variable to skip auth
-        if SNAP_AUTHORIZATION:
-            # check if authorized to access the API and get the API key
-            apiAuthorizationChecks(bundle.request)
-            api_key = DatabaseAuthentication().get_identifier(bundle.request)
+        if not SNAP_AUTHORIZATION:
+            return True
+
+        # check if authorized to access the API and get the API key
+        apiAuthorizationChecks(bundle.request)
+        api_key = DatabaseAuthentication().get_identifier(bundle.request)
 
         # no read permission, return empty list
-        if SNAP_AUTHORIZATION and not api_key.permission_mask.read:
+        if not api_key.permission_mask.read:
             raise Unauthorized('Not authorized to read resource.')
 
         # empty list or private API account, allowed to access all objects
-        if not SNAP_AUTHORIZATION or len(object_list) <= 0 or api_key.version[:7] == 'private':
+        if len(object_list) <= 0 or api_key.version[:7] == 'private':
             return object_list
 
         # filter objects as required
