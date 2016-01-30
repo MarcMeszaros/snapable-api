@@ -40,11 +40,14 @@ RUN cd /src/docs \
   && make html \
   && mv /src/docs/build/html /src/html/docs/
 
+# requirements
+COPY app/requirements.txt /tmp/requirements.txt
+RUN /src/bin/pip install -r /tmp/requirements.txt
+
 # app code
 COPY app /src/app/
 WORKDIR /src/app
-RUN /src/bin/pip install -r requirements.txt \
-  && /src/bin/python manage.py collectstatic --noinput \
+RUN /src/bin/python manage.py collectstatic --noinput \
   && mv /src/app/static-www /src/html/static-www/
 
 # running
@@ -57,6 +60,7 @@ RUN useradd -ms /bin/bash nginx
 COPY .docker/nginx.conf /etc/nginx/nginx.conf
 
 # running
+ENV C_FORCE_ROOT true # keep celery happy with docker
 EXPOSE 80 8000
 COPY .docker/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
