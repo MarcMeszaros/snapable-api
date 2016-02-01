@@ -22,7 +22,6 @@ worker:
     - redis:celery
     - mysql:db
   environment:
-    - C_FORCE_ROOT=true # keep celery happy with docker
     - DJANGO_DEBUG=true
     - CLOUDFILES_IMAGES_PREFIX=marc_images_
 
@@ -34,7 +33,6 @@ beat:
     - redis:celery
     - mysql:db
   environment:
-    - C_FORCE_ROOT=true # keep celery happy with docker
     - DJANGO_DEBUG=true
     - CLOUDFILES_IMAGES_PREFIX=marc_images_
 
@@ -42,7 +40,7 @@ beat:
 mysql:
   image: mysql:5.5
   ports:
-    - "3306:3306" # to connect with an SQL client
+    - "3306" # to connect with an SQL client
   environment:
     - MYSQL_ROOT_PASSWORD=mysqlpass
     - MYSQL_USER=snapableusr

@@ -60,7 +60,7 @@ RUN useradd -ms /bin/bash nginx
 COPY .docker/nginx.conf /etc/nginx/nginx.conf
 
 # running
-ENV C_FORCE_ROOT true # keep celery happy with docker
+ENV C_FORCE_ROOT true
 EXPOSE 80 8000
 COPY .docker/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
