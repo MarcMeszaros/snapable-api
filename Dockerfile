@@ -1,4 +1,4 @@
-FROM debian:8.2
+FROM debian:8.3
 MAINTAINER Marc Meszaros <marc@snapable.com>
 
 # install dependencies
