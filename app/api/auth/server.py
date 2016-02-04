@@ -23,6 +23,9 @@ import api.auth
 
 from data.models import PasswordNonce, User
 
+SNAP_AUTHENTICATION = envitro.bool('SNAP_AUTHENTICATION', True)
+SNAP_AUTHORIZATION = envitro.bool('SNAP_AUTHORIZATION', True)
+
 def legacyIsAuthorized(request):
     try:
         if 'HTTP_X_SNAP_USER' in request.META:
@@ -78,7 +81,7 @@ class ServerAuthentication(Authentication):
 
     def is_authenticated(self, request, **kwargs):
         # check for the environment variable to skip auth
-        if not envitro.bool('SNAP_AUTHENTICATION', True):
+        if not SNAP_AUTHENTICATION:
             return True
 
         try:
@@ -164,7 +167,9 @@ class ServerAuthentication(Authentication):
         except KeyError as e:
             raise BadRequest('Missing authentication param: '+str(e))
 
+
 class ServerAuthorization(Authorization):
+
     def create_detail(self, object_list, bundle):
         return legacyIsAuthorized(bundle.request)
 

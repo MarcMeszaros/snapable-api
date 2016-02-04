@@ -1,4 +1,5 @@
-# python
+# -*- coding: utf-8 -*-
+# pylint: disable=C0111,C0301,F0401
 import hashlib
 import hmac
 import os
@@ -121,10 +122,8 @@ class DatabaseAuthentication(Authentication):
 
     # Optional but recommended
     def get_identifier(self, request):
-        # check for the environment variable to skip auth
-        if SNAP_AUTHENTICATION:
-            auth_params = api.auth.get_auth_params(request)
-            return get_api_key(auth_params['key'])
+        auth_params = api.auth.get_auth_params(request)
+        return get_api_key(auth_params['key'])
 
 
 class DatabaseAuthorization(Authorization):
