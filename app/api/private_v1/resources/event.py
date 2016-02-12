@@ -35,6 +35,7 @@ class EventResource(BaseModelResource):
 
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
+    download_url = fields.CharField(attribute='download_url', readonly=True, help_text='The download_url if available')
 
     # DEPRECATED
     # old "enabled" flag (2013-10-22)
@@ -46,22 +47,22 @@ class EventResource(BaseModelResource):
     class Meta(BaseMeta): # set Meta to the public API Meta
         queryset = Event.objects.all()
         fields = [
-            'start_at', 
-            'end_at', 
-            'tz_offset', 
-            'title', 
-            'url', 
-            'pin', 
-            'is_enabled', 
-            'is_public', 
-            'uuid', 
-            'created_at', 
-            'cover', 
-            'photo_count', 
+            'start_at',
+            'end_at',
+            'tz_offset',
+            'title',
+            'url',
+            'pin',
+            'is_enabled',
+            'is_public',
+            'uuid',
+            'created_at',
+            'cover',
+            'photo_count',
             'are_photos_streamable',
             # DEPRECATED
-            'enabled', 
-            'start', 
+            'enabled',
+            'start',
             'end'
         ]
         list_allowed_methods = ['get', 'post']
