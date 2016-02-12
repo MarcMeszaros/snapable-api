@@ -35,7 +35,6 @@ class EventResource(BaseModelResource):
 
     # virtual fields
     photo_count = fields.IntegerField(attribute='photo_count', readonly=True, help_text='The number of photos for the event.')
-    download_url = fields.CharField(attribute='download_url', readonly=True, help_text='The download_url if available')
 
     # DEPRECATED
     # old "enabled" flag (2013-10-22)
