@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from worker import app
 
 # python
+import csv
 import os
 import shutil
 import zipfile
@@ -56,12 +57,23 @@ def create_album_zip(event_id):
     photos = list(event.photo_set.all().values_list('pk', flat=True))
 
     # loop through all the photo ids, and save to disk on the worker server
+    captions = dict()
     for photo_id in photos:
         try:
             photo = Photo.objects.get(pk=photo_id)
             photo.get_image().img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
+            captions['{}.jpg'.format(photo.pk)] = photo.caption
         except AttributeError as e:
             Log.w('Missing attribute on photo object')
+
+    # create the csv file
+    with open('{}/captions.csv'.format(tempdir), 'w') as csvfile:
+        fieldnames = ['filename', 'caption']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for k, v in captions.items():
+            writer.writerow({'filename': k, 'caption': v})
 
     # create and upload the zip file
     zip_path = shutil.make_archive('{0}/{1}'.format(tempfile.tempdir, event.uuid), 'zip', tempdir)
