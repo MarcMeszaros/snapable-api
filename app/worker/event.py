@@ -3,13 +3,13 @@ from __future__ import absolute_import
 from worker import app
 
 # python
-import csv
 import os
 import shutil
 import zipfile
 import tempfile
 
 # django/tastypie/libs
+import unicodecsv as csv
 from django.conf import settings
 from django.template import Context
 from django.core.mail import send_mail, EmailMultiAlternatives
