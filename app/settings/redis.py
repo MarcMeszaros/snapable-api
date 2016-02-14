@@ -11,7 +11,7 @@ REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 6379
 try:
     client = etcd.Client(host=ETCD_HOST, port=ETCD_PORT)
-    vals = client.read(ETCD_KEY_REDIS).value.rsplit(':', 1)
+    vals = client.read(ETCD_KEY_REDIS).children.next().value.rsplit(':', 1)
     REDIS_HOST = vals[0]
     REDIS_PORT = int(vals[1])
 except:
