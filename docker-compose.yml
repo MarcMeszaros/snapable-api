@@ -48,7 +48,7 @@ mysql:
     - MYSQL_DATABASE=snapabledb
 
 redis:
-  image: redis:2.8
+  image: redis:3.0-alpine
 
 flower:
   image: johncosta/flower
