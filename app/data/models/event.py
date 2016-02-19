@@ -46,6 +46,14 @@ class Event(models.Model):
     def photo_count(self):
         return self.photo_set.count()
 
+    @property
+    def zip_download_url(self):
+        cdn_uri = 'http://75e4c45674cfdf4884a0-6f5bbb6cfffb706c990262906f266b0c.r28.cf1.rackcdn.com'
+        if 'dev' in settings.RACKSPACE_CLOUDFILE_DOWNLOAD_CONTAINER_PREFIX:
+            cdn_uri = 'http://23e8b3af054c2e288358-8328cee55d412b3e5ad38ec5882590af.r11.cf1.rackcdn.com'
+
+        return '{0}/{1}.zip'.format(cdn_uri, self.uuid)
+
     def __str__(self):
         return u'{0} ({1})'.format(self.title, self.url)
 
