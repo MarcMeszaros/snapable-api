@@ -1,59 +1,63 @@
-# application
-api:
-  build: .
-  command: api migrate
-  ports:
-    - "80:80"
-  links:
-    - redis:rd
-    - redis:celery
-    - mysql:db
-  environment:
-    - DJANGO_DEBUG=true
-    - CLOUDFILES_IMAGES_PREFIX=marc_images_
-    - SNAP_AUTHENTICATION=false
-    - SNAP_AUTHORIZATION=false
+version: "2"
 
-worker:
-  build: .
-  command: worker
-  links:
-    - redis:rd
-    - redis:celery
-    - mysql:db
-  environment:
-    - DJANGO_DEBUG=true
-    - CLOUDFILES_IMAGES_PREFIX=marc_images_
+services:
+  # application
+  api:
+    build: .
+    command: api migrate
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/src/app
+    environment:
+      - DJANGO_DEBUG=true
+      - CLOUDFILES_IMAGES_PREFIX=marc_images_
+      - SNAP_AUTHENTICATION=false
+      - SNAP_AUTHORIZATION=false
+      - DATABASE_HOST=mysql
+      - REDIS_HOST=redis
+      - ETCD_HOST=192.168.50.11
+    entrypoint: /wait-for-it.sh mysql:3306 -- /entrypoint.sh
 
-beat:
-  build: .
-  command: beat
-  links:
-    - redis:rd
-    - redis:celery
-    - mysql:db
-  environment:
-    - DJANGO_DEBUG=true
-    - CLOUDFILES_IMAGES_PREFIX=marc_images_
+  worker:
+    build: .
+    command: worker
+    volumes:
+      - ./app:/src/app
+    environment:
+      - DJANGO_DEBUG=true
+      - CLOUDFILES_IMAGES_PREFIX=marc_images_
+      - DATABASE_HOST=mysql
+      - REDIS_HOST=redis
+      - ETCD_HOST=192.168.50.11
+    entrypoint: /wait-for-it.sh mysql:3306 -- /entrypoint.sh
 
-# third-party
-mysql:
-  image: mysql:5.5
-  ports:
-    - "3306" # to connect with an SQL client
-  environment:
-    - MYSQL_ROOT_PASSWORD=mysqlpass
-    - MYSQL_USER=snapableusr
-    - MYSQL_PASSWORD=snapable12345
-    - MYSQL_DATABASE=snapabledb
+  beat:
+    build: .
+    command: beat
+    environment:
+      - DJANGO_DEBUG=true
+      - CLOUDFILES_IMAGES_PREFIX=marc_images_
+      - DATABASE_HOST=mysql
+      - REDIS_HOST=redis
+      - ETCD_HOST=192.168.50.11
 
-redis:
-  image: redis:3.0-alpine
+  # third-party
+  mysql:
+    image: mysql:5.5
+    ports:
+      - "3306:3306" # to connect with an SQL client
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysqlpass
+      - MYSQL_USER=snapableusr
+      - MYSQL_PASSWORD=snapable12345
+      - MYSQL_DATABASE=snapabledb
 
-flower:
-  image: johncosta/flower
-  command: flower --port=5555 --broker=redis://rd:6379/1
-  links:
-    - redis:rd
-  ports:
-    - "5555:5555"
+  redis:
+    image: redis:3.0-alpine
+
+  flower:
+    image: johncosta/flower
+    command: flower --port=5555 --broker=redis://redis:6379/1
+    ports:
+      - "5555:5555"

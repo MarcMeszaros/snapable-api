@@ -62,6 +62,10 @@ COPY .docker/nginx.conf /etc/nginx/nginx.conf
 # running
 ENV C_FORCE_ROOT true
 EXPOSE 80 8000
+
+COPY .docker/wait-for-it.sh /
+RUN chmod +x /wait-for-it.sh
 COPY .docker/entrypoint.sh /
+
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["api"]

@@ -16,8 +16,8 @@ try:
     REDIS_PORT = int(vals[1])
 except:
     print('No ETCD connection')
-    REDIS_HOST = envitro.str('REDIS_HOST', envitro.docker.host('RD', '127.0.0.1'))
-    REDIS_PORT = envitro.int('REDIS_PORT', envitro.docker.port('RD', 6379))
+    REDIS_HOST = envitro.str('REDIS_HOST', '127.0.0.1')
+    REDIS_PORT = envitro.int('REDIS_PORT', 6379)
 
 ##### Redis #####
 REDIS_DB = envitro.int('REDIS_DB', 0)
