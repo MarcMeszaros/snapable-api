@@ -9,6 +9,10 @@ start_api () {
   /src/bin/newrelic-admin run-program /src/bin/gunicorn wsgi:application
 }
 
+start_runserver () {
+  /src/bin/python manage.py runserver 0.0.0.0:8000
+}
+
 start_worker () {
   /src/bin/celery worker -A worker -l info
 }
@@ -26,12 +30,12 @@ test () {
   /src/bin/python manage.py test
 }
 
-shell () {
+django_shell () {
   /src/bin/python manage.py shell
 }
 
-bash () {
-  /bin/bash
+shell () {
+  /bin/sh
 }
 
 help () {
@@ -46,8 +50,8 @@ help () {
   echo "\t worker \t Start the worker"
   echo "\t beat \t\t Start a celery beat"
   echo "\t test \t\t Run the test suite"
-  echo "\t shell \t\t Start a Django shell"
-  echo "\t bash \t\t Start a bash shell"
+  echo "\t django_shell \t Start a Django shell"
+  echo "\t shell \t\t Start a system shell"
   echo ""
   echo "OPTIONAL POSITIONAL ARGUMENTS:"
   echo "\t migrate \t Run Django migration before the positional argument"
@@ -68,10 +72,10 @@ elif [ "$1" = "beat" ]; then
   start_beat
 elif [ "$1" = "test" ]; then
   test
+elif [ "$1" = "django_shell" ]; then
+  django_shell
 elif [ "$1" = "shell" ]; then
   shell
-elif [ "$1" = "bash" ]; then
-  bash
 else
   help
 fi

@@ -1,38 +1,35 @@
-FROM debian:8.3
+FROM alpine:3.4
 MAINTAINER Marc Meszaros <marc@snapable.com>
 
 # install dependencies
-RUN apt-get update && apt-get -y install \
-    build-essential \
-    curl \
-    make \
+RUN apk add --update \
+    bash \
+    bash-doc \
+    bash-completion \
+    build-base \
+    ca-certificates \
+    git \
+    jpeg-dev \
+    linux-headers \
     nginx \
-    ntp \
+    nodejs \
+    openssl \
     python \
     python-dev \
-    python3 \
-    python3-dev \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libmysqlclient-dev \
-    libwebp-dev \
-    zlib1g-dev \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+    py-pip \
+    zlib-dev \
+  && pip install virtualenv \
+  && rm -rf /var/cache/apk/*
 
-# install pip (and sphinx for docs)
-RUN curl -sL https://bootstrap.pypa.io/get-pip.py | python - \
-    && pip install virtualenv sphinx
+# create the user and application source directory & venv
+RUN addgroup app && adduser -S app -G app \
+  && mkdir /src && chown app:app /src \
+  && mkdir -p /src/html \
+  && virtualenv /src
 
-# install nodejs (and aglio for docs)
-RUN curl -sL https://deb.nodesource.com/setup_4.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && npm install -g aglio
-
-# virtualenv
-RUN virtualenv /src && mkdir -p /src/html
+# install sphinx and aglio (for docs)
+RUN pip install sphinx \
+  && npm install -g aglio
 
 # static files & docs
 COPY docs /src/docs
@@ -55,8 +52,6 @@ ENV NEW_RELIC_CONFIG_FILE /src/app/newrelic.ini
 ENV NEW_RELIC_ENVIRONMENT staging
 
 # nginx
-# change back to root for nginx config and running the app
-RUN useradd -ms /bin/bash nginx
 COPY .docker/nginx.conf /etc/nginx/nginx.conf
 
 # running

@@ -5,6 +5,8 @@ services:
   api:
     build: .
     command: api migrate
+    depends_on:
+      - mysql
     ports:
       - "80:80"
     volumes:
@@ -22,6 +24,8 @@ services:
   worker:
     build: .
     command: worker
+    depends_on:
+      - mysql
     volumes:
       - ./app:/src/app
     environment:
@@ -35,6 +39,8 @@ services:
   beat:
     build: .
     command: beat
+    depends_on:
+      - mysql
     environment:
       - DJANGO_DEBUG=true
       - CLOUDFILES_IMAGES_PREFIX=marc_images_
