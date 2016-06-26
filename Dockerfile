@@ -8,6 +8,8 @@ RUN apk add --update \
     bash-completion \
     build-base \
     ca-certificates \
+    dbus-dev \
+    dbus-glib-dev \
     git \
     jpeg-dev \
     linux-headers \
@@ -39,7 +41,7 @@ RUN cd /src/docs \
 
 # requirements
 COPY app/requirements.txt /tmp/requirements.txt
-RUN /src/bin/pip install -r /tmp/requirements.txt
+RUN CFLAGS="$CFLAGS -L/lib" /src/bin/pip install -r /tmp/requirements.txt
 
 # app code
 COPY app /src/app/
