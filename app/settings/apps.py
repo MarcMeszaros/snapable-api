@@ -15,6 +15,7 @@ PREREQ_APPS = [
     'django.contrib.staticfiles',
     # third-party libraries/apps
     'raven.contrib.django.raven_compat',
+    'rest_framework',
     'tastypie',
 ]
 

@@ -9,6 +9,7 @@ services:
       - mysql
     ports:
       - "80:80"
+      - "8000:8000"
     volumes:
       - ./app:/src/app
     environment:

@@ -1,6 +1,7 @@
 ## CORE (REQUIRED to be stable packages) ##
 gunicorn==19.4.5                                # python 3
 Django==1.8.9                                   # python 3
+djangorestframework==3.4.0                      # python 3
 django-tastypie==0.12.2                         # python 3
 PyMySQL==0.6.7                                  # python 3
 pyrax==1.9.7                                    # python 2 x
@@ -10,6 +11,7 @@ redis==2.10.5                                   # python 3
 python-etcd==0.4.3                              # python 3
 
 ## SECONDARY (SHOULD be stable packages) ##
+markdown
 envitro>=0.4.0,<1.0.0                           # python 3
 django-grappelli>=2.7.3,<3.0.0                  # python 3
 jsonfield>=1.0.3                                # python 3
