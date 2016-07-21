@@ -4,7 +4,7 @@ services:
   # application
   api:
     build: .
-    command: api migrate
+    command: runserver migrate
     depends_on:
       - mysql
     ports:

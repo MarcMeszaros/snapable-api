@@ -47,6 +47,7 @@ help () {
   echo ""
   echo "POSITIONAL ARGUMENTS:"
   echo "\t api \t\t Run the api process"
+  echo "\t runserver \t Run in development mode"
   echo "\t worker \t Start the worker"
   echo "\t beat \t\t Start a celery beat"
   echo "\t test \t\t Run the test suite"
@@ -66,6 +67,8 @@ fi
 # start the correct application
 if [ "$1" = "api" ]; then
   start_api
+elif [ "$1" = "runserver" ]; then
+  start_runserver
 elif [ "$1" = "worker" ]; then
   start_worker
 elif [ "$1" = "beat" ]; then
