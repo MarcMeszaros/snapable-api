@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import warnings
+warnings.simplefilter('default', DeprecationWarning)
+
 from .django import *
 from .apps import *
 from .database import *
