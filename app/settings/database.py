@@ -12,7 +12,7 @@ DATABASES = {
         'NAME': envitro.str('DATABASE_NAME', 'snapabledb'),
         'USER': envitro.str('DATABASE_USER', 'snapableusr'),
         'PASSWORD': envitro.str('DATABASE_PASSWORD', 'snapable12345'),
-        'HOST': envitro.str('DATABASE_HOST', envitro.docker.host('DB', '127.0.0.1')),
-        'PORT': envitro.str('DATABASE_PORT', envitro.docker.port('DB', 3306)),
+        'HOST': envitro.str('DATABASE_HOST', '127.0.0.1'),
+        'PORT': envitro.int('DATABASE_PORT', 3306),
     }
 }
