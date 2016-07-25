@@ -18,6 +18,9 @@ services:
       - SNAP_AUTHENTICATION=false
       - SNAP_AUTHORIZATION=false
       - DATABASE_HOST=mysql
+      - DATABASE_NAME=snapabledb
+      - DATABASE_USER=snapableusr
+      - DATABASE_PASSWORD=snapable12345
       - REDIS_HOST=redis
       - ETCD_HOST=192.168.50.11
     entrypoint: /wait-for-it.sh mysql:3306 -- /entrypoint.sh
@@ -33,6 +36,9 @@ services:
       - DJANGO_DEBUG=true
       - CLOUDFILES_IMAGES_PREFIX=marc_images_
       - DATABASE_HOST=mysql
+      - DATABASE_NAME=snapabledb
+      - DATABASE_USER=snapableusr
+      - DATABASE_PASSWORD=snapable12345
       - REDIS_HOST=redis
       - ETCD_HOST=192.168.50.11
     entrypoint: /wait-for-it.sh mysql:3306 -- /entrypoint.sh
@@ -46,6 +52,9 @@ services:
       - DJANGO_DEBUG=true
       - CLOUDFILES_IMAGES_PREFIX=marc_images_
       - DATABASE_HOST=mysql
+      - DATABASE_NAME=snapabledb
+      - DATABASE_USER=snapableusr
+      - DATABASE_PASSWORD=snapable12345
       - REDIS_HOST=redis
       - ETCD_HOST=192.168.50.11
 
