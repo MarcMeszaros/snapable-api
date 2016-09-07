@@ -16,6 +16,7 @@ RUN apk add --update \
     nginx \
     nodejs \
     openssl \
+    openssl-dev \
     python \
     python-dev \
     py-pip \

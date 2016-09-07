@@ -10,15 +10,15 @@ start_api () {
 }
 
 start_runserver () {
-  /src/bin/python manage.py runserver 0.0.0.0:8000
+  exec /src/bin/python manage.py runserver 0.0.0.0:8000
 }
 
 start_worker () {
-  /src/bin/celery worker -A worker -l info
+  exec /src/bin/celery worker -A worker -l info
 }
 
 start_beat () {
-  /src/bin/celery beat -A worker -l info
+  exec /src/bin/celery beat -A worker -l info
 }
 
 migrate () {
@@ -27,15 +27,15 @@ migrate () {
 }
 
 test () {
-  /src/bin/python manage.py test
+  exec /src/bin/python manage.py test
 }
 
 django_shell () {
-  /src/bin/python manage.py shell
+  exec /src/bin/python manage.py shell
 }
 
 shell () {
-  /bin/sh
+  exec /bin/sh
 }
 
 help () {

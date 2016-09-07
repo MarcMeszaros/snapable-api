@@ -22,6 +22,7 @@ services:
       - DATABASE_USER=snapableusr
       - DATABASE_PASSWORD=snapable12345
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - ETCD_HOST=192.168.50.11
     entrypoint: /wait-for-it.sh mysql:3306 -- /entrypoint.sh
 
@@ -40,6 +41,7 @@ services:
       - DATABASE_USER=snapableusr
       - DATABASE_PASSWORD=snapable12345
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - ETCD_HOST=192.168.50.11
     entrypoint: /wait-for-it.sh mysql:3306 -- /entrypoint.sh
 
@@ -56,6 +58,7 @@ services:
       - DATABASE_USER=snapableusr
       - DATABASE_PASSWORD=snapable12345
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - ETCD_HOST=192.168.50.11
 
   # third-party
@@ -71,9 +74,3 @@ services:
 
   redis:
     image: redis:3.0-alpine
-
-  flower:
-    image: johncosta/flower
-    command: flower --port=5555 --broker=redis://redis:6379/1
-    ports:
-      - "5555:5555"
