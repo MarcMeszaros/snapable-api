@@ -113,9 +113,9 @@ class Event(models.Model):
         from worker import event
         event.cleanup_photos.delay(self.pk)
 
-    def create_zip(self):
+    def create_zip(self, send_email=True):
         from worker import event
-        event.create_album_zip.delay(self.pk)
+        event.create_album_zip.delay(self.pk, send_email=send_email)
 
     def send_invites(self, message=''):
         from worker import event

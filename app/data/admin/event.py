@@ -69,7 +69,7 @@ class UpcomingEventListFilter(admin.SimpleListFilter):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     inlines = [LocationAdminInline]
-    actions = ['cleanup_photos', 'create_event_photo_zip', 'send_event_invites']
+    actions = ['cleanup_photos', 'create_event_photo_zip', 'create_event_photo_zip_no_email', 'send_event_invites']
     exclude = ['access_count', 'are_photos_watermarked']
     list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'guest_count', 'is_enabled', 'created_at']
     list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
@@ -119,6 +119,11 @@ class EventAdmin(admin.ModelAdmin):
     def create_event_photo_zip(self, request, queryset):
         for event in queryset.iterator():
             event.create_zip()
+        self.message_user(request, 'Successfully scheduled zip archive creation.')
+
+    def create_event_photo_zip_no_email(self, request, queryset):
+        for event in queryset.iterator():
+            event.create_zip(send_email=False)
         self.message_user(request, 'Successfully scheduled zip archive creation.')
 
     def send_event_invites(self, request, queryset):

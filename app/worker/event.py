@@ -33,7 +33,7 @@ def cleanup_photos(event_id):
 
 
 @app.task
-def create_album_zip(event_id):
+def create_album_zip(event_id, send_email=True):
 
     # add lock
     app.backend.client.setex('event:{0}:create_album_zip'.format(event_id), 1, 900) # expire in 15 mins
@@ -109,8 +109,8 @@ def create_album_zip(event_id):
     msg = EmailMultiAlternatives(subject, text_content, from_email, to)
     msg.attach_alternative(html_content, "text/html")
 
-    #if settings.DEBUG == False:
-    msg.send()
+    if send_email:
+        msg.send()
 
     # remove (expire) lock
     app.backend.expire('event:{0}:create_album_zip'.format(event_id), 30)
