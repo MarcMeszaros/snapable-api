@@ -161,7 +161,7 @@ class EventResource(BaseModelResource):
             event_obj = Event.objects.get(pk=kwargs['pk'])
 
             conn = pyrax.connect_to_cloudfiles(public=settings.CLOUDFILES_PUBLIC_NETWORK)
-            cont = conn.get_container(settings.CLOUDFILES_DOWNLOAD_CONTAINER_PREFIX + str(event_obj.pk / settings.CLOUDFILES_EVENTS_PER_CONTAINER))
+            cont = conn.get_container(settings.CLOUDFILES_DOWNLOAD_PREFIX + str(event_obj.pk / settings.CLOUDFILES_EVENTS_PER_CONTAINER))
 
             zip_cdn_url = cont.cdn_uri + "/" + str(event_obj.uuid) + ".zip"
             album_zip = cont.get_object(str(event_obj.uuid) + ".zip")
