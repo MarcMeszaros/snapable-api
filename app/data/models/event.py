@@ -47,6 +47,20 @@ class Event(models.Model):
         return self.photo_set.count()
 
     @property
+    def container_name(self):
+        return '{0}{1}'.format(settings.CLOUDFILES_DOWNLOAD_PREFIX, (self.pk / settings.CLOUDFILES_EVENTS_PER_CONTAINER))
+
+    @property
+    def zip_photo_count(self):
+        cont = rackspace.cloud_files.get_container(self.container_name)
+        obj = cont.get_object('{}.zip'.format(self.uuid))
+        metadata = obj.get_metadata()
+        if 'X_Object_Meta_Photos' in metadata:
+            return int(metadata['X_Object_Meta_Photos'])
+        else:
+            return None
+
+    @property
     def zip_download_url(self):
         cdn_uri = 'http://75e4c45674cfdf4884a0-6f5bbb6cfffb706c990262906f266b0c.r28.cf1.rackcdn.com'
         if 'dev' in settings.CLOUDFILES_DOWNLOAD_PREFIX:

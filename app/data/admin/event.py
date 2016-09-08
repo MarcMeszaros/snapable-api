@@ -71,9 +71,9 @@ class EventAdmin(admin.ModelAdmin):
     inlines = [LocationAdminInline]
     actions = ['cleanup_photos', 'create_event_photo_zip', 'create_event_photo_zip_no_email', 'send_event_invites']
     exclude = ['access_count', 'are_photos_watermarked']
-    list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'guest_count', 'is_enabled', 'created_at']
+    list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'zip_photo_count', 'guest_count', 'is_enabled', 'created_at']
     list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
-    readonly_fields = ['id', 'uuid', 'pin', 'created_at', 'zip_download_url']
+    readonly_fields = ['id', 'uuid', 'pin', 'created_at', 'zip_download_url', 'zip_photo_count']
     search_fields = ['title', 'url']
     raw_id_fields = ['account', 'cover']
     related_lookup_fields = {

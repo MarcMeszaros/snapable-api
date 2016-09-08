@@ -23,6 +23,9 @@ from utils import rackspace
 from utils.loggers import Log
 
 
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
+
 @app.task
 def cleanup_photos(event_id):
     event = Event.objects.get(pk=event_id)
@@ -78,6 +81,12 @@ def create_album_zip(event_id, send_email=True):
     # create and upload the zip file
     zip_path = shutil.make_archive('{0}/{1}'.format(tempfile.tempdir, event.uuid), 'zip', tempdir)
     zip_obj = cont.upload_file(zip_path)
+    # set metadata
+    with zipfile.ZipFile(zip_path) as zip_file:
+        # exclude './' and 'captions.csv' from count
+        file_count = len(zip_file.namelist()) - 2
+        metadata = {'X-Object-Meta-Photos': str(file_count)}
+        zip_obj.set_metadata(metadata, clear=True)
 
     # cleanup
     os.remove(zip_path)
