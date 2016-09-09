@@ -52,12 +52,15 @@ class Event(models.Model):
 
     @property
     def zip_photo_count(self):
-        cont = rackspace.cloud_files.get_container(self.container_name)
-        obj = cont.get_object('{}.zip'.format(self.uuid))
-        metadata = obj.get_metadata()
-        if 'X_Object_Meta_Photos' in metadata:
-            return int(metadata['X_Object_Meta_Photos'])
-        else:
+        try:
+            cont = rackspace.cloud_files.get_container(self.container_name)
+            obj = cont.get_object('{}.zip'.format(self.uuid))
+            metadata = obj.get_metadata()
+            if 'X_Object_Meta_Photos' in metadata:
+                return int(metadata['X_Object_Meta_Photos'])
+            else:
+                return None
+        except:
             return None
 
     @property
