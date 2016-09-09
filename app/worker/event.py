@@ -19,7 +19,7 @@ from uuidfield import UUIDField
 
 # snapable
 from data.models import AccountUser, Event, Guest, Photo
-from utils import rackspace
+from utils import rackspace, redis
 from utils.loggers import Log
 
 
@@ -87,6 +87,7 @@ def create_album_zip(event_id, send_email=True):
         file_count = len(zip_file.namelist()) - 2
         metadata = {'X-Object-Meta-Photos': str(file_count)}
         zip_obj.set_metadata(metadata, clear=True)
+        redis.client.setex('event:{0}:zip_photo_count'.format(event_id), 1800, file_count)
 
     # cleanup
     os.remove(zip_path)

@@ -12,7 +12,7 @@ from PIL import Image
 from uuidfield import UUIDField
 
 # snapable
-from utils import rackspace
+from utils import rackspace, redis
 
 
 @python_2_unicode_compatible
@@ -52,13 +52,20 @@ class Event(models.Model):
 
     @property
     def zip_photo_count(self):
+        redis_key = 'event:{}:zip_photo_count'.format(self.pk)
         try:
+            result = redis.client.get(redis_key)
+            if result:
+                return int(result)
+
             cont = rackspace.cloud_files.get_container(self.container_name)
             obj = cont.get_object('{}.zip'.format(self.uuid))
-            metadata = obj.get_metadata()
-            if 'X_Object_Meta_Photos' in metadata:
-                return int(metadata['X_Object_Meta_Photos'])
+            metadata = obj.get_metadata().get('X_Object_Meta_Photos')
+            if metadata:
+                redis.client.setex(redis_key, 1800, metadata)
+                return int(metadata)
             else:
+                redis.client.setex(redis_key, 1800, '')
                 return None
         except:
             return None
