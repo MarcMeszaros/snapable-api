@@ -71,6 +71,12 @@ class Event(models.Model):
             return None
 
     @property
+    def zip_photo_count_matches(self):
+        if self.zip_photo_count is not None:
+            return self.photo_count == self.zip_photo_count
+        return False
+
+    @property
     def zip_download_url(self):
         cdn_uri = 'http://75e4c45674cfdf4884a0-6f5bbb6cfffb706c990262906f266b0c.r28.cf1.rackcdn.com'
         if 'dev' in settings.CLOUDFILES_DOWNLOAD_PREFIX:

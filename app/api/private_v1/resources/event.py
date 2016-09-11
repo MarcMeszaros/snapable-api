@@ -23,7 +23,9 @@ import settings
 
 from .meta import BaseMeta, BaseModelResource
 from data.models import Event, Location, Photo, User
+from utils import rackspace
 from worker import app, event
+
 
 class EventResource(BaseModelResource):
 
@@ -138,6 +140,15 @@ class EventResource(BaseModelResource):
 
         try:
             event_obj = Event.objects.get(pk=kwargs['pk'])
+            cont = rackspace.cloud_files.get_container(event_obj.container_name)
+            album_zip = cont.get_object('{}.zip'.format(event_obj.uuid))
+
+            response_body = {
+                'zip_url': event_obj.zip_download_url,
+                'created_at': album_zip.last_modified + "Z",
+            }
+
+            return self.create_response(request, response_body)
         except ObjectDoesNotExist:
             return http.HttpNotFound()
         except MultipleObjectsReturned:
@@ -159,15 +170,11 @@ class EventResource(BaseModelResource):
 
         try:
             event_obj = Event.objects.get(pk=kwargs['pk'])
-
-            conn = pyrax.connect_to_cloudfiles(public=settings.CLOUDFILES_PUBLIC_NETWORK)
-            cont = conn.get_container(settings.CLOUDFILES_DOWNLOAD_PREFIX + str(event_obj.pk / settings.CLOUDFILES_EVENTS_PER_CONTAINER))
-
-            zip_cdn_url = cont.cdn_uri + "/" + str(event_obj.uuid) + ".zip"
-            album_zip = cont.get_object(str(event_obj.uuid) + ".zip")
+            cont = rackspace.cloud_files.get_container(event_obj.container_name)
+            album_zip = cont.get_object('{}.zip'.format(event_obj.uuid))
 
             response_body = {
-                'zip_url': zip_cdn_url,
+                'zip_url': event_obj.zip_download_url,
                 'created_at': album_zip.last_modified + "Z",
             }
 

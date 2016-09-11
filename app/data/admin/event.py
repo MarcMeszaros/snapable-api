@@ -66,13 +66,46 @@ class UpcomingEventListFilter(admin.SimpleListFilter):
         return queryset.filter(query)
 
 
+class MatchingZipListFilter(admin.SimpleListFilter):
+    title = 'Matching Zip Photo Count'
+    parameter_name = 'zip'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        return (
+            ('matching', 'Matching'),
+            ('non_matching', 'Non Matching'),
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        if self.value() == 'matching':
+            ids = (x.id for x in queryset if x.zip_photo_count_matches)
+            return queryset.filter(id__in=ids)
+        elif self.value() == 'non_matching':
+            ids = (x.id for x in queryset if not x.zip_photo_count_matches)
+            return queryset.filter(id__in=ids)
+        else:
+            return queryset
+
+
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     inlines = [LocationAdminInline]
     actions = ['cleanup_photos', 'create_event_photo_zip', 'create_event_photo_zip_no_email', 'send_event_invites']
     exclude = ['access_count', 'are_photos_watermarked']
     list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'zip_photo_count', 'guest_count', 'is_enabled', 'created_at']
-    list_filter = [UpcomingEventListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
+    list_filter = [UpcomingEventListFilter, MatchingZipListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
     readonly_fields = ['id', 'uuid', 'pin', 'created_at', 'zip_download_url', 'zip_photo_count']
     search_fields = ['title', 'url']
     raw_id_fields = ['account', 'cover']
