@@ -37,5 +37,10 @@ CELERYBEAT_SCHEDULE = {
         'task': 'worker.passwordnonce.expire',
         'schedule': timedelta(minutes=15),
         #'args': (1440)
-    }
+    },
+    'update-zip-count': {
+        'task': 'worker.event.update_redis_zip_counts',
+        'schedule': timedelta(minutes=60),
+        #'args': (1440)
+    },
 }

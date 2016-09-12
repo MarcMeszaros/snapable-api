@@ -36,6 +36,16 @@ def cleanup_photos(event_id):
 
 
 @app.task
+def update_redis_zip_counts():
+    events = Event.objects.all()
+    for event in events:
+        try:
+            redis.client.setex('event:{0}:zip_photo_count'.format(event.id), 3600, event.zip_photo_count)
+        except:
+            pass
+
+
+@app.task
 def create_album_zip(event_id, send_email=True):
 
     # add lock
