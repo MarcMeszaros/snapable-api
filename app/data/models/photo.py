@@ -14,6 +14,12 @@ from utils import rackspace
 from utils.loggers import Log
 
 
+class PhotoManager(models.Manager):
+
+    def get_queryset(self):
+        return super(PhotoManager, self).get_queryset().filter(is_archived=False)
+
+
 @python_2_unicode_compatible
 class Photo(models.Model):
 
@@ -24,6 +30,7 @@ class Photo(models.Model):
     caption = models.CharField(max_length=255, blank=True, help_text='The photo caption.')
     is_streamable = models.BooleanField(default=True, help_text='If the photo is streamable.')
     created_at = models.DateTimeField(auto_now_add=True, editable=False, help_text='The photo timestamp.')
+    is_archived = models.BooleanField(default=False, help_text='If the photo is archived.')
 
     def __str__(self):
         return u'{0} ({1})'.format(self.caption, self.event.url)
@@ -112,6 +119,10 @@ class Photo(models.Model):
                     return snapimg
 
             except rackspace.pyrax.exceptions.NoSuchObject as e:
+                if size == 'orig':
+                    Log.i('No original photo. Archiving photo: {}'.format(self.id))
+                    self.is_archived = True
+                    self.save()
                 return None
             except rackspace.pyrax.exceptions.NoSuchContainer as e:
                 return None

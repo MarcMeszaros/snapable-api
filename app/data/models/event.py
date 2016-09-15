@@ -44,7 +44,7 @@ class Event(models.Model):
     # return the number of photos related to this event
     @property
     def photo_count(self):
-        return self.photo_set.count()
+        return self.photo_set.filter(is_archived=False).count()
 
     @property
     def container_name(self):

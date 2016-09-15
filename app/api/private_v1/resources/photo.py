@@ -32,7 +32,7 @@ class PhotoResource(api.utils.MultipartResource, BaseModelResource):
     streamable = fields.BooleanField(attribute='is_streamable', default=True)
 
     class Meta(BaseMeta): # set Meta to the public API Meta
-        queryset = Photo.objects.all().order_by('-created_at')
+        queryset = Photo.objects.filter(is_archived=False).order_by('-created_at')
         fields = ['caption', 'is_streamable', 'created_at', 'metrics', 'streamable']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get', 'post', 'put', 'delete', 'patch']

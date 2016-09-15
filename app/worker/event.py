@@ -67,15 +67,17 @@ def create_album_zip(event_id, send_email=True):
 
     # create tempdir and get the photos
     tempdir = tempfile.mkdtemp(prefix='snap_api_event_{0}_'.format(event_id))
-    photos = list(event.photo_set.all().values_list('pk', flat=True))
+    photos = list(event.photo_set.filter(is_archived=False).values_list('pk', flat=True))
 
     # loop through all the photo ids, and save to disk on the worker server
     captions = dict()
     for photo_id in photos:
         try:
             photo = Photo.objects.get(pk=photo_id)
-            photo.get_image().img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
-            captions['{}.jpg'.format(photo.pk)] = photo.caption
+            image = photo.get_image()
+            if image:
+                image.img.save('{0}/{1}.jpg'.format(tempdir, photo.pk))
+                captions['{}.jpg'.format(photo.pk)] = photo.caption
         except AttributeError as e:
             Log.w('Missing attribute on photo object')
 
