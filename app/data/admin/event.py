@@ -102,7 +102,7 @@ class MatchingZipListFilter(admin.SimpleListFilter):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     inlines = [LocationAdminInline]
-    actions = ['cleanup_photos', 'create_event_photo_zip', 'create_event_photo_zip_no_email', 'send_event_invites']
+    actions = ['cleanup_photos', 'create_event_photo_zip', 'create_event_photo_zip_no_email', 'send_event_invites', 'send_goodbye_email']
     exclude = ['access_count', 'are_photos_watermarked']
     list_display = ['id', 'title', 'url', 'start_at', 'end_at', 'is_public', 'pin', 'photo_count', 'zip_photo_count', 'guest_count', 'is_enabled', 'created_at']
     list_filter = [UpcomingEventListFilter, MatchingZipListFilter, 'is_public', 'is_enabled', 'start_at', 'end_at']
@@ -158,6 +158,11 @@ class EventAdmin(admin.ModelAdmin):
         for event in queryset.iterator():
             event.create_zip(send_email=False)
         self.message_user(request, 'Successfully scheduled zip archive creation.')
+
+    def send_goodbye_email(self, request, queryset):
+        for event in queryset.iterator():
+            event.goodbye_email(send_email=True)
+        self.message_user(request, 'Goodbye email sent.')
 
     def send_event_invites(self, request, queryset):
         for event in queryset.iterator():

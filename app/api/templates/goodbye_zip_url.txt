@@ -1,0 +1,14 @@
+Hi,
+
+Your album is now ready for download.
+
+Copy/paste this url into your browser's location bar: {{zip_url}}
+
+
+Note: This download link will no longer work after October 15, 2016. Please make
+sure to download and save a copy before then.
+
+For more information please visit our shutdown details page http://goodbye.snapable.com
+
+Automatically yours,
+The Snapable Team.

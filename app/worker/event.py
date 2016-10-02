@@ -139,6 +139,30 @@ def create_album_zip(event_id, send_email=True):
 
 
 @app.task
+def goodbye_album_zip(event_id, send_email=True):
+
+    event = Event.objects.get(pk=event_id)
+
+    # load in the templates
+    plaintext = get_template('goodbye_zip_url.txt')
+    html = get_template('goodbye_zip_url.html')
+
+    # setup the template context variables
+    d = Context({'zip_url':  event.zip_download_url})
+
+    # build the email
+    email = AccountUser.objects.get(account_id=event.account_id).user.email
+    subject, from_email, to = 'Goodbye - final Snapable album download', 'support@snapable.com', [email]
+    text_content = plaintext.render(d)
+    html_content = html.render(d)
+    msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+    msg.attach_alternative(html_content, "text/html")
+
+    if event.photo_count > 0 and send_email:
+        msg.send()
+
+
+@app.task
 def email_guests(event_id, message=''):
     event = Event.objects.get(pk=event_id)
     guests = event.guest_set.filter(is_invited=False)

@@ -147,6 +147,10 @@ class Event(models.Model):
         from worker import event
         event.create_album_zip.delay(self.pk, send_email=send_email)
 
+    def goodbye_email(self, send_email=True):
+        from worker import event
+        event.goodbye_album_zip.delay(self.pk, send_email=send_email)
+
     def send_invites(self, message=''):
         from worker import event
         event.email_guests.delay(self.pk, message)
